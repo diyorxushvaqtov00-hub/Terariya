@@ -154,7 +154,11 @@ func _start_attack() -> void:
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		var total_damage := attack_damage + bonus_attack_damage
-		if inventory.count("copper_sword") > 0:
+		if inventory.count("gold_sword") > 0:
+			total_damage += 55
+		elif inventory.count("silver_sword") > 0:
+			total_damage += 40
+		elif inventory.count("copper_sword") > 0:
 			total_damage += 25
 		elif inventory.count("stone_sword") > 0:
 			total_damage += 15
