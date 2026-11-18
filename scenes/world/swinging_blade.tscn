@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/swinging_blade.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="BladeArea"]
+size = Vector2(20, 76)
+
+[node name="SwingingBlade" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 40)
+shape = SubResource("BladeArea")
+
+[node name="BladeVisual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-4, 0, 4, 0, 8, 72, 0, 82, -8, 72)
+color = Color(0.76, 0.82, 0.9, 1)
