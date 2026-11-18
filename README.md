@@ -12,6 +12,7 @@ Implemented in source:
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
+- Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
 - Step-based water simulation that moves water downward into open cells and spreads it sideways over supported ground; renewable lake sources feed downward flow, and a global water-tile cap prevents unbounded flooding.
@@ -34,6 +35,7 @@ Implemented in source:
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
+- Add night-specific enemy behavior, lighting effects and a configurable day-length setting.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
