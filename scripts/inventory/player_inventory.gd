@@ -68,7 +68,10 @@ const RECIPES: Dictionary = {
 	"spider_summon": {"ingredients": {"spider_fang": 6, "silver_ore": 20, "gold_ore": 8}, "output": "spider_summon", "amount": 1},
 	"magma_heart": {"ingredients": {"magma_core": 8, "gold_ore": 30, "magma_rock": 20}, "output": "magma_heart", "amount": 1},
 	"obsidian_sword": {"ingredients": {"magma_core": 12, "gold_ore": 18, "wooden_planks": 8}, "output": "obsidian_sword", "amount": 1},
-	"obsidian_armor": {"ingredients": {"magma_core": 24, "gold_ore": 24, "wooden_planks": 12}, "output": "obsidian_armor", "amount": 1}
+	"obsidian_armor": {"ingredients": {"magma_core": 24, "gold_ore": 24, "wooden_planks": 12}, "output": "obsidian_armor", "amount": 1},
+	"guardian_totem": {"ingredients": {"glow_mushroom": 12, "mushroom_soil": 18, "silver_ore": 15}, "output": "guardian_totem", "amount": 1},
+	"mushroom_blade": {"ingredients": {"glow_mushroom": 18, "magma_core": 4, "wooden_planks": 10}, "output": "mushroom_blade", "amount": 1},
+	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1}
 }
 
 func _ready() -> void:
@@ -93,7 +96,7 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
 		return false
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor"] and count("anvil") <= 0:
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
@@ -137,7 +140,7 @@ func equip_armor(armor_id: String) -> bool:
 		equipped_armor = ""
 		changed.emit(items.duplicate())
 		return true
-	if count(armor_id) <= 0 or armor_id not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor"]:
+	if count(armor_id) <= 0 or armor_id not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor"]:
 		return false
 	equipped_armor = armor_id
 	changed.emit(items.duplicate())
@@ -153,11 +156,13 @@ func get_armor_defense() -> int:
 			return 20 + get_armor_upgrade_level("gold_armor")
 		"obsidian_armor":
 			return 28 + get_armor_upgrade_level("obsidian_armor")
+		"fungal_armor":
+			return 22 + get_armor_upgrade_level("fungal_armor")
 		_:
 			return 0
 
 func get_best_weapon_id() -> String:
-	for weapon_id in ["obsidian_sword", "queens_fang", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
+	for weapon_id in ["mushroom_blade", "obsidian_sword", "queens_fang", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
 		if count(weapon_id) > 0:
 			return weapon_id
 	return ""
@@ -193,6 +198,9 @@ func upgrade_best_weapon() -> bool:
 		"obsidian_sword":
 			material = "magma_core"
 			amount = 2 + level
+		"mushroom_blade":
+			material = "glow_mushroom"
+			amount = 3 + level
 	if not remove_item(material, amount):
 		return false
 	weapon_upgrade_levels[weapon_id] = level + 1
@@ -217,6 +225,9 @@ func upgrade_equipped_armor() -> bool:
 		"obsidian_armor":
 			material = "magma_core"
 			amount = 3 + level
+		"fungal_armor":
+			material = "glow_mushroom"
+			amount = 4 + level
 	if not remove_item(material, amount):
 		return false
 	armor_upgrade_levels[equipped_armor] = level + 1
@@ -256,9 +267,9 @@ func restore(snapshot: Dictionary) -> bool:
 	var restored_armor := str(snapshot.get("equipped_armor", ""))
 	if not restored_armor.is_empty() and restored.get(restored_armor, 0) <= 0:
 		restored_armor = ""
-	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor"]:
+	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor"]:
 		return false
-	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword"])
+	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword", "mushroom_blade"])
 	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor"])
 	items = restored
 	tool_durability = restored_durability
