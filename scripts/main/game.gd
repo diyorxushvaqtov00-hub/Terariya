@@ -868,7 +868,7 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("magma_core", 0)), int(items.get("magma_rock", 0)),
 		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0)),
 		int(items.get("mushroom_blade", 0)), int(items.get("fungal_armor", 0)), int(items.get("guardian_totem", 0)),
-		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0))
+		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0)), int(items.get("voidbreaker", 0))
 	]
 
 func _refresh_craft_buttons() -> void:
