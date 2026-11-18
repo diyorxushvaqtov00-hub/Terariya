@@ -6,6 +6,8 @@ signal changed(items: Dictionary)
 var items: Dictionary = {}
 var tool_durability: Dictionary = {}
 var equipped_armor: String = ""
+var weapon_upgrade_levels: Dictionary = {}
+var armor_upgrade_levels: Dictionary = {}
 
 const RECIPES: Dictionary = {
 	"wooden_planks": {
@@ -61,7 +63,8 @@ const RECIPES: Dictionary = {
 	"silver_sword": {"ingredients": {"silver_ore": 12, "wooden_planks": 4}, "output": "silver_sword", "amount": 1},
 	"gold_sword": {"ingredients": {"gold_ore": 10, "wooden_planks": 5}, "output": "gold_sword", "amount": 1},
 	"silver_armor": {"ingredients": {"silver_ore": 28, "wooden_planks": 8}, "output": "silver_armor", "amount": 1},
-	"gold_armor": {"ingredients": {"gold_ore": 24, "wooden_planks": 10}, "output": "gold_armor", "amount": 1}
+	"gold_armor": {"ingredients": {"gold_ore": 24, "wooden_planks": 10}, "output": "gold_armor", "amount": 1},
+	"anvil": {"ingredients": {"stone": 20, "ore": 10, "wooden_planks": 8}, "output": "anvil", "amount": 1}
 }
 
 func _ready() -> void:
@@ -85,6 +88,8 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
+		return false
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
@@ -145,11 +150,69 @@ func get_armor_defense() -> int:
 		_:
 			return 0
 
+func get_best_weapon_id() -> String:
+	for weapon_id in ["gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
+		if count(weapon_id) > 0:
+			return weapon_id
+	return ""
+
+func get_weapon_upgrade_level(weapon_id: String) -> int:
+	return int(weapon_upgrade_levels.get(weapon_id, 0))
+
+func get_armor_upgrade_level(armor_id: String) -> int:
+	return int(armor_upgrade_levels.get(armor_id, 0))
+
+func upgrade_best_weapon() -> bool:
+	var weapon_id := get_best_weapon_id()
+	if weapon_id.is_empty() or count("anvil") <= 0:
+		return false
+	var level := get_weapon_upgrade_level(weapon_id)
+	if level >= 10:
+		return false
+	var material := "stone"
+	var amount := 4 + level * 2
+	match weapon_id:
+		"copper_sword":
+			material = "ore"
+			amount = 2 + level
+		"silver_sword":
+			material = "silver_ore"
+			amount = 2 + level
+		"gold_sword":
+			material = "gold_ore"
+			amount = 2 + level
+	if not remove_item(material, amount):
+		return false
+	weapon_upgrade_levels[weapon_id] = level + 1
+	changed.emit(items.duplicate())
+	return true
+
+func upgrade_equipped_armor() -> bool:
+	if equipped_armor.is_empty() or count("anvil") <= 0:
+		return false
+	var level := get_armor_upgrade_level(equipped_armor)
+	if level >= 10:
+		return false
+	var material := "wooden_planks"
+	var amount := 4 + level * 2
+	match equipped_armor:
+		"silver_armor":
+			material = "silver_ore"
+			amount = 3 + level
+		"gold_armor":
+			material = "gold_ore"
+			amount = 3 + level
+	if not remove_item(material, amount):
+		return false
+	armor_upgrade_levels[equipped_armor] = level + 1
+	changed.emit(items.duplicate())
+	return true
+
 func serialize() -> Dictionary:
 	var snapshot: Dictionary = {}
 	for item_id in items:
 		snapshot[str(item_id)] = maxi(int(items[item_id]), 0)
-	return {"items": snapshot, "tool_durability": tool_durability.duplicate(true), "equipped_armor": equipped_armor}
+	return {"items": snapshot, "tool_durability": tool_durability.duplicate(true), "equipped_armor": equipped_armor, "weapon_upgrade_levels": weapon_upgrade_levels.duplicate(true), "armor_upgrade_levels": armor_upgrade_levels.duplicate(true)}
 
 func restore(snapshot: Dictionary) -> bool:
 	var source: Variant = snapshot.get("items", snapshot)
@@ -180,8 +243,25 @@ func restore(snapshot: Dictionary) -> bool:
 		restored_armor = ""
 	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor"]:
 		return false
+	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword"])
+	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor"])
 	items = restored
 	tool_durability = restored_durability
 	equipped_armor = restored_armor
+	weapon_upgrade_levels = restored_weapon_upgrades
+	armor_upgrade_levels = restored_armor_upgrades
 	changed.emit(items.duplicate())
 	return true
+
+func _validated_upgrade_levels(raw: Variant, allowed_ids: Array) -> Dictionary:
+	var result: Dictionary = {}
+	if not raw is Dictionary:
+		return result
+	for item_id in raw:
+		var level_value: Variant = raw[item_id]
+		if str(item_id) not in allowed_ids or not level_value is int:
+			continue
+		var level := clampi(int(level_value), 0, 10)
+		if level > 0:
+			result[str(item_id)] = level
+	return result
