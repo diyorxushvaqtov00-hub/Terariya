@@ -378,6 +378,32 @@ func _run() -> void:
 	metal_inventory.queue_free()
 	restored_metal_inventory.queue_free()
 
+	var forge_inventory := PlayerInventory.new()
+	root.add_child(forge_inventory)
+	await process_frame
+	forge_inventory.add_item("stone", 40)
+	forge_inventory.add_item("ore", 20)
+	forge_inventory.add_item("wooden_planks", 20)
+	assert(forge_inventory.craft("anvil"), "Anvil recipe crafts")
+	forge_inventory.add_item("gold_ore", 50)
+	assert(forge_inventory.craft("gold_sword"), "Gold sword can be crafted after anvil")
+	assert(forge_inventory.craft("gold_armor"), "Gold armor can be crafted after anvil")
+	assert(forge_inventory.equip_armor("gold_armor"), "Gold armor equips for forge test")
+	assert(forge_inventory.upgrade_best_weapon(), "Anvil upgrades best owned weapon")
+	assert(forge_inventory.get_weapon_upgrade_level("gold_sword") == 1, "Weapon upgrade level increments")
+	assert(forge_inventory.upgrade_equipped_armor(), "Anvil upgrades equipped armor")
+	assert(forge_inventory.get_armor_upgrade_level("gold_armor") == 1, "Armor upgrade level increments")
+	assert(forge_inventory.get_armor_defense() == 21, "Armor upgrade adds one defense")
+	var forge_snapshot := forge_inventory.serialize()
+	var restored_forge := PlayerInventory.new()
+	root.add_child(restored_forge)
+	await process_frame
+	assert(restored_forge.restore(forge_snapshot), "Forge upgrades restore from save")
+	assert(restored_forge.get_weapon_upgrade_level("gold_sword") == 1, "Weapon upgrade persists")
+	assert(restored_forge.get_armor_upgrade_level("gold_armor") == 1, "Armor upgrade persists")
+	forge_inventory.queue_free()
+	restored_forge.queue_free()
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
