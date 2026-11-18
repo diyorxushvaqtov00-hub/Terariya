@@ -14,6 +14,7 @@ const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_que
 const MAGMA_GOLEM_SCENE: PackedScene = preload("res://scenes/enemies/magma_golem_boss.tscn")
 const MUSHROOM_GUARDIAN_SCENE: PackedScene = preload("res://scenes/enemies/mushroom_guardian_boss.tscn")
 const DUNGEON_WARDEN_SCENE: PackedScene = preload("res://scenes/enemies/dungeon_warden_boss.tscn")
+const VOID_GUARDIAN_SCENE: PackedScene = preload("res://scenes/enemies/void_guardian_boss.tscn")
 const MERCHANT_SCENE: PackedScene = preload("res://scenes/npcs/merchant.tscn")
 const GUIDE_SCENE: PackedScene = preload("res://scenes/npcs/guide.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
@@ -52,6 +53,7 @@ var _active_spider_queen: SpiderQueenBoss
 var _active_magma_golem: MagmaGolemBoss
 var _active_mushroom_guardian: MushroomGuardianBoss
 var _active_dungeon_warden: DungeonWardenBoss
+var _active_void_guardian: VoidGuardianBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -333,7 +335,7 @@ func _build_boss_ui() -> void:
 	hud.add_child(_boss_health_bar)
 
 func _summon_spider_queen() -> void:
-	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden):
+	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
 		return
 	if not player.inventory.remove_item("spider_summon", 1):
 		return
@@ -465,6 +467,53 @@ func _on_dungeon_warden_defeated() -> void:
 	player.inventory.add_item("healing_potion", 8)
 	player.add_experience(1800)
 	_active_dungeon_warden = null
+
+func _summon_void_guardian() -> void:
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+		return
+	var arena_position := world.get_nearest_secret_cache_position(player.global_position)
+	if player.global_position.distance_to(arena_position) > WorldGenerator.TILE_SIZE * 10.0:
+		if is_instance_valid(_dungeon_status_label):
+			_dungeon_status_label.text = "THE VOID GUARDIAN CAN ONLY BE SUMMONED INSIDE A SECRET VAULT."
+		return
+	if not player.inventory.remove_item("void_guardian_sigil", 1):
+		if is_instance_valid(_dungeon_status_label):
+			_dungeon_status_label.text = "CRAFT A VOID GUARDIAN SIGIL FIRST."
+		return
+	_active_void_guardian = VOID_GUARDIAN_SCENE.instantiate() as VoidGuardianBoss
+	if _active_void_guardian == null:
+		player.inventory.add_item("void_guardian_sigil", 1)
+		return
+	_active_void_guardian.name = "VoidGuardianBoss"
+	_active_void_guardian.health_changed.connect(_on_boss_health_changed)
+	_active_void_guardian.defeated.connect(_on_void_guardian_defeated)
+	_active_void_guardian.phase_changed.connect(_on_void_guardian_phase_changed)
+	add_child(_active_void_guardian)
+	_active_void_guardian.global_position = arena_position + Vector2(0.0, -WorldGenerator.TILE_SIZE)
+	_boss_health_bar.max_value = _active_void_guardian.max_health
+	_boss_health_bar.value = _active_void_guardian.health
+	_boss_health_bar.visible = true
+	_boss_status_label.text = "BOSS: VOID GUARDIAN — PHASE 1"
+	_boss_status_label.visible = true
+	if is_instance_valid(_dungeon_status_label):
+		_dungeon_status_label.text = "THE VOID GUARDIAN HAS AWAKENED!"
+	_on_inventory_changed(player.inventory.items)
+
+func _on_void_guardian_phase_changed(phase: int) -> void:
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "BOSS: VOID GUARDIAN — PHASE %d" % phase
+
+func _on_void_guardian_defeated() -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.visible = false
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "VOID GUARDIAN DEFEATED!"
+	player.inventory.add_item("void_shard", 3)
+	player.inventory.add_item("dungeon_relic", 2)
+	player.inventory.add_item("healing_potion", 5)
+	player.add_experience(1600)
+	_active_void_guardian = null
+	_on_inventory_changed(player.inventory.items)
 
 func _summon_mushroom_guardian() -> void:
 	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden):
@@ -665,6 +714,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "dungeon_key", "6 SILVER + 3 GOLD + 2 FANGS  →  3 DUNGEON KEYS")
 	_add_recipe_button(layout, "ancient_key", "1 RELIC + 8 GOLD + 4 FANGS  →  2 ANCIENT KEYS")
 	_add_recipe_button(layout, "dungeon_warden_sigil", "1 RELIC + 20 GOLD + 10 SILVER + 6 FANGS  →  WARDEN SIGIL")
+	_add_recipe_button(layout, "void_guardian_sigil", "1 RELIC + 12 GOLD + 6 CORES + 6 FANGS  →  VOID SIGIL")
 	_add_recipe_button(layout, "voidbreaker", "2 RELICS + 16 GOLD + 8 CORES + 12 FANGS  →  VOIDBREAKER")
 
 	var guide_title := Label.new()
@@ -724,6 +774,10 @@ func _build_inventory_ui() -> void:
 	warden_button.text = "SUMMON DUNGEON WARDEN"
 	warden_button.pressed.connect(_summon_dungeon_warden)
 	layout.add_child(warden_button)
+	var void_guardian_button := Button.new()
+	void_guardian_button.text = "SUMMON VOID GUARDIAN (SECRET VAULT ONLY)"
+	void_guardian_button.pressed.connect(_summon_void_guardian)
+	layout.add_child(void_guardian_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
@@ -868,7 +922,7 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("magma_core", 0)), int(items.get("magma_rock", 0)),
 		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0)),
 		int(items.get("mushroom_blade", 0)), int(items.get("fungal_armor", 0)), int(items.get("guardian_totem", 0)),
-		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0)), int(items.get("voidbreaker", 0))
+		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0)), int(items.get("void_guardian_sigil", 0)), int(items.get("void_shard", 0)), int(items.get("voidbreaker", 0))
 	]
 
 func _refresh_craft_buttons() -> void:
