@@ -443,7 +443,7 @@ func _summon_dungeon_warden() -> void:
 	_active_dungeon_warden.defeated.connect(_on_dungeon_warden_defeated)
 	_active_dungeon_warden.phase_changed.connect(_on_dungeon_warden_phase_changed)
 	add_child(_active_dungeon_warden)
-	_active_dungeon_warden.global_position = player.global_position + Vector2(440.0 * player.get_facing(), 0.0)
+	_active_dungeon_warden.global_position = world.get_nearest_dungeon_arena_position(player.global_position)
 	_boss_health_bar.max_value = _active_dungeon_warden.max_health
 	_boss_health_bar.value = _active_dungeon_warden.health
 	_boss_health_bar.visible = true
