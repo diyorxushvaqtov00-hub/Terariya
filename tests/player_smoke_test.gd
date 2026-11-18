@@ -34,7 +34,8 @@ func _run() -> void:
 	var spike_scene := load("res://scenes/world/spike_trap.tscn") as PackedScene
 	var blade_scene := load("res://scenes/world/swinging_blade.tscn") as PackedScene
 	var queen_scene := load("res://scenes/enemies/spider_queen_boss.tscn") as PackedScene
-	assert(spike_scene != null and blade_scene != null and queen_scene != null, "Dungeon hazard and Spider Queen scenes load")
+	var spider_minion_scene := load("res://scenes/enemies/cave_spider.tscn") as PackedScene
+	assert(spike_scene != null and blade_scene != null and queen_scene != null and spider_minion_scene != null, "Dungeon hazard, Spider Queen and spider minion scenes load")
 	assert(world.get_dungeon_spike_positions().size() == 6, "Each dungeon has two spike traps")
 	assert(world.get_dungeon_blade_positions().size() == 3, "Each dungeon has one swinging blade")
 	var queen := queen_scene.instantiate() as SpiderQueenBoss
