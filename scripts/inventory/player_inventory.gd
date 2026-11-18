@@ -93,6 +93,30 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	changed.emit(items.duplicate())
 	return true
 
+func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
+	if item_id.is_empty() or amount <= 0 or price_per_item <= 0:
+		return false
+	var total_price := amount * price_per_item
+	if total_price > 999999 or count("coins") < total_price:
+		return false
+	if not remove_item("coins", total_price):
+		return false
+	add_item(item_id, amount)
+	return true
+
+func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
+	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
+		return false
+	if count(item_id) < amount:
+		return false
+	var total_price := amount * price_per_item
+	if total_price > 999999:
+		return false
+	if not remove_item(item_id, amount):
+		return false
+	add_item("coins", total_price)
+	return true
+
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
 		return false
