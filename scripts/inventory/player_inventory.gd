@@ -259,7 +259,7 @@ func restore(snapshot: Dictionary) -> bool:
 	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor"]:
 		return false
 	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword"])
-	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor"])
+	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor"])
 	items = restored
 	tool_durability = restored_durability
 	equipped_armor = restored_armor
