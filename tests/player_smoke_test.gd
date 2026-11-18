@@ -209,6 +209,7 @@ func _run() -> void:
 	assert(world.mine_cell(second_tree_cell), "Axe can harvest a tree trunk")
 	assert(player.inventory.get_tool_durability("wooden_axe") == 34, "Harvesting wood consumes one axe durability")
 	assert(player.inventory.count("wood") == wood_before + 2, "Axe doubles wood yield")
+	assert(player.inventory.equip_armor("wooden_armor"), "Wooden armor can be equipped again before saving")
 	var equipment_snapshot := player.inventory.serialize()
 	player.inventory.equip_armor("")
 	assert(player.inventory.restore(equipment_snapshot), "Equipped armor restores from save data")
@@ -269,7 +270,7 @@ func _run() -> void:
 	root.add_child(dummy)
 	await process_frame
 	player._on_attack_area_body_entered(dummy)
-	assert(dummy.health == 35, "Crafted copper sword increases melee damage to fifty")
+	assert(dummy.health == 50, "Crafted copper sword increases melee damage to fifty")
 	player._on_attack_area_body_entered(dummy)
 	player._on_attack_area_body_entered(dummy)
 	player._on_attack_area_body_entered(dummy)
