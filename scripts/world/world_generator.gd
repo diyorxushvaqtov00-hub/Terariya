@@ -240,19 +240,24 @@ func _generate_caves() -> void:
 
 
 func _generate_lakes() -> void:
-	# Fixed centers and seeded widths make shallow pools reproducible.
+	# Fixed centers and seeded widths create reproducible, guaranteed shallow basins.
 	for center_x in [28, 83, 145]:
 		var lake_width := 5 + int(absf(_noise.get_noise_1d(float(center_x) + 271.0)) * 4.0)
-		var start_x: int = maxi(center_x - lake_width / 2, 1)
-		var end_x: int = mini(center_x + lake_width / 2, WORLD_WIDTH - 2)
-		var highest_surface := WORLD_HEIGHT
+		var half_width := int(lake_width / 2)
+		var start_x: int = maxi(center_x - half_width, 1)
+		var end_x: int = mini(center_x + half_width, WORLD_WIDTH - 2)
+		var waterline := surface_heights[center_x]
 		for x in range(start_x, end_x + 1):
-			highest_surface = mini(highest_surface, surface_heights[x])
-		var waterline := highest_surface + 2
-		for x in range(start_x, end_x + 1):
-			for y in range(waterline, surface_heights[x]):
-				if tiles[x][y] == AIR:
+			var ground_y: int = surface_heights[x]
+			if ground_y <= waterline:
+				# Cut a level basin through higher ground so the water surface stays flat.
+				for y in range(ground_y, waterline + 1):
 					tiles[x][y] = WATER
+			else:
+				# Fill the lower part of the natural valley up to the same waterline.
+				for y in range(waterline, ground_y):
+					if tiles[x][y] == AIR:
+						tiles[x][y] = WATER
 
 func _has_water_above(tile_x: int, ground_y: int) -> bool:
 	for y in range(ground_y - 1, -1, -1):
