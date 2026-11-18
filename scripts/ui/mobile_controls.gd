@@ -17,7 +17,7 @@ var _place_touch_id: int = -1
 var _cycle_touch_id: int = -1
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process_input(true)
 	queue_redraw()
 
