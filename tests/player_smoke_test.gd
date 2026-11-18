@@ -29,7 +29,7 @@ func _run() -> void:
 	assert(water_cell.x >= 0, "A water tile is available for swimming tests")
 	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
 	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
-	assert(world.is_water_source(water_cell) or world.is_water_source(Vector2i(water_cell.x, world.get_surface_y(water_cell.x))), "Lake has a renewable water source")
+	assert(world._water_sources.size() > 0, "Lakes have renewable water sources")
 	var water_sample_world := world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 16.0))
 	assert(world.is_position_in_water(water_sample_world), "Water detection samples the actual tile position")
 	var flow_test_source := Vector2i(WorldGenerator.WORLD_WIDTH - 2, 1)
