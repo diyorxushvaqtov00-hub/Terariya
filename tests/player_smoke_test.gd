@@ -46,6 +46,23 @@ func _run() -> void:
 	assert(queen.current_phase == 2 and queen.attack_damage == 34, "Spider Queen enters enraged second phase at half health")
 	queen.queue_free()
 
+	var web_scene := load("res://scenes/enemies/spider_web_projectile.tscn") as PackedScene
+	assert(web_scene != null, "Spider Queen web projectile scene loads")
+	var web_projectile := web_scene.instantiate() as SpiderWebProjectile
+	assert(web_projectile != null and web_projectile.impact_damage == 12, "Web projectile has impact damage")
+	web_projectile.queue_free()
+	var legendary_inventory := PlayerInventory.new()
+	root.add_child(legendary_inventory)
+	await process_frame
+	legendary_inventory.add_item("gold_sword", 1)
+	legendary_inventory.add_item("queens_fang", 1)
+	assert(legendary_inventory.get_best_weapon_id() == "queens_fang", "Queen Fang outranks gold sword")
+	legendary_inventory.add_item("anvil", 1)
+	legendary_inventory.add_item("spider_fang", 5)
+	assert(legendary_inventory.upgrade_best_weapon(), "Queen Fang can be upgraded at anvil")
+	assert(legendary_inventory.get_weapon_upgrade_level("queens_fang") == 1, "Queen Fang upgrade level is stored")
+	legendary_inventory.queue_free()
+
 	var silver_nodes := 0
 	var gold_nodes := 0
 	for x in range(WorldGenerator.WORLD_WIDTH):
