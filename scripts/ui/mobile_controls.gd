@@ -14,6 +14,7 @@ var _run_touch_id: int = -1
 var _attack_touch_id: int = -1
 var _mine_touch_id: int = -1
 var _place_touch_id: int = -1
+var _cycle_touch_id: int = -1
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -39,6 +40,7 @@ func _draw() -> void:
 	_draw_button(run_center, button_radius * 0.82, "RUN")
 	_draw_button(_button_centers().mine, button_radius * 0.82, "MINE")
 	_draw_button(_button_centers().place, button_radius * 0.82, "PLACE")
+	_draw_button(_button_centers().cycle, button_radius * 0.82, "BLOCK")
 
 func _draw_button(center: Vector2, radius: float, label: String) -> void:
 	draw_circle(center, radius, Color(0.08, 0.13, 0.2, 0.52))
@@ -56,7 +58,10 @@ func _input(event: InputEvent) -> void:
 func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 	if pressed:
 		var centers := _button_centers()
-		if pos.distance_to(centers.mine) <= button_radius * 1.35:
+		if pos.distance_to(centers.cycle) <= button_radius * 1.35:
+			_cycle_touch_id = index
+			_press_action("cycle_block")
+		elif pos.distance_to(centers.mine) <= button_radius * 1.35:
 			_mine_touch_id = index
 			_press_action("mine")
 		elif pos.distance_to(centers.place) <= button_radius * 1.35:
@@ -76,7 +81,10 @@ func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 			_joystick_origin = pos
 			_update_joystick(pos)
 	else:
-		if index == _mine_touch_id:
+		if index == _cycle_touch_id:
+			_cycle_touch_id = -1
+			_release_action("cycle_block")
+		elif index == _mine_touch_id:
 			_mine_touch_id = -1
 			_release_action("mine")
 		elif index == _place_touch_id:
@@ -131,7 +139,8 @@ func _button_centers() -> Dictionary:
 		"attack": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 1.35),
 		"run": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15),
 		"mine": Vector2(size.x - edge_margin - button_radius * 3.0, edge_margin + button_radius),
-		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius)
+		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
+		"cycle": Vector2(size.x - edge_margin - button_radius * 2.0, edge_margin + button_radius)
 	}
 
 func _exit_tree() -> void:
