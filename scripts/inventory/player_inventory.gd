@@ -23,3 +23,24 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	items[item_id] = count(item_id) - amount
 	changed.emit(items.duplicate())
 	return true
+
+func serialize() -> Dictionary:
+	var snapshot: Dictionary = {}
+	for item_id in items:
+		snapshot[str(item_id)] = maxi(int(items[item_id]), 0)
+	return snapshot
+
+func restore(snapshot: Dictionary) -> bool:
+	var restored: Dictionary = {}
+	for item_id in snapshot:
+		var amount_value: Variant = snapshot[item_id]
+		if not amount_value is int and not amount_value is float:
+			return false
+		var amount := int(amount_value)
+		if amount < 0 or amount > 999999:
+			return false
+		if not str(item_id).is_empty():
+			restored[str(item_id)] = amount
+	items = restored
+	changed.emit(items.duplicate())
+	return true
