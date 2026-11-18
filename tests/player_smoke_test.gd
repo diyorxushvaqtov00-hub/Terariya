@@ -31,6 +31,21 @@ func _run() -> void:
 	dungeon_skeleton.queue_free()
 	cave_spider.queue_free()
 
+	var spike_scene := load("res://scenes/world/spike_trap.tscn") as PackedScene
+	var blade_scene := load("res://scenes/world/swinging_blade.tscn") as PackedScene
+	var queen_scene := load("res://scenes/enemies/spider_queen_boss.tscn") as PackedScene
+	assert(spike_scene != null and blade_scene != null and queen_scene != null, "Dungeon hazard and Spider Queen scenes load")
+	assert(world.get_dungeon_spike_positions().size() == 6, "Each dungeon has two spike traps")
+	assert(world.get_dungeon_blade_positions().size() == 3, "Each dungeon has one swinging blade")
+	var queen := queen_scene.instantiate() as SpiderQueenBoss
+	assert(queen != null, "Spider Queen boss instantiates")
+	root.add_child(queen)
+	await process_frame
+	assert(queen.max_health == 1400 and queen.attack_damage == 24, "Spider Queen starts with boss stats")
+	queen.take_damage(700)
+	assert(queen.current_phase == 2 and queen.attack_damage == 34, "Spider Queen enters enraged second phase at half health")
+	queen.queue_free()
+
 	var silver_nodes := 0
 	var gold_nodes := 0
 	for x in range(WorldGenerator.WORLD_WIDTH):
