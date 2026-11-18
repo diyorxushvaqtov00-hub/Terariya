@@ -151,7 +151,7 @@ func _edit_target(placing: bool) -> void:
 	var facing := 1
 	if controller != null:
 		facing = controller.get_facing()
-	var target := player.global_position + Vector2(facing * TILE_SIZE * 1.35, -TILE_SIZE * 0.8)
+	var target := player.global_position + Vector2(facing * TILE_SIZE * 1.35, TILE_SIZE * 0.5)
 	var local_target := to_local(target)
 	var cell := Vector2i(floori(local_target.x / TILE_SIZE), floori(local_target.y / TILE_SIZE))
 	if placing:
