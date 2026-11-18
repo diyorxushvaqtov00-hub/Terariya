@@ -7,6 +7,7 @@ const DAY_LENGTH_SECONDS: float = 480.0
 const NIGHT_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/slime_enemy.tscn")
 const ZOMBIE_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/zombie_enemy.tscn")
 const SKELETON_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/skeleton_archer.tscn")
+const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
 const NIGHT_SPAWN_INTERVAL: float = 18.0
 
@@ -23,6 +24,9 @@ var _underwater_overlay: ColorRect
 var _oxygen_label: Label
 var _inventory_summary: Label
 var _craft_buttons: Dictionary = {}
+var _boss_health_bar: ProgressBar
+var _boss_status_label: Label
+var _active_boss: AncientEyeBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -51,6 +55,7 @@ func _ready() -> void:
 	_on_player_oxygen_changed(player.oxygen_seconds, player.max_oxygen_seconds)
 	_on_inventory_changed(player.inventory.items)
 	_build_inventory_ui()
+	_build_boss_ui()
 
 func _process(delta: float) -> void:
 	_update_day_night(delta)
@@ -190,6 +195,63 @@ func _update_night_spawns(delta: float) -> void:
 	enemy.global_position = world.get_spawn_position(candidate_x)
 	enemy.set_night_mode(true)
 
+func _build_boss_ui() -> void:
+	var hud := $HUD as CanvasLayer
+	_boss_status_label = Label.new()
+	_boss_status_label.name = "BossStatusLabel"
+	_boss_status_label.position = Vector2(430, 54)
+	_boss_status_label.size = Vector2(420, 28)
+	_boss_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_status_label.text = ""
+	hud.add_child(_boss_status_label)
+	_boss_health_bar = ProgressBar.new()
+	_boss_health_bar.name = "BossHealthBar"
+	_boss_health_bar.position = Vector2(430, 84)
+	_boss_health_bar.size = Vector2(420, 22)
+	_boss_health_bar.show_percentage = false
+	_boss_health_bar.visible = false
+	hud.add_child(_boss_health_bar)
+
+func _summon_ancient_eye() -> void:
+	if is_instance_valid(_active_boss):
+		return
+	if not player.inventory.remove_item("eye_summon", 1):
+		return
+	_active_boss = BOSS_SCENE.instantiate() as AncientEyeBoss
+	if _active_boss == null:
+		player.inventory.add_item("eye_summon", 1)
+		return
+	_active_boss.name = "AncientEyeBoss"
+	_active_boss.health_changed.connect(_on_boss_health_changed)
+	_active_boss.defeated.connect(_on_boss_defeated)
+	_active_boss.phase_changed.connect(_on_boss_phase_changed)
+	add_child(_active_boss)
+	_active_boss.global_position = player.global_position + Vector2(360.0 * player.get_facing(), 0.0)
+	_boss_health_bar.max_value = _active_boss.max_health
+	_boss_health_bar.value = _active_boss.health
+	_boss_health_bar.visible = true
+	_boss_status_label.text = "BOSS: ANCIENT EYE — PHASE 1"
+	_boss_status_label.visible = true
+	_on_inventory_changed(player.inventory.items)
+
+func _on_boss_health_changed(current: int, maximum: int) -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.max_value = maximum
+		_boss_health_bar.value = current
+
+func _on_boss_phase_changed(phase: int) -> void:
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "BOSS: ANCIENT EYE — PHASE %d" % phase
+
+func _on_boss_defeated() -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.visible = false
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "ANCIENT EYE DEFEATED!"
+	player.inventory.add_item("ore", 20)
+	player.inventory.add_item("copper_sword", 1)
+	_active_boss = null
+
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
 
@@ -283,6 +345,11 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "torch", "1 WOOD  →  4 TORCHES")
 	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
 	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
+	_add_recipe_button(layout, "eye_summon", "8 ORE + 12 STONE + 5 WOOD  →  EYE SIGIL")
+	var summon_button := Button.new()
+	summon_button.text = "SUMMON ANCIENT EYE BOSS"
+	summon_button.pressed.connect(_summon_ancient_eye)
+	layout.add_child(summon_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.text = "EQUIP WOODEN ARMOR"
 	equip_armor_button.pressed.connect(_equip_wooden_armor)
