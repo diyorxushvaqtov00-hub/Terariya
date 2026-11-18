@@ -64,6 +64,35 @@ func _run() -> void:
 	player.inventory.add_item("wood", 10)
 	assert(player.inventory.craft("workbench"), "A workbench can be crafted from ten wood")
 	assert(player.inventory.count("workbench") == 1, "Crafting adds one workbench")
+	player.inventory.add_item("wooden_planks", 9)
+	player.inventory.add_item("stone", 5)
+	assert(player.inventory.craft("wooden_pickaxe"), "Wooden pickaxe can be crafted")
+	assert(player.inventory.get_tool_durability("wooden_pickaxe") == 40, "Pickaxe starts with forty durability")
+	assert(player.inventory.craft("wooden_axe"), "Wooden axe can be crafted")
+	assert(player.inventory.get_tool_durability("wooden_axe") == 35, "Axe starts with thirty-five durability")
+	var stone_cell := Vector2i(30, world.get_surface_y(30) + 9)
+	assert(world.get_tile(stone_cell) == WorldGenerator.STONE or world.get_tile(stone_cell) == WorldGenerator.ORE, "Underground test cell contains mineable stone or ore")
+	var stone_before := player.inventory.count("stone")
+	assert(world.mine_cell(stone_cell), "Pickaxe can mine underground stone")
+	assert(player.inventory.get_tool_durability("wooden_pickaxe") == 39, "Mining stone consumes one pickaxe durability")
+	assert(player.inventory.count("stone") == stone_before + 2, "Pickaxe increases stone yield")
+	var second_tree_cell := Vector2i(-1, -1)
+	for tree_x2 in range(WorldGenerator.WORLD_WIDTH):
+		for tree_y2 in range(WorldGenerator.WORLD_HEIGHT):
+			if world.get_tile(Vector2i(tree_x2, tree_y2)) == WorldGenerator.WOOD:
+				second_tree_cell = Vector2i(tree_x2, tree_y2)
+				break
+		if second_tree_cell.x >= 0:
+			break
+	assert(second_tree_cell.x >= 0, "Another tree trunk remains for axe test")
+	var wood_before := player.inventory.count("wood")
+	assert(world.mine_cell(second_tree_cell), "Axe can harvest a tree trunk")
+	assert(player.inventory.get_tool_durability("wooden_axe") == 34, "Harvesting wood consumes one axe durability")
+	assert(player.inventory.count("wood") == wood_before + 2, "Axe doubles wood yield")
+	var tool_snapshot := player.inventory.serialize()
+	player.inventory.use_tool("wooden_pickaxe")
+	assert(player.inventory.restore(tool_snapshot), "Tool durability restores from save data")
+	assert(player.inventory.get_tool_durability("wooden_pickaxe") == 39, "Restored pickaxe keeps its remaining durability")
 	var inventory_test_cell := Vector2i(12, world.get_surface_y(12))
 	assert(world.mine_cell(inventory_test_cell), "Mining a block with a player succeeds")
 	assert(player.inventory.count("dirt") == 21, "Mining a grass or dirt block adds a dirt drop")
