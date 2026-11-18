@@ -938,7 +938,9 @@ func _get_water_target_cell() -> Vector2i:
 
 func _equip_best_armor() -> void:
 	var inventory := player.inventory
-	if inventory.count("obsidian_armor") > 0:
+	if inventory.count("void_armor") > 0:
+		inventory.equip_armor("void_armor")
+	elif inventory.count("obsidian_armor") > 0:
 		inventory.equip_armor("obsidian_armor")
 	elif inventory.count("fungal_armor") > 0:
 		inventory.equip_armor("fungal_armor")
