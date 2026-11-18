@@ -6,6 +6,15 @@ class_name MerchantNPC
 
 func _ready() -> void:
 	z_index = 2
+	var name_tag := Label.new()
+	name_tag.name = "NameTag"
+	name_tag.text = display_name
+	name_tag.position = Vector2(-34.0, -82.0)
+	name_tag.size = Vector2(90.0, 22.0)
+	name_tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	name_tag.add_theme_font_size_override("font_size", 14)
+	name_tag.add_theme_color_override("font_color", Color(1.0, 0.88, 0.48))
+	add_child(name_tag)
 	queue_redraw()
 
 func _draw() -> void:
