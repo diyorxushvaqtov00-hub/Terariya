@@ -739,6 +739,7 @@ func _run() -> void:
 	assert(void_sigil_inventory.craft("anvil"), "Void Armor progression can craft an anvil")
 	assert(void_sigil_inventory.craft("void_armor"), "Void Armor crafts from Void Shards and dungeon relics")
 	assert(void_sigil_inventory.equip_armor("void_armor") and void_sigil_inventory.get_armor_defense() == 38, "Void Armor equips with thirty-eight defense")
+	assert(is_equal_approx(void_sigil_inventory.get_armor_damage_multiplier(), 0.85), "Void Armor reduces incoming damage by fifteen percent")
 	assert(void_sigil_inventory.upgrade_equipped_armor(), "Void Armor upgrades using Void Shards")
 	assert(void_sigil_inventory.get_armor_defense() == 39, "Void Armor upgrade adds one defense")
 	var void_armor_save := void_sigil_inventory.serialize()
