@@ -51,3 +51,8 @@ place={
 	"deadzone": 0.2,
 	"events": [Object(InputEventKey,"physical_keycode":69)]
 }
+
+cycle_block={
+	"deadzone": 0.2,
+	"events": [Object(InputEventKey,"physical_keycode":82)]
+}
