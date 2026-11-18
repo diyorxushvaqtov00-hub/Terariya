@@ -17,16 +17,24 @@ signal attack_requested
 @export var fall_damage_threshold: float = 850.0
 @export var fall_damage_scale: float = 0.035
 
+@export_category("Combat")
+@export var attack_damage: int = 25
+@export var attack_cooldown: float = 0.38
+@export var attack_active_time: float = 0.12
+
 var health: int
 var _fall_peak_speed: float = 0.0
 var _was_on_floor: bool = false
 var _facing: int = 1
 var _air_jumps_used: int = 0
+var _can_attack: bool = true
 
 @onready var body_visual: Polygon2D = $BodyVisual
+@onready var attack_area: Area2D = $AttackArea
 
 func _ready() -> void:
 	health = max_health
+	attack_area.body_entered.connect(_on_attack_area_body_entered)
 	health_changed.emit(health, max_health)
 
 func _physics_process(delta: float) -> void:
@@ -58,11 +66,27 @@ func _physics_process(delta: float) -> void:
 			_air_jumps_used += 1
 
 	if Input.is_action_just_pressed("attack"):
-		attack_requested.emit()
+		_start_attack()
 
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
 	move_and_slide()
+
+func _start_attack() -> void:
+	if not _can_attack or health <= 0:
+		return
+	_can_attack = false
+	attack_area.position.x = 24.0 * _facing
+	attack_requested.emit()
+	attack_area.set_deferred("monitoring", true)
+	await get_tree().create_timer(attack_active_time).timeout
+	attack_area.set_deferred("monitoring", false)
+	await get_tree().create_timer(maxf(attack_cooldown - attack_active_time, 0.0)).timeout
+	_can_attack = true
+
+func _on_attack_area_body_entered(body: Node2D) -> void:
+	if body.has_method("take_damage"):
+		body.take_damage(attack_damage)
 
 func unlock_double_jump() -> void:
 	double_jump_unlocked = true
