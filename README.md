@@ -11,7 +11,8 @@ Implemented in source:
 - Grass, dirt, stone and ore tile types.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
-- Desktop Q/E and Android MINE/PLACE controls.
+- Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
+- Selectable dirt and stone placement with a live HUD selection indicator.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - Melee attack area, configurable damage/cooldown and a damageable training dummy.
 - JSON world/player/inventory save-load with validation and automatic save on app pause/close.
@@ -42,12 +43,14 @@ Desktop:
 - Shift: run
 - F: melee attack
 - Q: mine the block in front
-- E: place a dirt block in front
+- E: place the selected block in front
+- R: switch between dirt and stone
 
 Android:
 - Left virtual joystick: move
 - JUMP / RUN / HIT: movement and combat
 - MINE / PLACE: edit terrain in front of the player
+- BLOCK: switch the selected build material
 
 ## Project structure
 
