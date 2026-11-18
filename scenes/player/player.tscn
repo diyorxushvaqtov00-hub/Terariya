@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/inventory/player_inventory.gd" id="2_inventory"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape_player"]
 radius = 10.0
@@ -35,3 +36,6 @@ shape = SubResource("AttackShape")
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
 position_smoothing_speed = 6.0
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("2_inventory")
