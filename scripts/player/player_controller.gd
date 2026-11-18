@@ -56,6 +56,8 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	is_swimming = _is_in_water()
 	_update_oxygen(delta)
+	if _is_dead:
+		return
 	var direction := Input.get_axis("move_left", "move_right")
 	if direction != 0.0:
 		_facing = 1 if direction > 0.0 else -1
