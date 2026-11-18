@@ -14,7 +14,7 @@ Implemented in source:
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt and stone placement with a live HUD selection indicator.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
-- Melee attack area, configurable damage/cooldown and a damageable training dummy.
+- Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - JSON world/player/inventory save-load with validation and automatic save on app pause/close.
 - Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
@@ -25,7 +25,7 @@ Still required:
 - Add block selection, inventory UI and richer progression systems.
 - Add caves, trees, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Implement enemy AI, crafting, block selection and export/install a debug APK.
+- Add more enemy species, boss encounters, crafting and export/install a debug APK.
 
 ## Run
 
