@@ -57,6 +57,17 @@ func _run() -> void:
 	assert(queen.current_phase == 2 and queen.attack_damage == 34, "Spider Queen enters enraged second phase at half health")
 	queen.queue_free()
 
+	var golem_scene := load("res://scenes/enemies/magma_golem_boss.tscn") as PackedScene
+	assert(golem_scene != null, "Magma Golem boss scene loads")
+	var golem := golem_scene.instantiate() as MagmaGolemBoss
+	assert(golem != null, "Magma Golem boss instantiates")
+	root.add_child(golem)
+	await process_frame
+	assert(golem.max_health == 2200 and golem.attack_damage == 30, "Magma Golem starts with its heavy boss stats")
+	golem.take_damage(1100)
+	assert(golem.current_phase == 2 and golem.attack_damage == 42, "Magma Golem enters its enraged second phase")
+	golem.queue_free()
+
 	var web_scene := load("res://scenes/enemies/spider_web_projectile.tscn") as PackedScene
 	assert(web_scene != null, "Spider Queen web projectile scene loads")
 	var web_projectile := web_scene.instantiate() as SpiderWebProjectile
@@ -469,6 +480,35 @@ func _run() -> void:
 	assert(restored_forge.get_armor_upgrade_level("gold_armor") == 1, "Armor upgrade persists")
 	forge_inventory.queue_free()
 	restored_forge.queue_free()
+
+	var obsidian_inventory := PlayerInventory.new()
+	root.add_child(obsidian_inventory)
+	await process_frame
+	obsidian_inventory.add_item("stone", 40)
+	obsidian_inventory.add_item("ore", 20)
+	obsidian_inventory.add_item("wooden_planks", 50)
+	obsidian_inventory.add_item("gold_ore", 80)
+	obsidian_inventory.add_item("magma_core", 60)
+	obsidian_inventory.add_item("magma_rock", 20)
+	assert(obsidian_inventory.craft("anvil"), "Obsidian progression can craft its anvil")
+	assert(obsidian_inventory.craft("magma_heart"), "Magma Heart summon item crafts")
+	assert(obsidian_inventory.craft("obsidian_sword"), "Obsidian sword crafts from magma cores")
+	assert(obsidian_inventory.craft("obsidian_armor"), "Obsidian armor crafts from magma cores")
+	assert(obsidian_inventory.get_best_weapon_id() == "obsidian_sword", "Obsidian sword is the highest weapon tier")
+	assert(obsidian_inventory.equip_armor("obsidian_armor"), "Obsidian armor can be equipped")
+	assert(obsidian_inventory.get_armor_defense() == 28, "Obsidian armor grants twenty-eight defense")
+	assert(obsidian_inventory.upgrade_best_weapon(), "Obsidian sword upgrades with magma cores")
+	assert(obsidian_inventory.upgrade_equipped_armor(), "Obsidian armor upgrades with magma cores")
+	var obsidian_snapshot := obsidian_inventory.serialize()
+	var restored_obsidian := PlayerInventory.new()
+	root.add_child(restored_obsidian)
+	await process_frame
+	assert(restored_obsidian.restore(obsidian_snapshot), "Obsidian gear and upgrades restore from save")
+	assert(restored_obsidian.get_weapon_upgrade_level("obsidian_sword") == 1, "Obsidian weapon upgrade persists")
+	assert(restored_obsidian.get_armor_upgrade_level("obsidian_armor") == 1, "Obsidian armor upgrade persists")
+	assert(restored_obsidian.get_armor_defense() == 29, "Restored obsidian armor retains upgraded defense")
+	obsidian_inventory.queue_free()
+	restored_obsidian.queue_free()
 
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
