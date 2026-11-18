@@ -240,7 +240,9 @@ func take_damage(amount: int) -> void:
 	if amount <= 0 or health <= 0 or _is_dead:
 		return
 	var defense := inventory.get_armor_defense() if is_instance_valid(inventory) else 0
-	var reduced_damage := maxi(amount - defense, 1)
+	var armor_multiplier := inventory.get_armor_damage_multiplier() if is_instance_valid(inventory) else 1.0
+	var mitigated_amount := ceili(float(amount) * armor_multiplier)
+	var reduced_damage := maxi(mitigated_amount - defense, 1)
 	health = maxi(health - reduced_damage, 0)
 	health_changed.emit(health, max_health)
 	if health == 0:
