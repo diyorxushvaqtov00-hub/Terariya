@@ -58,6 +58,16 @@ func _run() -> void:
 	player.unlock_double_jump()
 	assert(player.double_jump_unlocked, "Double jump unlock flag is persistent on player instance")
 
+	var slime_packed := load("res://scenes/enemies/slime_enemy.tscn") as PackedScene
+	assert(slime_packed != null, "Slime enemy scene must load")
+	var slime := slime_packed.instantiate() as SlimeEnemy
+	assert(slime != null, "Slime enemy must instantiate")
+	root.add_child(slime)
+	await process_frame
+	assert(slime.health == slime.max_health, "Slime starts at full health")
+	slime.take_damage(20)
+	assert(slime.health == 40, "Slime receives damage")
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
