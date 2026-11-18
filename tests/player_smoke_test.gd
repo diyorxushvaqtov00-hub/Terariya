@@ -276,6 +276,20 @@ func _run() -> void:
 	assert(zombie.move_speed > 58.0 and zombie.attack_damage > 14, "Zombie becomes stronger at night")
 	zombie.queue_free()
 
+	var skeleton_packed := load("res://scenes/enemies/skeleton_archer.tscn") as PackedScene
+	assert(skeleton_packed != null, "Skeleton archer scene must load")
+	var skeleton := skeleton_packed.instantiate() as SkeletonArcher
+	assert(skeleton != null, "Skeleton archer must instantiate")
+	root.add_child(skeleton)
+	await process_frame
+	assert(skeleton.health == 65, "Skeleton archer starts with sixty-five health")
+	assert(skeleton.ranged_attack_range > skeleton.attack_range, "Skeleton archer has a dedicated ranged attack range")
+	var projectile_count_before := root.get_child_count()
+	skeleton.fire_at(player)
+	assert(root.get_child_count() > projectile_count_before, "Skeleton archer creates a ranged projectile")
+	assert(root.get_child(root.get_child_count() - 1) is EnemyProjectile, "Skeleton archer projectile uses the enemy projectile scene")
+	skeleton.queue_free()
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
