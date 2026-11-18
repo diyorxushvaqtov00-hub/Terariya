@@ -643,7 +643,27 @@ func _serialize_secret_rooms() -> Array:
 	return result
 
 func _restore_secret_rooms(raw_rooms: Variant) -> void:
-	if not raw_rooms is Array:
+	if not raw_rooms is Array or raw_rooms.is_empty():
+		# Migrate worlds saved before secret vaults existed without resetting player edits.
+		for room in _dungeon_secret_rooms:
+			var gate_cells: Array = room["gate_cells"]
+			if gate_cells.is_empty():
+				continue
+			var first_gate: Vector2i = gate_cells[0]
+			for x in range(first_gate.x - 7, first_gate.x):
+				for y in range(first_gate.y - 4, first_gate.y + 3):
+					if _inside_world(Vector2i(x, y)):
+						tiles[x][y] = AIR
+				for floor_y in range(first_gate.y + 3, first_gate.y + 5):
+					var floor_cell := Vector2i(x, floor_y)
+					if _inside_world(floor_cell):
+						tiles[floor_cell.x][floor_cell.y] = STONE
+			for gate_cell in gate_cells:
+				var cell: Vector2i = gate_cell
+				if _inside_world(cell):
+					tiles[cell.x][cell.y] = STONE
+		_rebuild_collision()
+		queue_redraw()
 		return
 	for entry in raw_rooms:
 		if entry is Array and entry.size() == 3:
