@@ -67,6 +67,10 @@ func _run() -> void:
 	assert(slime.health == slime.max_health, "Slime starts at full health")
 	slime.take_damage(20)
 	assert(slime.health == 40, "Slime receives damage")
+	slime.global_position = player.global_position
+	await physics_frame
+	assert(player.health == player.max_health - slime.attack_damage, "Slime attacks the player inside contact range")
+	player.heal(slime.attack_damage)
 
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
