@@ -135,7 +135,7 @@ func is_position_in_water(world_position: Vector2) -> bool:
 	return false
 
 func mine_cell(cell: Vector2i) -> bool:
-	if not _inside_world(cell) or get_tile(cell) == AIR:
+	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER]:
 		return false
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
