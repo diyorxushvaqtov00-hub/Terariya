@@ -19,6 +19,7 @@ Implemented in source:
 - Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench and a stone sword, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned.
+- Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
@@ -26,7 +27,7 @@ Implemented in source:
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add item tooltips, equipment slots, inventory capacity and tool durability; connect crafted tools to mining speed.
+- Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add caves, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
