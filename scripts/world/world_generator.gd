@@ -89,6 +89,10 @@ func _draw() -> void:
 			var rect := Rect2(Vector2(x * TILE_SIZE, y * TILE_SIZE), Vector2(TILE_SIZE, TILE_SIZE))
 			draw_rect(rect, color, true)
 			draw_rect(rect, color.darkened(0.18), false, 1.0)
+			if tile == WATER and (y == 0 or tiles[x][y - 1] != WATER):
+				draw_line(rect.position + Vector2(2.0, 2.0), rect.position + Vector2(TILE_SIZE - 2.0, 2.0), Color(0.58, 0.82, 1.0, 0.9), 2.0)
+			elif tile == WATER:
+				draw_line(rect.position + Vector2(7.0, 5.0), rect.position + Vector2(7.0, TILE_SIZE - 5.0), Color(0.42, 0.70, 1.0, 0.28), 2.0)
 
 func _tile_color(tile: int) -> Color:
 	match tile:
