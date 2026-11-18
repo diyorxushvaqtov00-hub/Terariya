@@ -17,6 +17,7 @@ Implemented in source:
 - Step-based water simulation that moves water downward into open cells and spreads it sideways over supported ground; renewable lake sources feed downward flow, and a global water-tile cap prevents unbounded flooding.
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
+- Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
@@ -28,14 +29,14 @@ Implemented in source:
 - Crafted stone sword adds 15 melee damage while owned.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
-- Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, water detection, water persistence, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
+- Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, renewable water-source persistence, water detection, bucket crafting/collection/pouring, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
-- Add water buckets, pumps, drains, source placement/removal tools, and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
+- Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
 
