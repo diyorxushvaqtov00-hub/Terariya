@@ -29,6 +29,13 @@ func _run() -> void:
 	assert(water_cell.x >= 0, "A water tile is available for swimming tests")
 	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
 	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
+	var flow_test_source := Vector2i(WORLD_WIDTH - 2, 1)
+	var flow_test_destination := flow_test_source + Vector2i(0, 1)
+	world.tiles[flow_test_source.x][flow_test_source.y] = WorldGenerator.WATER
+	assert(world._simulate_water_step() > 0, "Water simulation processes active water")
+	assert(world.get_tile(flow_test_source) == WorldGenerator.AIR, "Falling water leaves its previous tile")
+	assert(world.get_tile(flow_test_destination) == WorldGenerator.WATER, "Water flows down into an empty tile")
+	world.tiles[flow_test_destination.x][flow_test_destination.y] = WorldGenerator.AIR
 	var sand_build_cell := Vector2i(90, world.get_surface_y(90) - 1)
 	assert(world.place_block(sand_build_cell, WorldGenerator.SAND), "Sand blocks can be placed")
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "Placed sand keeps its material")
