@@ -118,6 +118,53 @@ func place_block(cell: Vector2i, block_type: int = DIRT) -> bool:
 	queue_redraw()
 	return true
 
+func get_save_data() -> Dictionary:
+	var saved_columns: Array = []
+	for column in tiles:
+		var saved_column: Array = []
+		for tile in column:
+			saved_column.append(int(tile))
+		saved_columns.append(saved_column)
+	return {
+		"seed": world_seed,
+		"width": WORLD_WIDTH,
+		"height": WORLD_HEIGHT,
+		"tiles": saved_columns
+	}
+
+func load_save_data(data: Dictionary) -> bool:
+	if int(data.get("width", -1)) != WORLD_WIDTH or int(data.get("height", -1)) != WORLD_HEIGHT:
+		return false
+	var saved_columns: Variant = data.get("tiles", null)
+	if not saved_columns is Array or saved_columns.size() != WORLD_WIDTH:
+		return false
+	var restored: Array = []
+	var restored_surfaces := PackedInt32Array()
+	restored_surfaces.resize(WORLD_WIDTH)
+	for x in range(WORLD_WIDTH):
+		var saved_column: Variant = saved_columns[x]
+		if not saved_column is Array or saved_column.size() != WORLD_HEIGHT:
+			return false
+		var column := PackedInt32Array()
+		column.resize(WORLD_HEIGHT)
+		var first_solid := -1
+		for y in range(WORLD_HEIGHT):
+			var tile_value := int(saved_column[y])
+			if tile_value < AIR or tile_value > ORE:
+				return false
+			column[y] = tile_value
+			if first_solid == -1 and tile_value != AIR:
+				first_solid = y
+		restored_surfaces[x] = first_solid if first_solid >= 0 else 0
+		restored.append(column)
+	tiles = restored
+	surface_heights = restored_surfaces
+	world_seed = int(data.get("seed", world_seed))
+	_noise.seed = world_seed
+	_rebuild_collision()
+	queue_redraw()
+	return true
+
 func _inside_world(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < WORLD_WIDTH and cell.y >= 0 and cell.y < WORLD_HEIGHT
 
