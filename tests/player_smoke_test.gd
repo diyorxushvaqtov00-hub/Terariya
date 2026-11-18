@@ -194,6 +194,7 @@ func _run() -> void:
 	await process_frame
 	assert(secret_world_copy.load_save_data(secret_save), "Secret vault state restores from world save")
 	assert(secret_world_copy.get_tile(Vector2i(int(secret_gate_position.x / WorldGenerator.TILE_SIZE), int(secret_gate_position.y / WorldGenerator.TILE_SIZE))) == WorldGenerator.AIR, "Opened secret gate remains open after loading")
+	assert(not secret_world_copy.open_nearby_secret_cache(secret_world_copy.get_secret_cache_position(0), chest_inventory), "Claimed secret cache stays empty after loading")
 	secret_world_copy.queue_free()
 	chest_inventory.queue_free()
 	var water_cell := Vector2i(-1, -1)
