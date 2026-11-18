@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/world.tscn" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
 [ext_resource type="Script" path="res://scripts/main/game.gd" id="3_game"]
 [ext_resource type="Script" path="res://scripts/ui/mobile_controls.gd" id="4_mobile_controls"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/training_dummy.tscn" id="5_dummy"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/slime_enemy.tscn" id="6_slime"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("3_game")
@@ -16,6 +17,9 @@ position = Vector2(320, 480)
 
 [node name="TrainingDummy" parent="." instance=ExtResource("5_dummy")]
 position = Vector2(480, 480)
+
+[node name="SlimeEnemy" parent="." instance=ExtResource("6_slime")]
+position = Vector2(640, 480)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
