@@ -209,7 +209,7 @@ func load_save_data(data: Dictionary) -> bool:
 			if tile_value < AIR or tile_value > WATER:
 				return false
 			column[y] = tile_value
-			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES:
+			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES and tile_value != WATER:
 				first_solid = y
 			if grass_surface == -1 and tile_value == GRASS:
 				grass_surface = y
@@ -282,7 +282,7 @@ func _generate_trees() -> void:
 					tiles[leaf_x][leaf_y] = LEAVES
 
 func _is_solid_tile(tile: int) -> bool:
-	return tile != AIR and tile != LEAVES
+	return tile != AIR and tile != LEAVES and tile != WATER
 
 func _inside_world(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < WORLD_WIDTH and cell.y >= 0 and cell.y < WORLD_HEIGHT
