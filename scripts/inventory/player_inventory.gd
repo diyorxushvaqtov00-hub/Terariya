@@ -74,7 +74,8 @@ const RECIPES: Dictionary = {
 	"dungeon_warden_sigil": {"ingredients": {"dungeon_relic": 1, "gold_ore": 20, "silver_ore": 10, "spider_fang": 6}, "output": "dungeon_warden_sigil", "amount": 1},
 	"ancient_key": {"ingredients": {"dungeon_relic": 1, "gold_ore": 8, "spider_fang": 4}, "output": "ancient_key", "amount": 2},
 	"mushroom_blade": {"ingredients": {"glow_mushroom": 18, "magma_core": 4, "wooden_planks": 10}, "output": "mushroom_blade", "amount": 1},
-	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1}
+	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1},
+	"voidbreaker": {"ingredients": {"dungeon_relic": 2, "gold_ore": 16, "magma_core": 8, "spider_fang": 12}, "output": "voidbreaker", "amount": 1}
 }
 
 func _ready() -> void:
@@ -123,7 +124,7 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
 		return false
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor"] and count("anvil") <= 0:
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
@@ -189,7 +190,7 @@ func get_armor_defense() -> int:
 			return 0
 
 func get_best_weapon_id() -> String:
-	for weapon_id in ["obsidian_sword", "queens_fang", "mushroom_blade", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
+	for weapon_id in ["voidbreaker", "obsidian_sword", "queens_fang", "mushroom_blade", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
 		if count(weapon_id) > 0:
 			return weapon_id
 	return ""
@@ -228,6 +229,9 @@ func upgrade_best_weapon() -> bool:
 		"mushroom_blade":
 			material = "glow_mushroom"
 			amount = 3 + level
+		"voidbreaker":
+			material = "dungeon_relic"
+			amount = 1 + level
 	if not remove_item(material, amount):
 		return false
 	weapon_upgrade_levels[weapon_id] = level + 1
@@ -296,7 +300,7 @@ func restore(snapshot: Dictionary) -> bool:
 		restored_armor = ""
 	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor"]:
 		return false
-	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword", "mushroom_blade"])
+	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword", "mushroom_blade", "voidbreaker"])
 	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor"])
 	items = restored
 	tool_durability = restored_durability
