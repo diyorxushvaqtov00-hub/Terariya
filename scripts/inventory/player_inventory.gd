@@ -152,7 +152,7 @@ func get_armor_defense() -> int:
 			return 0
 
 func get_best_weapon_id() -> String:
-	for weapon_id in ["gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
+	for weapon_id in ["queens_fang", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
 		if count(weapon_id) > 0:
 			return weapon_id
 	return ""
@@ -181,6 +181,9 @@ func upgrade_best_weapon() -> bool:
 			amount = 2 + level
 		"gold_sword":
 			material = "gold_ore"
+			amount = 2 + level
+		"queens_fang":
+			material = "spider_fang"
 			amount = 2 + level
 	if not remove_item(material, amount):
 		return false
