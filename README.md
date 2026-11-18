@@ -16,7 +16,9 @@ Implemented in source:
 - Selectable dirt and stone placement with a live HUD selection indicator.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
+- Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench and a stone sword, with ingredient checks and exact resource consumption.
+- Crafted stone sword adds 15 melee damage while owned.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
@@ -24,7 +26,7 @@ Implemented in source:
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Build a full inventory/crafting UI, item tooltips, equipment slots and connect crafted weapons/tools to combat and mining stats.
+- Add item tooltips, equipment slots, inventory capacity and tool durability; connect crafted tools to mining speed.
 - Add caves, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting and export/install a debug APK.
