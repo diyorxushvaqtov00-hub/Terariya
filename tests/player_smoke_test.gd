@@ -17,6 +17,25 @@ func _run() -> void:
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
 	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
 	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
+	assert(world.get_dungeon_chest_count() == 3, "World generates one dungeon chest in each biome")
+	var first_chest: Dictionary = world._dungeon_chests[0]
+	var first_chest_cell: Vector2i = first_chest["cell"]
+	var chest_position := world.to_global(Vector2((first_chest_cell.x + 0.5) * WorldGenerator.TILE_SIZE, (first_chest_cell.y + 0.5) * WorldGenerator.TILE_SIZE))
+	var chest_inventory := PlayerInventory.new()
+	root.add_child(chest_inventory)
+	await process_frame
+	assert(world.open_nearby_chest(chest_position, chest_inventory), "Nearby dungeon chest opens")
+	assert(chest_inventory.count("ore") == WorldGenerator.CHEST_REWARD_ORE, "Dungeon chest grants ore")
+	assert(chest_inventory.count("torch") == 3 and chest_inventory.count("healing_potion") == 2, "Dungeon chest grants torches and healing potions")
+	assert(not world.open_nearby_chest(chest_position, chest_inventory), "Opened chest cannot be looted twice")
+	var chest_save := world.get_save_data()
+	var chest_world_copy := world_packed.instantiate() as WorldGenerator
+	root.add_child(chest_world_copy)
+	await process_frame
+	assert(chest_world_copy.load_save_data(chest_save), "World save restores dungeon chest states")
+	assert(chest_world_copy._dungeon_chests.size() == 3 and bool(chest_world_copy._dungeon_chests[0].get("opened", false)), "Opened chest state persists")
+	chest_world_copy.queue_free()
+	chest_inventory.queue_free()
 	var water_cell := Vector2i(-1, -1)
 	var water_count := 0
 	for water_x in range(WorldGenerator.WORLD_WIDTH):
@@ -240,6 +259,11 @@ func _run() -> void:
 	assert(player.health == 85, "Healing restores health")
 	player.heal(1000)
 	assert(player.health == player.max_health, "Healing is capped at max health")
+	player.take_damage(50)
+	player.inventory.add_item("healing_potion", 1)
+	assert(player.inventory.remove_item("healing_potion", 1), "Healing potion can be consumed")
+	player.heal(35)
+	assert(player.health == 85, "Healing potion restores thirty-five health points")
 	player.unlock_double_jump()
 	assert(player.double_jump_unlocked, "Double jump unlock flag is persistent on player instance")
 
