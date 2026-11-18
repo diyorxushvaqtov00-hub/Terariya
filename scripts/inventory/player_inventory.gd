@@ -57,7 +57,11 @@ const RECIPES: Dictionary = {
 		"ingredients": {"ore": 8, "stone": 12, "wood": 5},
 		"output": "eye_summon",
 		"amount": 1
-	}
+	},
+	"silver_sword": {"ingredients": {"silver_ore": 12, "wooden_planks": 4}, "output": "silver_sword", "amount": 1},
+	"gold_sword": {"ingredients": {"gold_ore": 10, "wooden_planks": 5}, "output": "gold_sword", "amount": 1},
+	"silver_armor": {"ingredients": {"silver_ore": 28, "wooden_planks": 8}, "output": "silver_armor", "amount": 1},
+	"gold_armor": {"ingredients": {"gold_ore": 24, "wooden_planks": 10}, "output": "gold_armor", "amount": 1}
 }
 
 func _ready() -> void:
@@ -124,7 +128,7 @@ func equip_armor(armor_id: String) -> bool:
 		equipped_armor = ""
 		changed.emit(items.duplicate())
 		return true
-	if count(armor_id) <= 0 or armor_id != "wooden_armor":
+	if count(armor_id) <= 0 or armor_id not in ["wooden_armor", "silver_armor", "gold_armor"]:
 		return false
 	equipped_armor = armor_id
 	changed.emit(items.duplicate())
@@ -134,6 +138,10 @@ func get_armor_defense() -> int:
 	match equipped_armor:
 		"wooden_armor":
 			return 6
+		"silver_armor":
+			return 12
+		"gold_armor":
+			return 20
 		_:
 			return 0
 
@@ -170,7 +178,7 @@ func restore(snapshot: Dictionary) -> bool:
 	var restored_armor := str(snapshot.get("equipped_armor", ""))
 	if not restored_armor.is_empty() and restored.get(restored_armor, 0) <= 0:
 		restored_armor = ""
-	if not restored_armor.is_empty() and restored_armor != "wooden_armor":
+	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor"]:
 		return false
 	items = restored
 	tool_durability = restored_durability
