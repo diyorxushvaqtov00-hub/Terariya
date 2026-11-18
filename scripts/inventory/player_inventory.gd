@@ -76,6 +76,7 @@ const RECIPES: Dictionary = {
 	"mushroom_blade": {"ingredients": {"glow_mushroom": 18, "magma_core": 4, "wooden_planks": 10}, "output": "mushroom_blade", "amount": 1},
 	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1},
 	"void_guardian_sigil": {"ingredients": {"dungeon_relic": 1, "gold_ore": 12, "magma_core": 6, "spider_fang": 6}, "output": "void_guardian_sigil", "amount": 1},
+	"void_armor": {"ingredients": {"void_shard": 8, "dungeon_relic": 3, "gold_ore": 20}, "output": "void_armor", "amount": 1},
 	"voidbreaker": {"ingredients": {"dungeon_relic": 2, "gold_ore": 16, "magma_core": 8, "spider_fang": 12}, "output": "voidbreaker", "amount": 1}
 }
 
@@ -125,7 +126,7 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
 		return false
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker"] and count("anvil") <= 0:
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
@@ -169,7 +170,7 @@ func equip_armor(armor_id: String) -> bool:
 		equipped_armor = ""
 		changed.emit(items.duplicate())
 		return true
-	if count(armor_id) <= 0 or armor_id not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor"]:
+	if count(armor_id) <= 0 or armor_id not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor", "void_armor"]:
 		return false
 	equipped_armor = armor_id
 	changed.emit(items.duplicate())
@@ -187,6 +188,8 @@ func get_armor_defense() -> int:
 			return 28 + get_armor_upgrade_level("obsidian_armor")
 		"fungal_armor":
 			return 22 + get_armor_upgrade_level("fungal_armor")
+		"void_armor":
+			return 38 + get_armor_upgrade_level("void_armor")
 		_:
 			return 0
 
@@ -260,6 +263,9 @@ func upgrade_equipped_armor() -> bool:
 		"fungal_armor":
 			material = "glow_mushroom"
 			amount = 4 + level
+		"void_armor":
+			material = "void_shard"
+			amount = 2 + level
 	if not remove_item(material, amount):
 		return false
 	armor_upgrade_levels[equipped_armor] = level + 1
