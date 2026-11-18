@@ -392,6 +392,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "gold_sword", "10 GOLD + 5 PLANKS  →  GOLD SWORD")
 	_add_recipe_button(layout, "silver_armor", "28 SILVER + 8 PLANKS  →  SILVER ARMOR")
 	_add_recipe_button(layout, "gold_armor", "24 GOLD + 10 PLANKS  →  GOLD ARMOR")
+	_add_recipe_button(layout, "anvil", "20 STONE + 10 ORE + 8 PLANKS  →  ANVIL")
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
@@ -400,6 +401,14 @@ func _build_inventory_ui() -> void:
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
 	layout.add_child(equip_armor_button)
+	var upgrade_weapon_button := Button.new()
+	upgrade_weapon_button.text = "UPGRADE BEST WEAPON AT ANVIL"
+	upgrade_weapon_button.pressed.connect(_upgrade_best_weapon)
+	layout.add_child(upgrade_weapon_button)
+	var upgrade_armor_button := Button.new()
+	upgrade_armor_button.text = "UPGRADE EQUIPPED ARMOR AT ANVIL"
+	upgrade_armor_button.pressed.connect(_upgrade_equipped_armor)
+	layout.add_child(upgrade_armor_button)
 	var remove_armor_button := Button.new()
 	remove_armor_button.text = "UNEQUIP ARMOR"
 	remove_armor_button.pressed.connect(_unequip_armor)
@@ -439,7 +448,8 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "DIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d (%s)\nSWORDS C%d / S%d / G%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)" % [
+	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d (%s)\nSWORDS C%d / S%d / G%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)" % [
+		int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
@@ -470,6 +480,14 @@ func _equip_best_armor() -> void:
 	else:
 		inventory.equip_armor("wooden_armor")
 	_on_inventory_changed(inventory.items)
+
+func _upgrade_best_weapon() -> void:
+	if player.inventory.upgrade_best_weapon():
+		_on_inventory_changed(player.inventory.items)
+
+func _upgrade_equipped_armor() -> void:
+	if player.inventory.upgrade_equipped_armor():
+		_on_inventory_changed(player.inventory.items)
 
 func _unequip_armor() -> void:
 	player.inventory.equip_armor("")
