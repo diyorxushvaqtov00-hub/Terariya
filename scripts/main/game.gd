@@ -26,6 +26,8 @@ var _inventory_summary: Label
 var _craft_buttons: Dictionary = {}
 var _boss_health_bar: ProgressBar
 var _boss_status_label: Label
+var _xp_bar: ProgressBar
+var _xp_label: Label
 var _active_boss: AncientEyeBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
@@ -44,6 +46,8 @@ func _ready() -> void:
 	player.oxygen_changed.connect(_on_player_oxygen_changed)
 	player.underwater_changed.connect(_on_underwater_changed)
 	player.inventory.changed.connect(_on_inventory_changed)
+	player.progression_changed.connect(_on_progression_changed)
+	_connect_enemy_rewards(slime, 25)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
@@ -56,6 +60,8 @@ func _ready() -> void:
 	_on_inventory_changed(player.inventory.items)
 	_build_inventory_ui()
 	_build_boss_ui()
+	_build_progression_ui()
+	_on_progression_changed(player.level, player.experience, player.experience_to_next_level)
 
 func _process(delta: float) -> void:
 	_update_day_night(delta)
@@ -79,7 +85,9 @@ func save_game() -> bool:
 			"y": player.global_position.y,
 			"health": player.health,
 			"oxygen_seconds": player.oxygen_seconds,
-			"double_jump_unlocked": player.double_jump_unlocked
+			"double_jump_unlocked": player.double_jump_unlocked,
+			"level": player.level,
+			"experience": player.experience
 		},
 		"time_of_day": _world_time_seconds,
 		"inventory": player.inventory.serialize(),
@@ -123,6 +131,7 @@ func _load_game() -> bool:
 		player.oxygen_seconds = clampf(float(player_data.get("oxygen_seconds", player.max_oxygen_seconds)), 0.0, player.max_oxygen_seconds)
 		player.oxygen_changed.emit(player.oxygen_seconds, player.max_oxygen_seconds)
 		player.double_jump_unlocked = bool(player_data.get("double_jump_unlocked", false))
+		player.restore_progress(int(player_data.get("level", 1)), int(player_data.get("experience", 0)))
 		player.health_changed.emit(player.health, player.max_health)
 	return true
 
@@ -194,6 +203,38 @@ func _update_night_spawns(delta: float) -> void:
 	add_child(enemy)
 	enemy.global_position = world.get_spawn_position(candidate_x)
 	enemy.set_night_mode(true)
+	var reward := 35 if enemy_kind == "Skeleton" else (40 if enemy_kind == "Zombie" else 25)
+	_connect_enemy_rewards(enemy, reward)
+
+func _build_progression_ui() -> void:
+	var hud := $HUD as CanvasLayer
+	_xp_label = Label.new()
+	_xp_label.name = "ProgressionLabel"
+	_xp_label.position = Vector2(24, 108)
+	_xp_label.size = Vector2(260, 24)
+	_xp_label.text = "LEVEL 1 — XP 0 / 100"
+	hud.add_child(_xp_label)
+	_xp_bar = ProgressBar.new()
+	_xp_bar.name = "ExperienceBar"
+	_xp_bar.position = Vector2(24, 132)
+	_xp_bar.size = Vector2(250, 14)
+	_xp_bar.show_percentage = false
+	hud.add_child(_xp_bar)
+
+func _on_progression_changed(current_level: int, current_xp: int, required_xp: int) -> void:
+	if not is_instance_valid(_xp_label) or not is_instance_valid(_xp_bar):
+		return
+	_xp_label.text = "LEVEL %d — XP %d / %d" % [current_level, current_xp, required_xp]
+	_xp_bar.max_value = maxi(required_xp, 1)
+	_xp_bar.value = current_xp
+	_xp_bar.visible = current_level < 50
+
+func _connect_enemy_rewards(enemy: SlimeEnemy, reward: int) -> void:
+	if enemy != null:
+		enemy.defeated.connect(_grant_enemy_experience.bind(reward))
+
+func _grant_enemy_experience(reward: int) -> void:
+	player.add_experience(reward)
 
 func _build_boss_ui() -> void:
 	var hud := $HUD as CanvasLayer
@@ -250,6 +291,7 @@ func _on_boss_defeated() -> void:
 		_boss_status_label.text = "ANCIENT EYE DEFEATED!"
 	player.inventory.add_item("ore", 20)
 	player.inventory.add_item("copper_sword", 1)
+	player.add_experience(500)
 	_active_boss = null
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
