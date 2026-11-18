@@ -13,6 +13,7 @@ const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.t
 const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_queen_boss.tscn")
 const MAGMA_GOLEM_SCENE: PackedScene = preload("res://scenes/enemies/magma_golem_boss.tscn")
 const MUSHROOM_GUARDIAN_SCENE: PackedScene = preload("res://scenes/enemies/mushroom_guardian_boss.tscn")
+const MERCHANT_SCENE: PackedScene = preload("res://scenes/npcs/merchant.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
 const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
@@ -30,6 +31,9 @@ var _oxygen_bar: ProgressBar
 var _underwater_overlay: ColorRect
 var _oxygen_label: Label
 var _inventory_summary: Label
+var _merchant_shop_panel: PanelContainer
+var _merchant_status: Label
+var _merchant: Node2D
 var _craft_buttons: Dictionary = {}
 var _boss_health_bar: ProgressBar
 var _boss_status_label: Label
@@ -60,6 +64,7 @@ func _ready() -> void:
 	_connect_enemy_rewards(slime, 25)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
+	_spawn_merchant()
 	_spawn_dungeon_hazards()
 	_spawn_dungeon_guards()
 	_on_player_health_changed(player.health, player.max_health)
@@ -279,6 +284,7 @@ func _connect_dungeon_reward(enemy: SlimeEnemy, xp_reward: int, item_id: String,
 func _grant_dungeon_reward(xp_reward: int, item_id: String, item_amount: int) -> void:
 	player.add_experience(xp_reward)
 	player.inventory.add_item(item_id, item_amount)
+	player.inventory.add_item("coins", maxi(1, int(floori(float(xp_reward) / 12.0))))
 
 func _connect_enemy_rewards(enemy: SlimeEnemy, reward: int) -> void:
 	if enemy != null:
@@ -286,6 +292,7 @@ func _connect_enemy_rewards(enemy: SlimeEnemy, reward: int) -> void:
 
 func _grant_enemy_experience(reward: int) -> void:
 	player.add_experience(reward)
+	player.inventory.add_item("coins", maxi(1, int(floori(float(reward) / 10.0))))
 
 func _build_boss_ui() -> void:
 	var hud := $HUD as CanvasLayer
@@ -573,6 +580,31 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "guardian_totem", "12 GLOW MUSHROOM + 18 SOIL + 15 SILVER  →  GUARDIAN TOTEM")
 	_add_recipe_button(layout, "mushroom_blade", "18 GLOW MUSHROOM + 4 CORES + 10 PLANKS  →  MUSHROOM BLADE")
 	_add_recipe_button(layout, "fungal_armor", "24 GLOW MUSHROOM + 20 SOIL + 18 SILVER  →  FUNGAL ARMOR")
+
+	var merchant_button := Button.new()
+	merchant_button.text = "OPEN MERCHANT SHOP"
+	merchant_button.pressed.connect(_open_merchant_shop)
+	layout.add_child(merchant_button)
+	_merchant_shop_panel = PanelContainer.new()
+	_merchant_shop_panel.name = "MerchantShopPanel"
+	_merchant_shop_panel.visible = false
+	layout.add_child(_merchant_shop_panel)
+	var shop_layout := VBoxContainer.new()
+	_merchant_shop_panel.add_child(shop_layout)
+	var shop_heading := Label.new()
+	shop_heading.text = "TRAVELLING MERCHANT"
+	shop_heading.add_theme_font_size_override("font_size", 18)
+	shop_layout.add_child(shop_heading)
+	_merchant_status = Label.new()
+	_merchant_status.text = "Come close to the merchant to trade."
+	_merchant_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	shop_layout.add_child(_merchant_status)
+	_add_shop_button(shop_layout, "BUY HEALING POTION — 8 COINS", _buy_from_merchant.bind("healing_potion", 1, 8))
+	_add_shop_button(shop_layout, "BUY 4 TORCHES — 6 COINS", _buy_from_merchant.bind("torch", 4, 6))
+	_add_shop_button(shop_layout, "BUY SILVER ORE — 12 COINS", _buy_from_merchant.bind("silver_ore", 1, 12))
+	_add_shop_button(shop_layout, "BUY SPIDER FANG — 25 COINS", _buy_from_merchant.bind("spider_fang", 1, 25))
+	_add_shop_button(shop_layout, "SELL 10 WOOD — 5 COINS", _sell_to_merchant.bind("wood", 10, 5))
+	_add_shop_button(shop_layout, "SELL 5 COPPER ORE — 8 COINS", _sell_to_merchant.bind("ore", 5, 8))
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
@@ -631,6 +663,50 @@ func _build_inventory_ui() -> void:
 	layout.add_child(close_button)
 	_refresh_craft_buttons()
 
+func _spawn_merchant() -> void:
+	_merchant = MERCHANT_SCENE.instantiate() as Node2D
+	if _merchant == null:
+		return
+	_merchant.name = "TravellingMerchant"
+	add_child(_merchant)
+	_merchant.global_position = world.get_spawn_position(16)
+
+func _add_shop_button(parent: VBoxContainer, caption: String, callback: Callable) -> void:
+	var shop_button := Button.new()
+	shop_button.text = caption
+	shop_button.custom_minimum_size = Vector2(290, 42)
+	shop_button.pressed.connect(callback)
+	parent.add_child(shop_button)
+
+func _open_merchant_shop() -> void:
+	if not is_instance_valid(_merchant) or player.global_position.distance_to(_merchant.global_position) > 260.0:
+		if is_instance_valid(_merchant_status):
+			_merchant_status.text = "MERCHANT TOO FAR — find the trader near the forest spawn."
+		_merchant_shop_panel.visible = true
+		return
+	_merchant_status.text = "Coins: %d | Trade nearby with the merchant." % player.inventory.count("coins")
+	_merchant_shop_panel.visible = not _merchant_shop_panel.visible
+
+func _buy_from_merchant(item_id: String, amount: int, price: int) -> void:
+	if not is_instance_valid(_merchant) or player.global_position.distance_to(_merchant.global_position) > 260.0:
+		_merchant_status.text = "Move closer to the merchant."
+		return
+	if player.inventory.buy_item(item_id, amount, price):
+		_merchant_status.text = "Purchased %d %s. Coins left: %d" % [amount, item_id.replace("_", " "), player.inventory.count("coins")]
+	else:
+		_merchant_status.text = "Not enough coins."
+	_on_inventory_changed(player.inventory.items)
+
+func _sell_to_merchant(item_id: String, amount: int, price: int) -> void:
+	if not is_instance_valid(_merchant) or player.global_position.distance_to(_merchant.global_position) > 260.0:
+		_merchant_status.text = "Move closer to the merchant."
+		return
+	if player.inventory.sell_item(item_id, amount, price):
+		_merchant_status.text = "Sold %d %s. Coins: %d" % [amount, item_id.replace("_", " "), player.inventory.count("coins")]
+	else:
+		_merchant_status.text = "You do not have enough goods."
+	_on_inventory_changed(player.inventory.items)
+
 func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: String) -> void:
 	var craft_button := Button.new()
 	craft_button.text = caption
@@ -640,8 +716,8 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d" % [
-		int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d" % [
+		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
