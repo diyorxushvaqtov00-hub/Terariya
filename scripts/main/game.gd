@@ -370,6 +370,14 @@ func _build_inventory_ui() -> void:
 	pour_button.text = "POUR BUCKET (EMPTY TILE IN FRONT)"
 	pour_button.pressed.connect(_pour_water_bucket)
 	layout.add_child(pour_button)
+	var chest_button := Button.new()
+	chest_button.text = "OPEN NEARBY DUNGEON CHEST"
+	chest_button.pressed.connect(_open_nearby_chest)
+	layout.add_child(chest_button)
+	var potion_button := Button.new()
+	potion_button.text = "USE HEALING POTION (+35 HP)"
+	potion_button.pressed.connect(_use_healing_potion)
+	layout.add_child(potion_button)
 	var close_button := Button.new()
 	close_button.text = "CLOSE"
 	close_button.pressed.connect(_toggle_inventory)
@@ -385,11 +393,11 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nTORCHES: %d    EYE SIGIL: %d\nWOOD ARMOR: %d (%s)\nCOPPER SWORD: %d\nEMPTY BUCKET: %d    WATER BUCKET: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
+	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nTORCHES: %d    EYE SIGIL: %d\nHEALING POTIONS: %d\nWOOD ARMOR: %d (%s)\nCOPPER SWORD: %d\nEMPTY BUCKET: %d    WATER BUCKET: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("wood", 0)),
 		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
-		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("wooden_armor", 0)), "EQUIPPED" if player.inventory.equipped_armor == "wooden_armor" else "NOT EQUIPPED",
+		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)), int(items.get("wooden_armor", 0)), "EQUIPPED" if player.inventory.equipped_armor == "wooden_armor" else "NOT EQUIPPED",
 		int(items.get("copper_sword", 0)), int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("stone_sword", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
@@ -424,6 +432,15 @@ func _fill_water_bucket() -> void:
 
 func _pour_water_bucket() -> void:
 	if world.pour_bucket(_get_water_target_cell(), player.inventory, player.global_position):
+		_on_inventory_changed(player.inventory.items)
+
+func _open_nearby_chest() -> void:
+	if world.open_nearby_chest(player.global_position, player.inventory):
+		_on_inventory_changed(player.inventory.items)
+
+func _use_healing_potion() -> void:
+	if player.inventory.remove_item("healing_potion", 1):
+		player.heal(35)
 		_on_inventory_changed(player.inventory.items)
 
 func _craft_recipe(recipe_id: String) -> void:
