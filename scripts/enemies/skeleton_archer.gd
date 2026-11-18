@@ -52,10 +52,9 @@ func fire_at(target: PlayerController) -> void:
 	var projectile := PROJECTILE_SCENE.instantiate() as EnemyProjectile
 	if projectile == null:
 		return
-	var scene_root := get_tree().current_scene
+	var scene_root: Node = get_tree().current_scene
 	if scene_root == null:
-		projectile.queue_free()
-		return
+		scene_root = get_tree().root
 	scene_root.add_child(projectile)
 	projectile.global_position = global_position + Vector2(visual.scale.x * 12.0, -15.0)
 	projectile.configure(target.global_position - projectile.global_position, ranged_damage)
