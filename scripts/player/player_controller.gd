@@ -3,6 +3,8 @@ class_name PlayerController
 
 signal health_changed(current: int, maximum: int)
 signal attack_requested
+signal died
+signal respawned
 
 @export_category("Movement")
 @export var walk_speed: float = 220.0
@@ -21,6 +23,7 @@ signal attack_requested
 @export var attack_damage: int = 25
 @export var attack_cooldown: float = 0.38
 @export var attack_active_time: float = 0.12
+@export var respawn_delay: float = 2.0
 
 var health: int
 var _fall_peak_speed: float = 0.0
@@ -28,11 +31,14 @@ var _was_on_floor: bool = false
 var _facing: int = 1
 var _air_jumps_used: int = 0
 var _can_attack: bool = true
+var _spawn_position := Vector2.ZERO
+var _is_dead: bool = false
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
 
 func _ready() -> void:
+	_spawn_position = global_position
 	health = max_health
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
 	health_changed.emit(health, max_health)
@@ -92,7 +98,7 @@ func unlock_double_jump() -> void:
 	double_jump_unlocked = true
 
 func take_damage(amount: int) -> void:
-	if amount <= 0 or health <= 0:
+	if amount <= 0 or health <= 0 or _is_dead:
 		return
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
@@ -106,5 +112,17 @@ func heal(amount: int) -> void:
 	health_changed.emit(health, max_health)
 
 func _die() -> void:
+	if _is_dead:
+		return
+	_is_dead = true
 	velocity = Vector2.ZERO
 	set_physics_process(false)
+	died.emit()
+	await get_tree().create_timer(respawn_delay).timeout
+	global_position = _spawn_position
+	velocity = Vector2.ZERO
+	health = max_health
+	_is_dead = false
+	health_changed.emit(health, max_health)
+	set_physics_process(true)
+	respawned.emit()
