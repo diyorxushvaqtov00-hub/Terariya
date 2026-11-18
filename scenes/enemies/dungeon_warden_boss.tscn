@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/dungeon_warden_boss.gd" id="1_boss"]
+
+[sub_resource type="CapsuleShape2D" id="WardenShape"]
+radius = 44.0
+height = 94.0
+
+[node name="DungeonWardenBoss" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_boss")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -47)
+shape = SubResource("WardenShape")
+
+[node name="Visual" type="Polygon2D" parent="."]
+position = Vector2(0, -47)
+color = Color(0.25, 0.30, 0.42, 1)
+polygon = PackedVector2Array(-42, 24, -45, -15, -30, -42, -13, -35, -4, -52, 10, -45, 23, -36, 40, -18, 43, 18, 25, 43, -24, 43)
