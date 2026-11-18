@@ -13,7 +13,8 @@ Implemented in source:
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
-- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.\n- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.\n- Healing potions restore 35 health and can be used from the inventory panel.
+- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.\n- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
+- Healing potions restore 35 health and can be used from the inventory panel.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
@@ -26,6 +27,7 @@ Implemented in source:
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
+- XP and level progression up to level 50, with enemy and boss rewards, a HUD experience bar, +2 melee damage every two levels and +10 maximum health every five levels; progression is saved.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
