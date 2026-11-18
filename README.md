@@ -140,3 +140,9 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 - Travel to an opened secret vault to summon the Void Guardian there; the sigil cannot be used far from a secret vault.
 - The boss has 1,350 HP, a telegraphed void pulse, and a faster second phase below half health.
 - Defeating it awards 3 Void Shards, 2 Dungeon Relics, 5 Healing Potions and 1,600 XP.
+
+## Void Armor
+
+- Craft Void Armor at an anvil using 8 Void Shards, 3 Dungeon Relics and 20 Gold Ore.
+- It provides 38 defense, currently the strongest armor set, and upgrades up to level 10 using Void Shards.
+- The best-armor button prioritizes Void Armor; its equipped state and upgrade level persist in saves.
