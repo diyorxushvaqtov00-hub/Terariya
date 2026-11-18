@@ -2,6 +2,9 @@ extends Node2D
 
 const SAVE_PATH: String = "user://eternal_world_save.json"
 const SAVE_VERSION: int = 1
+const AUTOSAVE_INTERVAL: float = 30.0
+
+var _autosave_elapsed: float = 0.0
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -21,6 +24,12 @@ func _ready() -> void:
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
 	_on_inventory_changed(player.inventory.items)
+
+func _process(delta: float) -> void:
+	_autosave_elapsed += delta
+	if _autosave_elapsed >= AUTOSAVE_INTERVAL:
+		_autosave_elapsed = 0.0
+		save_game()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
