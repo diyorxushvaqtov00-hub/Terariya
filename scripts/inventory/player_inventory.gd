@@ -142,11 +142,11 @@ func equip_armor(armor_id: String) -> bool:
 func get_armor_defense() -> int:
 	match equipped_armor:
 		"wooden_armor":
-			return 6
+			return 6 + get_armor_upgrade_level("wooden_armor")
 		"silver_armor":
-			return 12
+			return 12 + get_armor_upgrade_level("silver_armor")
 		"gold_armor":
-			return 20
+			return 20 + get_armor_upgrade_level("gold_armor")
 		_:
 			return 0
 
