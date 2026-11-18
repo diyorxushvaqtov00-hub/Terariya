@@ -3,8 +3,12 @@ extends Node2D
 const SAVE_PATH: String = "user://eternal_world_save.json"
 const SAVE_VERSION: int = 1
 const AUTOSAVE_INTERVAL: float = 30.0
+const DAY_LENGTH_SECONDS: float = 480.0
 
 var _autosave_elapsed: float = 0.0
+var _world_time_seconds: float = DAY_LENGTH_SECONDS * 0.25
+var _day_night_overlay: CanvasModulate
+var _day_night_label: Label
 var _inventory_panel: PanelContainer
 var _oxygen_bar: ProgressBar
 var _underwater_overlay: ColorRect
@@ -31,6 +35,7 @@ func _ready() -> void:
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
+	_build_day_night_system()
 	_build_underwater_overlay()
 	_build_oxygen_ui()
 	_on_underwater_changed(player.is_head_underwater)
@@ -39,6 +44,7 @@ func _ready() -> void:
 	_build_inventory_ui()
 
 func _process(delta: float) -> void:
+	_update_day_night(delta)
 	if Input.is_action_just_pressed("inventory_toggle") and is_instance_valid(_inventory_panel):
 		_toggle_inventory()
 	_autosave_elapsed += delta
@@ -60,6 +66,7 @@ func save_game() -> bool:
 			"oxygen_seconds": player.oxygen_seconds,
 			"double_jump_unlocked": player.double_jump_unlocked
 		},
+		"time_of_day": _world_time_seconds,
 		"inventory": player.inventory.serialize(),
 		"world": world.get_save_data()
 	}
@@ -91,6 +98,8 @@ func _load_game() -> bool:
 	if not inventory_data is Dictionary or not player.inventory.restore(inventory_data):
 		push_warning("Saved inventory is invalid; keeping starter inventory.")
 		return false
+	_world_time_seconds = fposmod(float(parsed.get("time_of_day", _world_time_seconds)), DAY_LENGTH_SECONDS)
+	_update_day_night(0.0)
 	var player_data: Variant = parsed.get("player", {})
 	if player_data is Dictionary:
 		player.global_position = Vector2(float(player_data.get("x", player.global_position.x)), float(player_data.get("y", player.global_position.y)))
@@ -101,6 +110,40 @@ func _load_game() -> bool:
 		player.double_jump_unlocked = bool(player_data.get("double_jump_unlocked", false))
 		player.health_changed.emit(player.health, player.max_health)
 	return true
+
+
+func _build_day_night_system() -> void:
+	_day_night_overlay = CanvasModulate.new()
+	_day_night_overlay.name = "DayNightLighting"
+	add_child(_day_night_overlay)
+	_day_night_label = Label.new()
+	_day_night_label.name = "DayNightLabel"
+	_day_night_label.position = Vector2(410, 20)
+	_day_night_label.size = Vector2(190, 28)
+	_day_night_label.add_theme_font_size_override("font_size", 18)
+	($HUD as CanvasLayer).add_child(_day_night_label)
+	_update_day_night(0.0)
+
+func _update_day_night(delta: float) -> void:
+	_world_time_seconds = fposmod(_world_time_seconds + delta, DAY_LENGTH_SECONDS)
+	var phase := _world_time_seconds / DAY_LENGTH_SECONDS
+	# Midnight=0.0, sunrise=0.25, noon=0.5, sunset=0.75.
+	var daylight := maxf(0.0, sin((phase - 0.25) * TAU))
+	var night_color := Color(0.28, 0.34, 0.58)
+	var day_color := Color(1.0, 1.0, 1.0)
+	var lighting := night_color.lerp(day_color, daylight)
+	var sunrise_strength := maxf(0.0, 1.0 - absf(phase - 0.25) / 0.12)
+	var sunset_strength := maxf(0.0, 1.0 - absf(phase - 0.75) / 0.12)
+	var warm_strength := maxf(sunrise_strength, sunset_strength)
+	lighting = lighting.lerp(Color(1.0, 0.66, 0.42), warm_strength * 0.32)
+	if is_instance_valid(_day_night_overlay):
+		_day_night_overlay.color = lighting
+	if is_instance_valid(_day_night_label):
+		var total_minutes := int(floor(phase * 24.0 * 60.0))
+		var hour := int(total_minutes / 60) % 24
+		var minute := total_minutes % 60
+		var period := "NIGHT" if daylight < 0.12 else ("DAWN" if sunrise_strength > 0.25 else ("DUSK" if sunset_strength > 0.25 else "DAY"))
+		_day_night_label.text = "%s  %02d:%02d" % [period, hour, minute]
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
