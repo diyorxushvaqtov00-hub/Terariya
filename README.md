@@ -11,21 +11,23 @@ Implemented in source:
 - Main scene, reusable player scene and follow camera.
 - CharacterBody2D movement with acceleration, walking, running and jumping.
 - Basic health, healing and fall-damage logic.
-- Unlockable double-jump state and attack input signal.
-- Responsive on-screen virtual joystick, jump, run and attack touch zones for Android.
+- Unlockable double-jump state.
+- Android virtual joystick and jump, run and attack touch controls.
+- Melee attack area with configurable damage, active window and cooldown.
+- Training dummy target with health and defeat behavior.
 - Player smoke-test script and GitHub Actions validation workflow.
 
-Still required before Milestome 1 can be marked complete:
+Still required before Milestone 1 can be marked complete:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
-- Verify touch controls on physical Android devices and adjust layout for aspect ratios.
-- Replace temporary polygon player/ground visuals with original pixel-art sprites and animations.
-- Implement attack hitboxes/weapon handling and death/respawn flow.
+- Verify touch controls and melee combat on physical Android devices.
+- Replace temporary polygon visuals with original pixel-art sprites and animations.
+- Implement death/respawn flow and real enemy AI.
 - Export and install a debug APK for device testing.
 
 Later milestones:
 - Procedural chunked world, biomes, mining and building.
 - Inventory, chests, item data and crafting.
-- Enemy AI, combat, bosses, NPCs, quests and progression.
+- Enemy AI, bosses, NPCs, quests and progression.
 - Survival systems, persistent world saves, audio, polish and release builds.
 
 ## Run
@@ -42,13 +44,13 @@ Desktop:
 - D / Right Arrow: move right
 - Space: jump
 - Shift: run
-- F: attack input signal
+- F: melee attack
 
 Android:
 - Left virtual joystick: move
 - JUMP: jump
 - RUN: run while held
-- HIT: emits the attack input signal (weapon combat is not implemented yet)
+- HIT: melee attack
 
 ## Project structure
 
