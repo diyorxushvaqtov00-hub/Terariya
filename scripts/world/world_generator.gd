@@ -420,6 +420,23 @@ func get_dungeon_guard_positions() -> Array[Vector2]:
 		positions.append(to_global(Vector2((cell.x + 1) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
 	return positions
 
+func get_dungeon_spike_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for chest in _dungeon_chests:
+		var cell: Vector2i = chest["cell"]
+		var floor_y := (cell.y + 2) * TILE_SIZE
+		positions.append(to_global(Vector2((cell.x - 4) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
+		positions.append(to_global(Vector2((cell.x + 6) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
+	return positions
+
+func get_dungeon_blade_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for chest in _dungeon_chests:
+		var cell: Vector2i = chest["cell"]
+		var ceiling_y := (cell.y - 5) * TILE_SIZE
+		positions.append(to_global(Vector2((cell.x - 1) * TILE_SIZE + TILE_SIZE * 0.5, ceiling_y)))
+	return positions
+
 func open_nearby_chest(world_position: Vector2, inventory: PlayerInventory) -> bool:
 	if inventory == null:
 		return false
