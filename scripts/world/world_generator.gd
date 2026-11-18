@@ -15,6 +15,7 @@ const WOOD: int = 5
 const LEAVES: int = 6
 const SAND: int = 7
 const SNOW: int = 8
+const WATER: int = 9
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -27,6 +28,7 @@ var _collision_root: StaticBody2D
 var selected_block_type: int = DIRT
 
 func _ready() -> void:
+	add_to_group("world_generator")
 	_collision_root = StaticBody2D.new()
 	_collision_root.name = "TerrainCollision"
 	_collision_root.collision_layer = 1
@@ -66,6 +68,7 @@ func generate_world() -> void:
 			column[y] = tile
 		tiles.append(column)
 	_generate_caves()
+	_generate_lakes()
 	_generate_trees()
 	_rebuild_collision()
 	queue_redraw()
@@ -99,6 +102,8 @@ func _tile_color(tile: int) -> Color:
 			return Color(0.82, 0.72, 0.43)
 		SNOW:
 			return Color(0.84, 0.91, 0.98)
+		WATER:
+			return Color(0.12, 0.48, 0.88, 0.72)
 	return Color.TRANSPARENT
 
 func get_surface_y(tile_x: int) -> int:
@@ -120,6 +125,14 @@ func get_tile(cell: Vector2i) -> int:
 	if not _inside_world(cell):
 		return AIR
 	return int(tiles[cell.x][cell.y])
+
+func is_position_in_water(world_position: Vector2) -> bool:
+	var local_position := to_local(world_position)
+	var base_cell := Vector2i(floori(local_position.x / TILE_SIZE), floori(local_position.y / TILE_SIZE))
+	for offset_y in [-12, 0, 12, 24]:
+		if get_tile(base_cell + Vector2i(0, floori(float(offset_y) / TILE_SIZE))) == WATER:
+			return true
+	return false
 
 func mine_cell(cell: Vector2i) -> bool:
 	if not _inside_world(cell) or get_tile(cell) == AIR:
@@ -193,7 +206,7 @@ func load_save_data(data: Dictionary) -> bool:
 		var grass_surface := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
-			if tile_value < AIR or tile_value > SNOW:
+			if tile_value < AIR or tile_value > WATER:
 				return false
 			column[y] = tile_value
 			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES:
@@ -225,13 +238,35 @@ func _generate_caves() -> void:
 				if cave_value > 0.32:
 					tiles[x][y] = AIR
 
+
+func _generate_lakes() -> void:
+	# Fixed centers and seeded widths make shallow pools reproducible.
+	for center_x in [28, 83, 145]:
+		var lake_width := 5 + int(absf(_noise.get_noise_1d(float(center_x) + 271.0)) * 4.0)
+		var start_x: int = maxi(center_x - lake_width / 2, 1)
+		var end_x: int = mini(center_x + lake_width / 2, WORLD_WIDTH - 2)
+		var highest_surface := WORLD_HEIGHT
+		for x in range(start_x, end_x + 1):
+			highest_surface = mini(highest_surface, surface_heights[x])
+		var waterline := highest_surface + 2
+		for x in range(start_x, end_x + 1):
+			for y in range(waterline, surface_heights[x]):
+				if tiles[x][y] == AIR:
+					tiles[x][y] = WATER
+
+func _has_water_above(tile_x: int, ground_y: int) -> bool:
+	for y in range(ground_y - 1, -1, -1):
+		if tiles[tile_x][y] == WATER:
+			return true
+	return false
+
 func _generate_trees() -> void:
 	# Fixed spacing plus seeded noise keeps tree placement reproducible.
 	for x in range(7, WORLD_WIDTH - 7, 11):
 		if _noise.get_noise_1d(float(x) + 913.0) < -0.12:
 			continue
 		var ground_y := surface_heights[x]
-		if tiles[x][ground_y] != GRASS:
+		if tiles[x][ground_y] != GRASS or _has_water_above(x, ground_y):
 			continue
 		var trunk_height := 3 + int(absf(_noise.get_noise_1d(float(x) * 0.73)) * 3.0)
 		for offset in range(1, trunk_height + 1):
