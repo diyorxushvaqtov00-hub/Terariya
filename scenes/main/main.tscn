@@ -1,39 +1,28 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
-[ext_resource type="Script" path="res://scripts/main/game.gd" id="2_game"]
-[ext_resource type="Script" path="res://scripts/ui/mobile_controls.gd" id="3_mobile_controls"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/training_dummy.tscn" id="4_dummy"]
-
-[sub_resource type="RectangleShape2D" id="GroundShape"]
-size = Vector2(1280, 64)
+[ext_resource type="PackedScene" path="res://scenes/world/world.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/main/game.gd" id="3_game"]
+[ext_resource type="Script" path="res://scripts/ui/mobile_controls.gd" id="4_mobile_controls"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/training_dummy.tscn" id="5_dummy"]
 
 [node name="Main" type="Node2D"]
-script = ExtResource("2_game")
+script = ExtResource("3_game")
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
-position = Vector2(320, 420)
+[node name="World" parent="." instance=ExtResource("1_world")]
 
-[node name="TrainingDummy" parent="." instance=ExtResource("4_dummy")]
-position = Vector2(430, 528)
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(320, 480)
 
-[node name="Ground" type="StaticBody2D" parent="."]
-position = Vector2(640, 560)
-collision_layer = 1
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
-shape = SubResource("GroundShape")
-
-[node name="GroundVisual" type="Polygon2D" parent="Ground"]
-color = Color(0.22, 0.42, 0.24, 1)
-polygon = PackedVector2Array(-640, -32, 640, -32, 640, 32, -640, 32)
+[node name="TrainingDummy" parent="." instance=ExtResource("5_dummy")]
+position = Vector2(480, 480)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="HealthLabel" type="Label" parent="HUD"]
 offset_left = 24.0
 offset_top = 20.0
-offset_right = 220.0
+offset_right = 260.0
 offset_bottom = 54.0
 theme_override_font_sizes/font_size = 24
 text = "HP 100 / 100"
@@ -45,4 +34,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("3_mobile_controls")
+script = ExtResource("4_mobile_controls")
