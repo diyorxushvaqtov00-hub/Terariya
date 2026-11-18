@@ -12,6 +12,17 @@ func _run() -> void:
 	await process_frame
 	assert(world.tiles.size() == WorldGenerator.WORLD_WIDTH, "World has expected width")
 	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Surface is grass")
+	var cave_air_count := 0
+	var ore_count := 0
+	for scan_x in range(WorldGenerator.WORLD_WIDTH):
+		for scan_y in range(world.get_surface_y(scan_x) + 8, WorldGenerator.WORLD_HEIGHT - 4):
+			var scanned_tile := world.get_tile(Vector2i(scan_x, scan_y))
+			if scanned_tile == WorldGenerator.AIR:
+				cave_air_count += 1
+			elif scanned_tile == WorldGenerator.ORE:
+				ore_count += 1
+	assert(cave_air_count > 0, "Seeded world generates underground cave spaces")
+	assert(ore_count > 0, "Underground world contains ore deposits")
 	var test_cell := Vector2i(10, world.get_surface_y(10))
 	assert(world.mine_cell(test_cell), "Mining a solid block succeeds")
 	assert(world.get_tile(test_cell) == WorldGenerator.AIR, "Mined cell becomes air")
