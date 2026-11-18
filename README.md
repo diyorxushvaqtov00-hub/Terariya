@@ -99,3 +99,7 @@ Android:
 ## Development policy
 
 Features are marked complete only after validation and gameplay testing. Source files and CI automation do not, by themselves, prove runtime correctness. This project is under active development and is not a finished game.
+
+## Quests and progression
+
+The quest log currently includes three persistent objectives: collect 10 wood, defeat 3 enemies, and open a dungeon chest. Completing them grants coins and progression materials. Quest progress and completion flags are saved with the world and restored when the save is loaded. The quest log is displayed inside the inventory and crafting panel.
