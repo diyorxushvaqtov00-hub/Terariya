@@ -58,7 +58,7 @@ func _run() -> void:
 	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "World restore reinstates the saved block")
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "World save preserves placed sand")
 	assert(world.get_tile(snow_build_cell) == WorldGenerator.SNOW, "World save preserves placed snow")
-assert(world.get_tile(water_cell) == WorldGenerator.WATER, "World save preserves lake water")
+	assert(world.get_tile(water_cell) == WorldGenerator.WATER, "World save preserves lake water")
 	assert(world.selected_block_type == WorldGenerator.DIRT, "World restore preserves selected block")
 	world.cycle_block_selection()
 	assert(world.selected_block_type == WorldGenerator.STONE, "Block selection cycles to stone")
@@ -84,6 +84,18 @@ assert(world.get_tile(water_cell) == WorldGenerator.WATER, "World save preserves
 	assert(player._is_in_water(), "Player detects water around the body")
 	player.is_swimming = player._is_in_water()
 	assert(player.is_swimming, "Player enters swimming state in water")
+	player.global_position = world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 46.0))
+	assert(player._is_head_underwater(), "Player detects when the head is submerged")
+	player.oxygen_seconds = player.max_oxygen_seconds
+	player._update_oxygen(3.0)
+	assert(is_equal_approx(player.oxygen_seconds, 9.0), "Oxygen drains while the head is underwater")
+	player.oxygen_seconds = 0.5
+	var health_before_drowning := player.health
+	player._update_oxygen(2.0)
+	assert(player.health == health_before_drowning - player.drowning_damage, "Drowning damages the player after oxygen runs out")
+	player.global_position = world.get_spawn_position(10)
+	player._update_oxygen(1.0)
+	assert(player.oxygen_seconds > 0.0, "Oxygen recovers outside water")
 	var tree_cell := Vector2i(-1, -1)
 	for tree_x in range(WorldGenerator.WORLD_WIDTH):
 		for tree_y in range(WorldGenerator.WORLD_HEIGHT):
