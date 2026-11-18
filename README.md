@@ -120,3 +120,10 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 ### Dungeon Warden Arena Update
 - Dungeon Warden summoning now places the boss in the center of the nearest generated dungeon chamber instead of spawning beside the player anywhere in the world.
 - The arena locator uses each chamber's generated chest anchor and floor height, so it follows the generated dungeon layout and works across all three biome vaults.
+
+
+### Ancient Secret Vaults
+- Each of the three dungeon chambers now contains a concealed side room behind a two-tile sealed gate.
+- Craft two Ancient Keys from 1 Dungeon Relic, 8 Gold Ore and 4 Spider Fangs; each gate consumes one key.
+- Open the sealed gate beside the dungeon, enter the side room and claim its one-time cache for a Dungeon Relic, Gold Ore, Silver Ore and Healing Potions.
+- Gate tiles and cache claim state are saved with the world, preventing duplicate loot after reloading.
