@@ -48,6 +48,8 @@ var level: int = 1
 var experience: int = 0
 var experience_to_next_level: int = 100
 var bonus_attack_damage: int = 0
+var _web_slow_remaining: float = 0.0
+var _web_slow_multiplier: float = 1.0
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -62,6 +64,9 @@ func _ready() -> void:
 	oxygen_changed.emit(oxygen_seconds, max_oxygen_seconds)
 
 func _physics_process(delta: float) -> void:
+	_web_slow_remaining = maxf(_web_slow_remaining - delta, 0.0)
+	if _web_slow_remaining <= 0.0:
+		_web_slow_multiplier = 1.0
 	is_swimming = _is_in_water()
 	var head_is_submerged := _is_head_underwater()
 	if head_is_submerged != is_head_underwater:
@@ -77,6 +82,7 @@ func _physics_process(delta: float) -> void:
 	var target_speed := run_speed if Input.is_action_pressed("run") else walk_speed
 	if is_swimming:
 		target_speed *= 0.72
+	target_speed *= _web_slow_multiplier
 	var target_velocity := direction * target_speed
 	var rate := acceleration if is_on_floor() else air_acceleration
 	velocity.x = move_toward(velocity.x, target_velocity, rate * delta)
@@ -215,6 +221,17 @@ func take_damage(amount: int) -> void:
 	health_changed.emit(health, max_health)
 	if health == 0:
 		_die()
+
+func apply_web_slow(duration: float, speed_multiplier: float) -> void:
+	_web_slow_remaining = maxf(_web_slow_remaining, duration)
+	_web_slow_multiplier = minf(_web_slow_multiplier, clampf(speed_multiplier, 0.2, 1.0))
+
+func apply_poison(damage_per_tick: int, tick_count: int, interval: float = 1.0) -> void:
+	for tick in range(maxi(tick_count, 0)):
+		await get_tree().create_timer(maxf(interval, 0.1)).timeout
+		if not is_inside_tree() or health <= 0:
+			return
+		take_damage(damage_per_tick)
 
 func heal(amount: int) -> void:
 	if amount <= 0 or health <= 0:
