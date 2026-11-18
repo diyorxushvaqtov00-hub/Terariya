@@ -4,13 +4,27 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	var packed := load("res://scenes/player/player.tscn") as PackedScene
-	assert(packed != null, "Player scene must load")
-	var player := packed.instantiate() as PlayerController
+	var world_packed := load("res://scenes/world/world.tscn") as PackedScene
+	assert(world_packed != null, "World scene must load")
+	var world := world_packed.instantiate() as WorldGenerator
+	assert(world != null, "World generator must instantiate")
+	root.add_child(world)
+	await process_frame
+	assert(world.tiles.size() == WorldGenerator.WORLD_WIDTH, "World has expected width")
+	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Surface is grass")
+	var test_cell := Vector2i(10, world.get_surface_y(10))
+	assert(world.mine_cell(test_cell), "Mining a solid block succeeds")
+	assert(world.get_tile(test_cell) == WorldGenerator.AIR, "Mined cell becomes air")
+	assert(world.place_block(test_cell), "Placing a block into an empty cell succeeds")
+	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "Placed block becomes dirt")
+	assert(not world.place_block(test_cell), "Cannot place a block into an occupied cell")
+
+	var player_packed := load("res://scenes/player/player.tscn") as PackedScene
+	assert(player_packed != null, "Player scene must load")
+	var player := player_packed.instantiate() as PlayerController
 	assert(player != null, "Player scene must instantiate")
 	root.add_child(player)
 	await process_frame
-
 	assert(player.health == player.max_health, "Player starts at full health")
 	player.take_damage(25)
 	assert(player.health == 75, "Damage subtracts health")
@@ -41,5 +55,5 @@ func _run() -> void:
 	assert(player.health == player.max_health, "Player respawns with full health")
 	assert(player.is_physics_processing(), "Player physics resumes after respawn")
 
-	print("PLAYER_COMBAT_RESPAWN_SMOKE_TEST: PASS")
+	print("WORLD_PLAYER_COMBAT_RESPAWN_TEST: PASS")
 	quit(0)
