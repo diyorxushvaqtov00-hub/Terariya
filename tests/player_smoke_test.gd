@@ -70,6 +70,13 @@ func _run() -> void:
 	legendary_inventory.add_item("spider_fang", 5)
 	assert(legendary_inventory.upgrade_best_weapon(), "Queen Fang can be upgraded at anvil")
 	assert(legendary_inventory.get_weapon_upgrade_level("queens_fang") == 1, "Queen Fang upgrade level is stored")
+	var queen_fang_snapshot := legendary_inventory.serialize()
+	var restored_queen_fang := PlayerInventory.new()
+	root.add_child(restored_queen_fang)
+	await process_frame
+	assert(restored_queen_fang.restore(queen_fang_snapshot), "Queen Fang inventory restores")
+	assert(restored_queen_fang.get_weapon_upgrade_level("queens_fang") == 1, "Queen Fang upgrade level persists")
+	restored_queen_fang.queue_free()
 	legendary_inventory.queue_free()
 
 	var silver_nodes := 0
