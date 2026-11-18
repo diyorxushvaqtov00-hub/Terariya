@@ -3,6 +3,7 @@ class_name PlayerController
 
 signal health_changed(current: int, maximum: int)
 signal oxygen_changed(current: float, maximum: float)
+signal underwater_changed(is_underwater: bool)
 signal attack_requested
 signal died
 signal respawned
@@ -38,6 +39,7 @@ var _can_attack: bool = true
 var _spawn_position := Vector2.ZERO
 var _is_dead: bool = false
 var is_swimming: bool = false
+var is_head_underwater: bool = false
 var oxygen_seconds: float
 var _drowning_tick: float = 0.0
 
@@ -55,6 +57,10 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	is_swimming = _is_in_water()
+	var head_is_submerged := _is_head_underwater()
+	if head_is_submerged != is_head_underwater:
+		is_head_underwater = head_is_submerged
+		underwater_changed.emit(is_head_underwater)
 	_update_oxygen(delta)
 	if _is_dead:
 		return
@@ -115,7 +121,7 @@ func _is_head_underwater() -> bool:
 	return world.is_position_in_water(global_position + Vector2(0.0, -30.0))
 
 func _update_oxygen(delta: float) -> void:
-	if _is_head_underwater():
+	if is_head_underwater:
 		oxygen_seconds = maxf(oxygen_seconds - delta, 0.0)
 		if oxygen_seconds <= 0.0:
 			_drowning_tick += delta
