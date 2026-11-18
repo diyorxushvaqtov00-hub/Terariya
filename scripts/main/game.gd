@@ -191,6 +191,15 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "stone_sword", "3 WOOD + 8 STONE  →  STONE SWORD")
 	_add_recipe_button(layout, "wooden_pickaxe", "5 PLANKS + 3 STONE  →  PICKAXE")
 	_add_recipe_button(layout, "wooden_axe", "4 PLANKS + 2 STONE  →  AXE")
+	_add_recipe_button(layout, "wooden_bucket", "5 PLANKS  →  EMPTY BUCKET")
+	var fill_button := Button.new()
+	fill_button.text = "FILL BUCKET (WATER IN FRONT)"
+	fill_button.pressed.connect(_fill_water_bucket)
+	layout.add_child(fill_button)
+	var pour_button := Button.new()
+	pour_button.text = "POUR BUCKET (EMPTY TILE IN FRONT)"
+	pour_button.pressed.connect(_pour_water_bucket)
+	layout.add_child(pour_button)
 	var close_button := Button.new()
 	close_button.text = "CLOSE"
 	close_button.pressed.connect(_toggle_inventory)
@@ -210,6 +219,7 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("wood", 0)),
 		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
+		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("stone_sword", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
@@ -219,6 +229,19 @@ func _refresh_craft_buttons() -> void:
 	for recipe_id in _craft_buttons:
 		var craft_button := _craft_buttons[recipe_id] as Button
 		craft_button.disabled = not player.inventory.can_craft(str(recipe_id))
+
+func _get_water_target_cell() -> Vector2i:
+	var target := player.global_position + Vector2(player.get_facing() * WorldGenerator.TILE_SIZE * 1.35, WorldGenerator.TILE_SIZE * 0.5)
+	var local_target := world.to_local(target)
+	return Vector2i(floori(local_target.x / WorldGenerator.TILE_SIZE), floori(local_target.y / WorldGenerator.TILE_SIZE))
+
+func _fill_water_bucket() -> void:
+	if world.fill_bucket(_get_water_target_cell(), player.inventory):
+		_on_inventory_changed(player.inventory.items)
+
+func _pour_water_bucket() -> void:
+	if world.pour_bucket(_get_water_target_cell(), player.inventory, player.global_position):
+		_on_inventory_changed(player.inventory.items)
 
 func _craft_recipe(recipe_id: String) -> void:
 	if player.inventory.craft(recipe_id):
