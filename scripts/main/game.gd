@@ -276,6 +276,16 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_axe", "4 PLANKS + 2 STONE  →  AXE")
 	_add_recipe_button(layout, "wooden_bucket", "5 PLANKS  →  EMPTY BUCKET")
 	_add_recipe_button(layout, "torch", "1 WOOD  →  4 TORCHES")
+	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
+	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
+	var equip_armor_button := Button.new()
+	equip_armor_button.text = "EQUIP WOODEN ARMOR"
+	equip_armor_button.pressed.connect(_equip_wooden_armor)
+	layout.add_child(equip_armor_button)
+	var remove_armor_button := Button.new()
+	remove_armor_button.text = "UNEQUIP ARMOR"
+	remove_armor_button.pressed.connect(_unequip_armor)
+	layout.add_child(remove_armor_button)
 	var torch_button := Button.new()
 	torch_button.text = "PLACE TORCH (EMPTY TILE IN FRONT)"
 	torch_button.pressed.connect(_place_torch)
@@ -307,7 +317,8 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("wood", 0)),
 		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
-		int(items.get("torch", 0)), int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
+		int(items.get("torch", 0)), int(items.get("wooden_armor", 0)), "EQUIPPED" if player.inventory.equipped_armor == "wooden_armor" else "NOT EQUIPPED",
+		int(items.get("copper_sword", 0)), int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("stone_sword", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
@@ -322,6 +333,14 @@ func _get_water_target_cell() -> Vector2i:
 	var target := player.global_position + Vector2(player.get_facing() * WorldGenerator.TILE_SIZE * 1.35, WorldGenerator.TILE_SIZE * 0.5)
 	var local_target := world.to_local(target)
 	return Vector2i(floori(local_target.x / WorldGenerator.TILE_SIZE), floori(local_target.y / WorldGenerator.TILE_SIZE))
+
+func _equip_wooden_armor() -> void:
+	player.inventory.equip_armor("wooden_armor")
+	_on_inventory_changed(player.inventory.items)
+
+func _unequip_armor() -> void:
+	player.inventory.equip_armor("")
+	_on_inventory_changed(player.inventory.items)
 
 func _place_torch() -> void:
 	if world.place_torch(_get_water_target_cell(), player.inventory):
