@@ -4,6 +4,22 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	var mobile_script := load("res://scripts/ui/mobile_controls.gd") as Script
+	assert(mobile_script != null, "Mobile controls script loads")
+	var mobile_controls := Control.new()
+	mobile_controls.set_script(mobile_script)
+	mobile_controls.size = Vector2(1280, 720)
+	root.add_child(mobile_controls)
+	await process_frame
+	var mobile_centers: Dictionary = mobile_controls.call("_button_centers")
+	assert(mobile_centers.has("inventory"), "Mobile controls expose a dedicated inventory button")
+	assert(mobile_centers.inventory.distance_to(mobile_centers.jump) > 100.0, "Inventory button does not overlap jump control")
+	mobile_controls.call("_handle_touch", 77, mobile_centers.inventory, true)
+	assert(Input.is_action_pressed("inventory_toggle"), "Touching inventory button presses inventory action")
+	mobile_controls.call("_handle_touch", 77, mobile_centers.inventory, false)
+	assert(not Input.is_action_pressed("inventory_toggle"), "Releasing inventory button releases inventory action")
+	mobile_controls.queue_free()
+
 	var world_packed := load("res://scenes/world/world.tscn") as PackedScene
 	assert(world_packed != null, "World scene must load")
 	var world := world_packed.instantiate() as WorldGenerator
