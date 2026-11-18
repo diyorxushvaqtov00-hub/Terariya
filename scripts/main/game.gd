@@ -210,14 +210,14 @@ func _build_progression_ui() -> void:
 	var hud := $HUD as CanvasLayer
 	_xp_label = Label.new()
 	_xp_label.name = "ProgressionLabel"
-	_xp_label.position = Vector2(24, 108)
-	_xp_label.size = Vector2(260, 24)
+	_xp_label.position = Vector2(430, 112)
+	_xp_label.size = Vector2(420, 24)
 	_xp_label.text = "LEVEL 1 — XP 0 / 100"
 	hud.add_child(_xp_label)
 	_xp_bar = ProgressBar.new()
 	_xp_bar.name = "ExperienceBar"
-	_xp_bar.position = Vector2(24, 132)
-	_xp_bar.size = Vector2(250, 14)
+	_xp_bar.position = Vector2(430, 138)
+	_xp_bar.size = Vector2(420, 14)
 	_xp_bar.show_percentage = false
 	hud.add_child(_xp_bar)
 
