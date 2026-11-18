@@ -148,7 +148,9 @@ func _start_attack() -> void:
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		var total_damage := attack_damage
-		if inventory.count("stone_sword") > 0:
+		if inventory.count("copper_sword") > 0:
+			total_damage += 25
+		elif inventory.count("stone_sword") > 0:
 			total_damage += 15
 		body.take_damage(total_damage)
 
@@ -164,7 +166,9 @@ func unlock_double_jump() -> void:
 func take_damage(amount: int) -> void:
 	if amount <= 0 or health <= 0 or _is_dead:
 		return
-	health = maxi(health - amount, 0)
+	var defense := inventory.get_armor_defense() if is_instance_valid(inventory) else 0
+	var reduced_damage := maxi(amount - defense, 1)
+	health = maxi(health - reduced_damage, 0)
 	health_changed.emit(health, max_health)
 	if health == 0:
 		_die()
