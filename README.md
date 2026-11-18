@@ -133,3 +133,10 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 - Craft the Voidbreaker at an anvil using 2 Dungeon Relics, 16 Gold Ore, 8 Magma Cores and 12 Spider Fangs.
 - It adds 145 base melee damage and has the highest weapon priority.
 - Upgrade it up to level 10 using additional Dungeon Relics; each upgrade adds the existing +3 weapon damage bonus.
+
+## Void Guardian encounter
+
+- Craft a Void Guardian Sigil from 1 Dungeon Relic, 12 Gold Ore, 6 Magma Cores and 6 Spider Fangs.
+- Travel to an opened secret vault to summon the Void Guardian there; the sigil cannot be used far from a secret vault.
+- The boss has 1,350 HP, a telegraphed void pulse, and a faster second phase below half health.
+- Defeating it awards 3 Void Shards, 2 Dungeon Relics, 5 Healing Potions and 1,600 XP.
