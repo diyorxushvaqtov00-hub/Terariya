@@ -268,7 +268,7 @@ func _run() -> void:
 	player.add_experience(100)
 	assert(player.level == 2 and player.experience == 0, "One hundred XP advances the player to level two")
 	assert(player.bonus_attack_damage == 2, "Every second level grants two bonus melee damage")
-	player.add_experience(800)
+	player.add_experience(900)
 	assert(player.level == 5 and player.max_health == 110, "Level five increases maximum health by ten")
 	assert(player.experience == 0, "Exact level thresholds leave no extra XP")
 	player.add_experience(100000)
