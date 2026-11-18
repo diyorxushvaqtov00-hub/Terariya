@@ -5,6 +5,7 @@ const SAVE_VERSION: int = 1
 const AUTOSAVE_INTERVAL: float = 30.0
 const DAY_LENGTH_SECONDS: float = 480.0
 const NIGHT_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/slime_enemy.tscn")
+const ZOMBIE_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/zombie_enemy.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
 const NIGHT_SPAWN_INTERVAL: float = 18.0
 
@@ -176,10 +177,11 @@ func _update_night_spawns(delta: float) -> void:
 			break
 	if absi(candidate_x - player_tile_x) < 7:
 		return
-	var enemy := NIGHT_ENEMY_SCENE.instantiate() as SlimeEnemy
+	var spawn_zombie := _rng.randf() < 0.35
+	var enemy := (ZOMBIE_ENEMY_SCENE.instantiate() if spawn_zombie else NIGHT_ENEMY_SCENE.instantiate()) as SlimeEnemy
 	if enemy == null:
 		return
-	enemy.name = "NightSlime"
+	enemy.name = "NightZombie" if spawn_zombie else "NightSlime"
 	enemy.add_to_group("night_spawned_enemy")
 	add_child(enemy)
 	enemy.global_position = world.get_spawn_position(candidate_x)
