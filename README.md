@@ -26,6 +26,7 @@ Implemented in source:
 - Dungeon hazards include six spike traps and three swinging blades, positioned deterministically in the three chambers and dealing contact damage to the player.
 - A summonable Spider Queen boss has 1,400 HP and two phases; below half health she becomes faster and deals heavier damage. She fires poisonous web projectiles that damage, poison and slow the player, periodically summons up to two cave-spider minions, and has a pulsing/rotating idle animation. Minions become tougher and summon in pairs during phase two; defeating them grants 35 XP each. Defeating the Queen grants gold ore, spider fangs, healing potions, 900 XP and the legendary Queen’s Fang (+80 base weapon damage). Queen’s Fang can be upgraded at an anvil using spider fangs.
 - Healing potions restore 35 health and can be used from the inventory panel.
+- A travelling merchant stands near the forest starting area; players can buy healing potions, torches, silver ore and spider fangs, or sell wood and copper ore. Coins persist in inventory saves and are earned from defeated enemies and dungeon guards.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
