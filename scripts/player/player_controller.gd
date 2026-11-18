@@ -50,6 +50,7 @@ var experience_to_next_level: int = 100
 var bonus_attack_damage: int = 0
 var _web_slow_remaining: float = 0.0
 var _web_slow_multiplier: float = 1.0
+var _lava_damage_elapsed: float = 0.0
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -73,6 +74,15 @@ func _physics_process(delta: float) -> void:
 		is_head_underwater = head_is_submerged
 		underwater_changed.emit(is_head_underwater)
 	_update_oxygen(delta)
+	if _is_dead:
+		return
+	if _is_touching_lava():
+		_lava_damage_elapsed += delta
+		if _lava_damage_elapsed >= 0.8:
+			_lava_damage_elapsed = 0.0
+			take_damage(12)
+	else:
+		_lava_damage_elapsed = 0.0
 	if _is_dead:
 		return
 	var direction := Input.get_axis("move_left", "move_right")
@@ -119,6 +129,12 @@ func _physics_process(delta: float) -> void:
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
 	move_and_slide()
+
+func _is_touching_lava() -> bool:
+	var world := get_tree().get_first_node_in_group("world_generator") as WorldGenerator
+	if world == null:
+		return false
+	return world.is_position_in_lava(global_position + Vector2(0.0, 10.0))
 
 func _is_in_water() -> bool:
 	var world := get_tree().get_first_node_in_group("world_generator") as WorldGenerator
