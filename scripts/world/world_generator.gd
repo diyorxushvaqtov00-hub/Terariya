@@ -509,6 +509,19 @@ func get_secret_cache_position(index: int = 0) -> Vector2:
 	var cell: Vector2i = _dungeon_secret_rooms[index]["cache_cell"]
 	return to_global(Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE))
 
+func get_nearest_secret_cache_position(world_position: Vector2) -> Vector2:
+	if _dungeon_secret_rooms.is_empty():
+		return world_position
+	var nearest_position := get_secret_cache_position(0)
+	var nearest_distance := world_position.distance_squared_to(nearest_position)
+	for index in range(1, _dungeon_secret_rooms.size()):
+		var candidate := get_secret_cache_position(index)
+		var distance := world_position.distance_squared_to(candidate)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_position = candidate
+	return nearest_position
+
 func unlock_nearby_secret_room(world_position: Vector2, inventory: PlayerInventory) -> bool:
 	if inventory == null:
 		return false
