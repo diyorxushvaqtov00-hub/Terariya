@@ -11,7 +11,12 @@ func _run() -> void:
 	root.add_child(world)
 	await process_frame
 	assert(world.tiles.size() == WorldGenerator.WORLD_WIDTH, "World has expected width")
-	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Surface is grass")
+	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Forest surface is grass")
+	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
+	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
+	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
+	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
+	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
 	var cave_air_count := 0
 	var ore_count := 0
 	for scan_x in range(WorldGenerator.WORLD_WIDTH):
@@ -36,6 +41,10 @@ func _run() -> void:
 	assert(world.selected_block_type == WorldGenerator.DIRT, "World restore preserves selected block")
 	world.cycle_block_selection()
 	assert(world.selected_block_type == WorldGenerator.STONE, "Block selection cycles to stone")
+	world.cycle_block_selection()
+	assert(world.selected_block_type == WorldGenerator.SAND, "Block selection cycles to sand")
+	world.cycle_block_selection()
+	assert(world.selected_block_type == WorldGenerator.SNOW, "Block selection cycles to snow")
 	world.cycle_block_selection()
 	assert(world.selected_block_type == WorldGenerator.DIRT, "Block selection cycles back to dirt")
 	var invalid_snapshot := world_snapshot.duplicate(true)
