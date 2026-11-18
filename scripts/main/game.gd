@@ -4,11 +4,17 @@ const SAVE_PATH: String = "user://eternal_world_save.json"
 const SAVE_VERSION: int = 1
 const AUTOSAVE_INTERVAL: float = 30.0
 const DAY_LENGTH_SECONDS: float = 480.0
+const NIGHT_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/slime_enemy.tscn")
+const MAX_NIGHT_ENEMIES: int = 4
+const NIGHT_SPAWN_INTERVAL: float = 18.0
 
 var _autosave_elapsed: float = 0.0
 var _world_time_seconds: float = DAY_LENGTH_SECONDS * 0.25
 var _day_night_overlay: CanvasModulate
 var _day_night_label: Label
+var _night_spawn_elapsed: float = 0.0
+var _is_night: bool = false
+var _rng := RandomNumberGenerator.new()
 var _inventory_panel: PanelContainer
 var _oxygen_bar: ProgressBar
 var _underwater_overlay: ColorRect
@@ -35,6 +41,7 @@ func _ready() -> void:
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
+	_rng.randomize()
 	_build_day_night_system()
 	_build_underwater_overlay()
 	_build_oxygen_ui()
@@ -45,6 +52,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_day_night(delta)
+	_update_night_spawns(delta)
 	if Input.is_action_just_pressed("inventory_toggle") and is_instance_valid(_inventory_panel):
 		_toggle_inventory()
 	_autosave_elapsed += delta
@@ -129,6 +137,7 @@ func _update_day_night(delta: float) -> void:
 	var phase := _world_time_seconds / DAY_LENGTH_SECONDS
 	# Midnight=0.0, sunrise=0.25, noon=0.5, sunset=0.75.
 	var daylight := maxf(0.0, sin((phase - 0.25) * TAU))
+	_is_night = phase < 0.20 or phase > 0.80
 	var night_color := Color(0.28, 0.34, 0.58)
 	var day_color := Color(1.0, 1.0, 1.0)
 	var lighting := night_color.lerp(day_color, daylight)
@@ -144,6 +153,37 @@ func _update_day_night(delta: float) -> void:
 		var minute := total_minutes % 60
 		var period := "NIGHT" if daylight < 0.12 else ("DAWN" if sunrise_strength > 0.25 else ("DUSK" if sunset_strength > 0.25 else "DAY"))
 		_day_night_label.text = "%s  %02d:%02d" % [period, hour, minute]
+
+
+func _update_night_spawns(delta: float) -> void:
+	slime.set_night_mode(_is_night)
+	if not _is_night:
+		_night_spawn_elapsed = 0.0
+		for enemy in get_tree().get_nodes_in_group("night_spawned_enemy"):
+			enemy.queue_free()
+		return
+	_night_spawn_elapsed += delta
+	if _night_spawn_elapsed < NIGHT_SPAWN_INTERVAL:
+		return
+	_night_spawn_elapsed = 0.0
+	if get_tree().get_nodes_in_group("night_spawned_enemy").size() >= MAX_NIGHT_ENEMIES:
+		return
+	var player_tile_x := int(floori(player.global_position.x / WorldGenerator.TILE_SIZE))
+	var candidate_x := player_tile_x
+	for attempt in range(8):
+		candidate_x = _rng.randi_range(6, WorldGenerator.WORLD_WIDTH - 7)
+		if absi(candidate_x - player_tile_x) >= 7:
+			break
+	if absi(candidate_x - player_tile_x) < 7:
+		return
+	var enemy := NIGHT_ENEMY_SCENE.instantiate() as SlimeEnemy
+	if enemy == null:
+		return
+	enemy.name = "NightSlime"
+	enemy.add_to_group("night_spawned_enemy")
+	add_child(enemy)
+	enemy.global_position = world.get_spawn_position(candidate_x)
+	enemy.set_night_mode(true)
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
