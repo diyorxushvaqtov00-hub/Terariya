@@ -10,6 +10,7 @@ Implemented in source:
 - Seeded 180 × 60 tile world with noise-based surface variation.
 - Grass, dirt, stone, ore, wood and leaf tile types.
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
+- Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
@@ -21,14 +22,14 @@ Implemented in source:
 - Crafted stone sword adds 15 melee damage while owned.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
-- Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
+- Smoke-test source covering seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
-- Add caves, water, biome transitions and chunk streaming.
+- Add water, biome transitions and chunk streaming; expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
 
