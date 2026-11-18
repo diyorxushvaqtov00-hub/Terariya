@@ -52,6 +52,11 @@ const RECIPES: Dictionary = {
 		"ingredients": {"ore": 10, "wooden_planks": 2},
 		"output": "copper_sword",
 		"amount": 1
+	},
+	"eye_summon": {
+		"ingredients": {"ore": 8, "stone": 12, "wood": 5},
+		"output": "eye_summon",
+		"amount": 1
 	}
 }
 
