@@ -20,6 +20,7 @@ const LEAVES: int = 6
 var tiles: Array = []
 var surface_heights: PackedInt32Array = PackedInt32Array()
 var _noise := FastNoiseLite.new()
+var _cave_noise := FastNoiseLite.new()
 var _collision_root: StaticBody2D
 var selected_block_type: int = DIRT
 
@@ -35,6 +36,9 @@ func generate_world() -> void:
 	_noise.seed = world_seed
 	_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	_noise.frequency = 0.035
+	_cave_noise.seed = world_seed + 104729
+	_cave_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	_cave_noise.frequency = 0.075
 	tiles.clear()
 	surface_heights.resize(WORLD_WIDTH)
 	for x in range(WORLD_WIDTH):
@@ -54,6 +58,7 @@ func generate_world() -> void:
 					tile = ORE
 			column[y] = tile
 		tiles.append(column)
+	_generate_caves()
 	_generate_trees()
 	_rebuild_collision()
 	queue_redraw()
@@ -189,6 +194,17 @@ func load_save_data(data: Dictionary) -> bool:
 	_rebuild_collision()
 	queue_redraw()
 	return true
+
+func _generate_caves() -> void:
+	# Carve deterministic underground pockets while protecting the surface layer.
+	for x in range(1, WORLD_WIDTH - 1):
+		var cave_floor := surface_heights[x] + 5
+		for y in range(cave_floor, WORLD_HEIGHT - 4):
+			var tile: int = tiles[x][y]
+			if tile == STONE or tile == ORE:
+				var cave_value := _cave_noise.get_noise_2d(float(x), float(y))
+				if cave_value > 0.32:
+					tiles[x][y] = AIR
 
 func _generate_trees() -> void:
 	# Fixed spacing plus seeded noise keeps tree placement reproducible.
