@@ -535,6 +535,8 @@ func _on_player_oxygen_changed(current: float, maximum: float) -> void:
 		_oxygen_label.text = "AIR  %.1fs" % current
 
 func _on_inventory_changed(items: Dictionary) -> void:
+	if is_instance_valid(_quest_tracker):
+		_quest_tracker.sync_inventory(items)
 	inventory_label.text = "DIRT %d | STONE %d | ORE %d | WOOD %d | SELECTED: %s" % [
 		int(items.get("dirt", 0)),
 		int(items.get("stone", 0)),
