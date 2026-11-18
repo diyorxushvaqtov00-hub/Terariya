@@ -613,6 +613,30 @@ func _run() -> void:
 	obsidian_inventory.queue_free()
 	restored_obsidian.queue_free()
 
+	var voidbreaker_inventory := PlayerInventory.new()
+	root.add_child(voidbreaker_inventory)
+	await process_frame
+	voidbreaker_inventory.add_item("stone", 40)
+	voidbreaker_inventory.add_item("ore", 20)
+	voidbreaker_inventory.add_item("wooden_planks", 20)
+	voidbreaker_inventory.add_item("dungeon_relic", 3)
+	voidbreaker_inventory.add_item("gold_ore", 16)
+	voidbreaker_inventory.add_item("magma_core", 8)
+	voidbreaker_inventory.add_item("spider_fang", 12)
+	assert(voidbreaker_inventory.craft("anvil"), "Voidbreaker progression can craft an anvil")
+	assert(voidbreaker_inventory.craft("voidbreaker"), "Voidbreaker crafts from dungeon relics and endgame materials")
+	assert(voidbreaker_inventory.get_best_weapon_id() == "voidbreaker", "Voidbreaker outranks every existing weapon")
+	assert(voidbreaker_inventory.upgrade_best_weapon(), "Voidbreaker upgrades with an additional dungeon relic")
+	assert(voidbreaker_inventory.get_weapon_upgrade_level("voidbreaker") == 1, "Voidbreaker upgrade level increments")
+	var voidbreaker_save := voidbreaker_inventory.serialize()
+	var voidbreaker_restored := PlayerInventory.new()
+	root.add_child(voidbreaker_restored)
+	await process_frame
+	assert(voidbreaker_restored.restore(voidbreaker_save), "Voidbreaker inventory restores from save")
+	assert(voidbreaker_restored.count("voidbreaker") == 1 and voidbreaker_restored.get_weapon_upgrade_level("voidbreaker") == 1, "Voidbreaker and its upgrade persist")
+	voidbreaker_inventory.queue_free()
+	voidbreaker_restored.queue_free()
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
