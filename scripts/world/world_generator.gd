@@ -1,6 +1,8 @@
 extends Node2D
 class_name WorldGenerator
 
+signal selected_block_changed(block_type: int)
+
 const TILE_SIZE: int = 32
 const WORLD_WIDTH: int = 180
 const WORLD_HEIGHT: int = 60
@@ -17,6 +19,7 @@ var tiles: Array = []
 var surface_heights: PackedInt32Array = PackedInt32Array()
 var _noise := FastNoiseLite.new()
 var _collision_root: StaticBody2D
+var selected_block_type: int = DIRT
 
 func _ready() -> void:
 	_collision_root = StaticBody2D.new()
@@ -129,6 +132,7 @@ func get_save_data() -> Dictionary:
 		"seed": world_seed,
 		"width": WORLD_WIDTH,
 		"height": WORLD_HEIGHT,
+		"selected_block": selected_block_type,
 		"tiles": saved_columns
 	}
 
@@ -160,7 +164,11 @@ func load_save_data(data: Dictionary) -> bool:
 	tiles = restored
 	surface_heights = restored_surfaces
 	world_seed = int(data.get("seed", world_seed))
+	selected_block_type = int(data.get("selected_block", DIRT))
+	if selected_block_type not in [DIRT, STONE]:
+		selected_block_type = DIRT
 	_noise.seed = world_seed
+	selected_block_changed.emit(selected_block_type)
 	_rebuild_collision()
 	queue_redraw()
 	return true
@@ -193,10 +201,19 @@ func _rebuild_collision() -> void:
 			_collision_root.add_child(shape_node)
 
 func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("cycle_block"):
+		cycle_block_selection()
 	if Input.is_action_just_pressed("mine"):
 		_edit_target(false)
 	if Input.is_action_just_pressed("place"):
 		_edit_target(true)
+
+func cycle_block_selection() -> void:
+	selected_block_type = STONE if selected_block_type == DIRT else DIRT
+	selected_block_changed.emit(selected_block_type)
+
+func get_selected_block_name() -> String:
+	return "STONE" if selected_block_type == STONE else "DIRT"
 
 func _edit_target(placing: bool) -> void:
 	var player := get_node_or_null(player_path) as Node2D
@@ -210,6 +227,6 @@ func _edit_target(placing: bool) -> void:
 	var local_target := to_local(target)
 	var cell := Vector2i(floori(local_target.x / TILE_SIZE), floori(local_target.y / TILE_SIZE))
 	if placing:
-		place_block(cell)
+		place_block(cell, selected_block_type)
 	else:
 		mine_cell(cell)
