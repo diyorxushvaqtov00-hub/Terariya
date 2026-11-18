@@ -2,6 +2,7 @@ extends CharacterBody2D
 class_name PlayerController
 
 signal health_changed(current: int, maximum: int)
+signal attack_requested
 
 @export_category("Movement")
 @export var walk_speed: float = 220.0
@@ -9,6 +10,7 @@ signal health_changed(current: int, maximum: int)
 @export var jump_velocity: float = -390.0
 @export var acceleration: float = 1800.0
 @export var air_acceleration: float = 1000.0
+@export var double_jump_unlocked: bool = false
 
 @export_category("Vitals")
 @export var max_health: int = 100
@@ -19,6 +21,7 @@ var health: int
 var _fall_peak_speed: float = 0.0
 var _was_on_floor: bool = false
 var _facing: int = 1
+var _air_jumps_used: int = 0
 
 @onready var body_visual: Polygon2D = $BodyVisual
 
@@ -29,7 +32,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	var direction := Input.get_axis("move_left", "move_right")
 	if direction != 0.0:
-		_facing = signi(direction)
+		_facing = 1 if direction > 0.0 else -1
 
 	var target_speed := run_speed if Input.is_action_pressed("run") else walk_speed
 	var target_velocity := direction * target_speed
@@ -45,13 +48,24 @@ func _physics_process(delta: float) -> void:
 			if impact > 0:
 				take_damage(impact)
 		_fall_peak_speed = 0.0
+		_air_jumps_used = 0
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_velocity
+	if Input.is_action_just_pressed("jump"):
+		if is_on_floor():
+			velocity.y = jump_velocity
+		elif double_jump_unlocked and _air_jumps_used < 1:
+			velocity.y = jump_velocity * 0.92
+			_air_jumps_used += 1
+
+	if Input.is_action_just_pressed("attack"):
+		attack_requested.emit()
 
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
 	move_and_slide()
+
+func unlock_double_jump() -> void:
+	double_jump_unlocked = true
 
 func take_damage(amount: int) -> void:
 	if amount <= 0 or health <= 0:
@@ -70,4 +84,3 @@ func heal(amount: int) -> void:
 func _die() -> void:
 	velocity = Vector2.ZERO
 	set_physics_process(false)
-	# Respawn flow will be added with the world/save milestones.
