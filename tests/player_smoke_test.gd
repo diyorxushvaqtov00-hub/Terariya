@@ -68,6 +68,21 @@ func _run() -> void:
 	assert(golem.current_phase == 2 and golem.attack_damage == 42, "Magma Golem enters its enraged second phase")
 	golem.queue_free()
 
+	var guardian_scene := load("res://scenes/enemies/mushroom_guardian_boss.tscn") as PackedScene
+	var spore_scene := load("res://scenes/enemies/spore_projectile.tscn") as PackedScene
+	assert(guardian_scene != null and spore_scene != null, "Mushroom Guardian and spore projectile scenes load")
+	var guardian := guardian_scene.instantiate() as MushroomGuardianBoss
+	assert(guardian != null, "Mushroom Guardian boss instantiates")
+	root.add_child(guardian)
+	await process_frame
+	assert(guardian.max_health == 1750 and guardian.attack_damage == 22, "Mushroom Guardian starts with boss stats")
+	guardian.take_damage(875)
+	assert(guardian.current_phase == 2 and guardian.attack_damage == 34, "Mushroom Guardian enters phase two at half health")
+	guardian.queue_free()
+	var spore := spore_scene.instantiate() as SporeProjectile
+	assert(spore != null and spore.impact_damage == 9, "Spore projectile has poison impact")
+	spore.queue_free()
+
 	var web_scene := load("res://scenes/enemies/spider_web_projectile.tscn") as PackedScene
 	assert(web_scene != null, "Spider Queen web projectile scene loads")
 	var web_projectile := web_scene.instantiate() as SpiderWebProjectile
@@ -91,6 +106,32 @@ func _run() -> void:
 	assert(restored_queen_fang.get_weapon_upgrade_level("queens_fang") == 1, "Queen Fang upgrade level persists")
 	restored_queen_fang.queue_free()
 	legendary_inventory.queue_free()
+
+	var fungal_inventory := PlayerInventory.new()
+	root.add_child(fungal_inventory)
+	await process_frame
+	fungal_inventory.add_item("glow_mushroom", 80)
+	fungal_inventory.add_item("mushroom_soil", 60)
+	fungal_inventory.add_item("silver_ore", 80)
+	fungal_inventory.add_item("magma_core", 20)
+	fungal_inventory.add_item("wooden_planks", 20)
+	fungal_inventory.add_item("stone", 40)
+	fungal_inventory.add_item("ore", 20)
+	assert(fungal_inventory.craft("anvil"), "Fungal equipment progression can craft an anvil")
+	assert(fungal_inventory.craft("guardian_totem"), "Guardian summon totem crafts")
+	assert(fungal_inventory.craft("mushroom_blade"), "Mushroom blade crafts")
+	assert(fungal_inventory.craft("fungal_armor"), "Fungal armor crafts")
+	assert(fungal_inventory.get_best_weapon_id() == "mushroom_blade", "Mushroom blade has highest weapon priority")
+	assert(fungal_inventory.equip_armor("fungal_armor") and fungal_inventory.get_armor_defense() == 22, "Fungal armor equips with twenty-two defense")
+	assert(fungal_inventory.upgrade_best_weapon() and fungal_inventory.upgrade_equipped_armor(), "Fungal gear upgrades at anvil")
+	var fungal_save := fungal_inventory.serialize()
+	var fungal_restored := PlayerInventory.new()
+	root.add_child(fungal_restored)
+	await process_frame
+	assert(fungal_restored.restore(fungal_save), "Fungal equipment saves and restores")
+	assert(fungal_restored.get_weapon_upgrade_level("mushroom_blade") == 1 and fungal_restored.get_armor_upgrade_level("fungal_armor") == 1, "Fungal gear upgrade levels persist")
+	fungal_inventory.queue_free()
+	fungal_restored.queue_free()
 
 	var silver_nodes := 0
 	var gold_nodes := 0
