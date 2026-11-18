@@ -16,6 +16,7 @@ const LEAVES: int = 6
 const SAND: int = 7
 const SNOW: int = 8
 const WATER: int = 9
+const CHEST_REWARD_ORE: int = 8
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -33,6 +34,7 @@ var _water_sources: Dictionary = {}
 var max_water_tiles: int = 1800
 var _torch_cells: Array[Vector2i] = []
 var _torch_lights: Array[PointLight2D] = []
+var _dungeon_chests: Array[Dictionary] = []
 
 func _ready() -> void:
 	add_to_group("world_generator")
@@ -76,6 +78,7 @@ func generate_world() -> void:
 			column[y] = tile
 		tiles.append(column)
 	_generate_caves()
+	_generate_dungeons()
 	_generate_lakes()
 	_generate_trees()
 	_rebuild_collision()
@@ -95,6 +98,14 @@ func _draw() -> void:
 				draw_line(rect.position + Vector2(2.0, 2.0), rect.position + Vector2(TILE_SIZE - 2.0, 2.0), Color(0.58, 0.82, 1.0, 0.9), 2.0)
 			elif tile == WATER:
 				draw_line(rect.position + Vector2(7.0, 5.0), rect.position + Vector2(7.0, TILE_SIZE - 5.0), Color(0.42, 0.70, 1.0, 0.28), 2.0)
+	for chest in _dungeon_chests:
+		var chest_cell: Vector2i = chest["cell"]
+		var chest_rect := Rect2(Vector2(chest_cell.x * TILE_SIZE + 4, chest_cell.y * TILE_SIZE + 10), Vector2(24, 19))
+		draw_rect(chest_rect, Color(0.43, 0.22, 0.08), true)
+		draw_rect(Rect2(chest_rect.position, Vector2(24, 6)), Color(0.72, 0.43, 0.13), true)
+		draw_rect(chest_rect, Color(0.18, 0.11, 0.06), false, 2.0)
+		if bool(chest.get("opened", false)):
+			draw_line(chest_rect.position + Vector2(3, 4), chest_rect.position + Vector2(21, 16), Color(0.12, 0.09, 0.06), 2.0)
 	for cell in _torch_cells:
 		var torch_base := Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.82) * TILE_SIZE)
 		draw_line(torch_base, torch_base + Vector2(0.0, -17.0), Color(0.48, 0.28, 0.12), 4.0)
@@ -249,6 +260,7 @@ func get_save_data() -> Dictionary:
 		"selected_block": selected_block_type,
 		"water_sources": _serialize_water_sources(),
 		"torches": _serialize_torches(),
+		"chests": _serialize_chests(),
 		"tiles": saved_columns
 	}
 
@@ -289,6 +301,7 @@ func load_save_data(data: Dictionary) -> bool:
 	_noise.seed = world_seed
 	_water_sources = _restore_water_sources(data.get("water_sources", []))
 	_restore_torches(data.get("torches", []))
+	_restore_chests(data.get("chests", []))
 	selected_block_changed.emit(selected_block_type)
 	_rebuild_collision()
 	queue_redraw()
@@ -367,6 +380,62 @@ func _restore_water_sources(raw_sources: Variant) -> Dictionary:
 			if _inside_world(cell) and get_tile(cell) == WATER:
 				result[cell] = true
 	return result
+
+func _generate_dungeons() -> void:
+	_dungeon_chests.clear()
+	# Three fixed underground chambers, one in each biome, keep layouts reproducible.
+	for center_x in [42, 102, 160]:
+		var center_y := mini(get_surface_y(center_x) + 19, WORLD_HEIGHT - 9)
+		for x in range(center_x - 7, center_x + 8):
+			for y in range(center_y - 4, center_y + 4):
+				if _inside_world(Vector2i(x, y)):
+					tiles[x][y] = AIR
+		for x in range(center_x - 8, center_x + 9):
+			var floor_cell := Vector2i(x, center_y + 4)
+			if _inside_world(floor_cell):
+				tiles[x][floor_cell.y] = STONE
+		var chest_cell := Vector2i(center_x + 3, center_y + 2)
+		_dungeon_chests.append({"cell": chest_cell, "opened": false})
+
+func get_dungeon_chest_count() -> int:
+	return _dungeon_chests.size()
+
+func open_nearby_chest(world_position: Vector2, inventory: PlayerInventory) -> bool:
+	if inventory == null:
+		return false
+	for index in range(_dungeon_chests.size()):
+		var chest: Dictionary = _dungeon_chests[index]
+		if bool(chest.get("opened", false)):
+			continue
+		var cell: Vector2i = chest["cell"]
+		var chest_position := to_global(Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE))
+		if world_position.distance_to(chest_position) > TILE_SIZE * 2.4:
+			continue
+		chest["opened"] = true
+		_dungeon_chests[index] = chest
+		inventory.add_item("ore", CHEST_REWARD_ORE)
+		inventory.add_item("torch", 3)
+		inventory.add_item("healing_potion", 2)
+		queue_redraw()
+		return true
+	return false
+
+func _serialize_chests() -> Array:
+	var result: Array = []
+	for chest in _dungeon_chests:
+		var cell: Vector2i = chest["cell"]
+		result.append([cell.x, cell.y, bool(chest.get("opened", false))])
+	return result
+
+func _restore_chests(raw_chests: Variant) -> void:
+	_dungeon_chests.clear()
+	if not raw_chests is Array:
+		return
+	for entry in raw_chests:
+		if entry is Array and entry.size() == 3:
+			var cell := Vector2i(int(entry[0]), int(entry[1]))
+			if _inside_world(cell) and get_tile(cell) == AIR:
+				_dungeon_chests.append({"cell": cell, "opened": bool(entry[2])})
 
 func _generate_caves() -> void:
 	# Carve deterministic underground pockets while protecting the surface layer.
