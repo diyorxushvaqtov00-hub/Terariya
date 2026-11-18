@@ -29,7 +29,8 @@ Implemented in source:
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench and a stone sword, with ingredient checks and exact resource consumption.
-- Crafted stone sword adds 15 melee damage while owned.
+- Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
+- Craftable wooden armor can be equipped, persists in save data, and reduces incoming damage by 6 points per hit.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, renewable water-source persistence, water detection, bucket crafting/collection/pouring, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
@@ -39,7 +40,7 @@ Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Add zombie and other night-only enemy species, more light-source types, and configurable day-length settings.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
+- Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
