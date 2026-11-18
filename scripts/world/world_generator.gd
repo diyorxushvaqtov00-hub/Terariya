@@ -460,6 +460,22 @@ func _generate_dungeons() -> void:
 func get_dungeon_chest_count() -> int:
 	return _dungeon_chests.size()
 
+func get_nearest_dungeon_arena_position(world_position: Vector2) -> Vector2:
+	if _dungeon_chests.is_empty():
+		return world_position
+	var nearest_position := world_position
+	var nearest_distance := INF
+	for chest in _dungeon_chests:
+		var cell: Vector2i = chest["cell"]
+		var center_x := cell.x - 3
+		var floor_y := (cell.y + 2) * TILE_SIZE
+		var arena_position := to_global(Vector2((center_x + 0.5) * TILE_SIZE, floor_y))
+		var distance := world_position.distance_squared_to(arena_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_position = arena_position
+	return nearest_position
+
 func get_dungeon_guard_positions() -> Array[Vector2]:
 	var positions: Array[Vector2] = []
 	for chest in _dungeon_chests:
