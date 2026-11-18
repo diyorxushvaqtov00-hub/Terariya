@@ -11,6 +11,8 @@ const GRASS: int = 1
 const DIRT: int = 2
 const STONE: int = 3
 const ORE: int = 4
+const WOOD: int = 5
+const LEAVES: int = 6
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -52,6 +54,7 @@ func generate_world() -> void:
 					tile = ORE
 			column[y] = tile
 		tiles.append(column)
+	_generate_trees()
 	_rebuild_collision()
 	queue_redraw()
 
@@ -76,6 +79,10 @@ func _tile_color(tile: int) -> Color:
 			return Color(0.38, 0.42, 0.48)
 		ORE:
 			return Color(0.20, 0.68, 0.76)
+		WOOD:
+			return Color(0.43, 0.25, 0.12)
+		LEAVES:
+			return Color(0.20, 0.55, 0.22)
 	return Color.TRANSPARENT
 
 func get_surface_y(tile_x: int) -> int:
@@ -96,7 +103,7 @@ func mine_cell(cell: Vector2i) -> bool:
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
-		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else "dirt")
+		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else "dirt")))
 		player.inventory.add_item(drop, 1)
 	tiles[cell.x][cell.y] = AIR
 	_rebuild_collision()
@@ -154,10 +161,10 @@ func load_save_data(data: Dictionary) -> bool:
 		var first_solid := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
-			if tile_value < AIR or tile_value > ORE:
+			if tile_value < AIR or tile_value > LEAVES:
 				return false
 			column[y] = tile_value
-			if first_solid == -1 and tile_value != AIR:
+			if tile_value == GRASS:
 				first_solid = y
 		restored_surfaces[x] = first_solid if first_solid >= 0 else 0
 		restored.append(column)
@@ -173,6 +180,28 @@ func load_save_data(data: Dictionary) -> bool:
 	queue_redraw()
 	return true
 
+func _generate_trees() -> void:
+	# Fixed spacing plus seeded noise keeps tree placement reproducible.
+	for x in range(7, WORLD_WIDTH - 7, 11):
+		if _noise.get_noise_1d(float(x) + 913.0) < -0.12:
+			continue
+		var ground_y := surface_heights[x]
+		var trunk_height := 3 + int(absf(_noise.get_noise_1d(float(x) * 0.73)) * 3.0)
+		for offset in range(1, trunk_height + 1):
+			var trunk_y := ground_y - offset
+			if trunk_y >= 0:
+				tiles[x][trunk_y] = WOOD
+		var crown_y := ground_y - trunk_height
+		for leaf_x in range(x - 2, x + 3):
+			for leaf_y in range(crown_y - 2, crown_y + 2):
+				if not _inside_world(Vector2i(leaf_x, leaf_y)):
+					continue
+				if abs(leaf_x - x) + abs(leaf_y - crown_y) <= 3 and tiles[leaf_x][leaf_y] == AIR:
+					tiles[leaf_x][leaf_y] = LEAVES
+
+func _is_solid_tile(tile: int) -> bool:
+	return tile != AIR and tile != LEAVES
+
 func _inside_world(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < WORLD_WIDTH and cell.y >= 0 and cell.y < WORLD_HEIGHT
 
@@ -185,12 +214,12 @@ func _rebuild_collision() -> void:
 	for y in range(WORLD_HEIGHT):
 		var x := 0
 		while x < WORLD_WIDTH:
-			while x < WORLD_WIDTH and tiles[x][y] == AIR:
+			while x < WORLD_WIDTH and not _is_solid_tile(tiles[x][y]):
 				x += 1
 			if x >= WORLD_WIDTH:
 				break
 			var start_x := x
-			while x < WORLD_WIDTH and tiles[x][y] != AIR:
+			while x < WORLD_WIDTH and _is_solid_tile(tiles[x][y]):
 				x += 1
 			var end_x := x
 			var shape_node := CollisionShape2D.new()
