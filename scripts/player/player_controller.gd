@@ -33,6 +33,7 @@ var _air_jumps_used: int = 0
 var _can_attack: bool = true
 var _spawn_position := Vector2.ZERO
 var _is_dead: bool = false
+var is_swimming: bool = false
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -45,18 +46,26 @@ func _ready() -> void:
 	health_changed.emit(health, max_health)
 
 func _physics_process(delta: float) -> void:
+	is_swimming = _is_in_water()
 	var direction := Input.get_axis("move_left", "move_right")
 	if direction != 0.0:
 		_facing = 1 if direction > 0.0 else -1
 
 	var target_speed := run_speed if Input.is_action_pressed("run") else walk_speed
+	if is_swimming:
+		target_speed *= 0.72
 	var target_velocity := direction * target_speed
 	var rate := acceleration if is_on_floor() else air_acceleration
 	velocity.x = move_toward(velocity.x, target_velocity, rate * delta)
 
 	if not is_on_floor():
-		velocity += get_gravity() * delta
-		_fall_peak_speed = maxf(_fall_peak_speed, velocity.y)
+		velocity += get_gravity() * delta * (0.28 if is_swimming else 1.0)
+		if is_swimming:
+			velocity.y = minf(velocity.y, 115.0)
+			velocity.y = move_toward(velocity.y, -24.0, 150.0 * delta)
+			_fall_peak_speed = 0.0
+		else:
+			_fall_peak_speed = maxf(_fall_peak_speed, velocity.y)
 	else:
 		if not _was_on_floor and _fall_peak_speed > fall_damage_threshold:
 			var impact := int((_fall_peak_speed - fall_damage_threshold) * fall_damage_scale)
@@ -66,7 +75,10 @@ func _physics_process(delta: float) -> void:
 		_air_jumps_used = 0
 
 	if Input.is_action_just_pressed("jump"):
-		if is_on_floor():
+		if is_swimming:
+			velocity.y = -235.0
+			_air_jumps_used = 0
+		elif is_on_floor():
 			velocity.y = jump_velocity
 		elif double_jump_unlocked and _air_jumps_used < 1:
 			velocity.y = jump_velocity * 0.92
@@ -78,6 +90,12 @@ func _physics_process(delta: float) -> void:
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
 	move_and_slide()
+
+func _is_in_water() -> bool:
+	var world := get_tree().get_first_node_in_group("world_generator") as WorldGenerator
+	if world == null:
+		return false
+	return world.is_position_in_water(global_position + Vector2(0.0, 12.0))
 
 func _start_attack() -> void:
 	if not _can_attack or health <= 0:
