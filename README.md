@@ -14,16 +14,17 @@ Implemented in source:
 - Desktop Q/E and Android MINE/PLACE controls.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - Melee attack area, configurable damage/cooldown and a damageable training dummy.
-- Smoke-test source covering world edits, player health, combat and respawn.
+- JSON world/player/inventory save-load with validation and automatic save on app pause/close.
+- Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add inventory counts, mining drops, block selection and world persistence.
+- Add block selection, inventory UI and richer progression systems.
 - Add caves, trees, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Implement enemy AI, crafting, save/load and export/install a debug APK.
+- Implement enemy AI, crafting, block selection and export/install a debug APK.
 
 ## Run
 
