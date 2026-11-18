@@ -101,6 +101,26 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	player.inventory.add_item("wooden_planks", 5)
+	assert(player.inventory.craft("wooden_bucket"), "Wooden bucket can be crafted")
+	assert(player.inventory.count("empty_bucket") == 1, "Crafting creates an empty bucket")
+	var bucket_water_cell := Vector2i(-1, -1)
+	for bucket_x in range(WorldGenerator.WORLD_WIDTH):
+		for bucket_y in range(WorldGenerator.WORLD_HEIGHT):
+			var candidate := Vector2i(bucket_x, bucket_y)
+			if world.get_tile(candidate) == WorldGenerator.WATER and candidate != water_cell:
+				bucket_water_cell = candidate
+				break
+		if bucket_water_cell.x >= 0:
+			break
+	assert(bucket_water_cell.x >= 0, "A second water tile is available for bucket collection")
+	assert(world.fill_bucket(bucket_water_cell, player.inventory), "Empty bucket collects one water tile")
+	assert(player.inventory.count("water_bucket") == 1, "Filled bucket enters inventory")
+	var poured_water_cell := Vector2i(WorldGenerator.WORLD_WIDTH - 4, 1)
+	assert(world.pour_bucket(poured_water_cell, player.inventory), "Filled bucket pours water into an empty tile")
+	assert(world.get_tile(poured_water_cell) == WorldGenerator.WATER, "Poured water occupies the target tile")
+	assert(player.inventory.count("empty_bucket") == 1 and player.inventory.count("water_bucket") == 0, "Pouring returns an empty bucket")
+	world.tiles[poured_water_cell.x][poured_water_cell.y] = WorldGenerator.AIR
 	player.global_position = world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 16.0))
 	assert(player._is_in_water(), "Player detects water around the body")
 	player.is_swimming = player._is_in_water()
