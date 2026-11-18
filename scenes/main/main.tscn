@@ -3,6 +3,9 @@
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scripts/main/game.gd" id="2_game"]
 
+[sub_resource type="RectangleShape2D" id="GroundShape"]
+size = Vector2(1280, 64)
+
 [node name="Main" type="Node2D"]
 script = ExtResource("2_game")
 
@@ -29,6 +32,3 @@ offset_right = 220.0
 offset_bottom = 54.0
 theme_override_font_sizes/font_size = 24
 text = "HP 100 / 100"
-
-[sub_resource type="RectangleShape2D" id="GroundShape"]
-size = Vector2(1280, 64)
