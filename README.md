@@ -13,7 +13,7 @@ Implemented in source:
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
-- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.
+- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
@@ -28,7 +28,7 @@ Implemented in source:
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
-- Inventory-based crafting recipes for wooden planks, a workbench and a stone sword, with ingredient checks and exact resource consumption.
+- Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden armor can be equipped, persists in save data, and reduces incoming damage by 6 points per hit.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
@@ -43,7 +43,7 @@ Still required:
 - Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
+- Add additional bosses, crafting stations and export/install a debug APK.
 
 ## Run
 
