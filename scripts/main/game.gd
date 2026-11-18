@@ -7,6 +7,8 @@ const DAY_LENGTH_SECONDS: float = 480.0
 const NIGHT_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/slime_enemy.tscn")
 const ZOMBIE_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/zombie_enemy.tscn")
 const SKELETON_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/skeleton_archer.tscn")
+const DUNGEON_SKELETON_SCENE: PackedScene = preload("res://scenes/enemies/dungeon_skeleton.tscn")
+const CAVE_SPIDER_SCENE: PackedScene = preload("res://scenes/enemies/cave_spider.tscn")
 const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
 const NIGHT_SPAWN_INTERVAL: float = 18.0
@@ -50,6 +52,7 @@ func _ready() -> void:
 	_connect_enemy_rewards(slime, 25)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
+	_spawn_dungeon_guards()
 	_on_player_health_changed(player.health, player.max_health)
 	_rng.randomize()
 	_build_day_night_system()
@@ -228,6 +231,31 @@ func _on_progression_changed(current_level: int, current_xp: int, required_xp: i
 	_xp_bar.max_value = maxi(required_xp, 1)
 	_xp_bar.value = current_xp
 	_xp_bar.visible = current_level < 50
+
+func _spawn_dungeon_guards() -> void:
+	var spawn_positions := world.get_dungeon_guard_positions()
+	for index in range(spawn_positions.size()):
+		var is_skeleton := index % 2 == 0
+		var enemy_scene: PackedScene = DUNGEON_SKELETON_SCENE if is_skeleton else CAVE_SPIDER_SCENE
+		var enemy := enemy_scene.instantiate() as SlimeEnemy
+		if enemy == null:
+			continue
+		enemy.name = "DungeonSkeleton" if is_skeleton else "CaveSpider"
+		enemy.add_to_group("dungeon_enemy")
+		add_child(enemy)
+		enemy.global_position = spawn_positions[index]
+		if is_skeleton:
+			_connect_dungeon_reward(enemy, 55, "silver_ore", 3)
+		else:
+			_connect_dungeon_reward(enemy, 35, "healing_potion", 1)
+
+func _connect_dungeon_reward(enemy: SlimeEnemy, xp_reward: int, item_id: String, item_amount: int) -> void:
+	if enemy != null:
+		enemy.defeated.connect(_grant_dungeon_reward.bind(xp_reward, item_id, item_amount))
+
+func _grant_dungeon_reward(xp_reward: int, item_id: String, item_amount: int) -> void:
+	player.add_experience(xp_reward)
+	player.inventory.add_item(item_id, item_amount)
 
 func _connect_enemy_rewards(enemy: SlimeEnemy, reward: int) -> void:
 	if enemy != null:
