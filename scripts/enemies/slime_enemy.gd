@@ -15,12 +15,23 @@ signal defeated
 
 var health: int
 var _attack_ready: bool = true
+var _night_mode: bool = false
+var _base_move_speed: float
+var _base_attack_damage: int
 
 @onready var visual: Polygon2D = $Visual
 
 func _ready() -> void:
+	_base_move_speed = move_speed
+	_base_attack_damage = attack_damage
 	health = max_health
 	health_changed.emit(health, max_health)
+
+func set_night_mode(enabled: bool) -> void:
+	_night_mode = enabled
+	move_speed = _base_move_speed * (1.35 if enabled else 1.0)
+	attack_damage = _base_attack_damage + (5 if enabled else 0)
+	visual.color = Color(0.72, 0.30, 0.82, 1.0) if enabled else Color(0.35, 0.85, 0.42, 1.0)
 
 func _physics_process(delta: float) -> void:
 	var player := get_node_or_null(player_path) as PlayerController
