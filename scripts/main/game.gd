@@ -333,7 +333,7 @@ func _build_boss_ui() -> void:
 	hud.add_child(_boss_health_bar)
 
 func _summon_spider_queen() -> void:
-	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian):
+	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden):
 		return
 	if not player.inventory.remove_item("spider_summon", 1):
 		return
@@ -371,7 +371,7 @@ func _on_spider_queen_defeated() -> void:
 	_active_spider_queen = null
 
 func _summon_ancient_eye() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem):
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_dungeon_warden):
 		return
 	if not player.inventory.remove_item("eye_summon", 1):
 		return
@@ -393,7 +393,7 @@ func _summon_ancient_eye() -> void:
 	_on_inventory_changed(player.inventory.items)
 
 func _summon_magma_golem() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem):
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_dungeon_warden):
 		return
 	if not player.inventory.remove_item("magma_heart", 1):
 		return
