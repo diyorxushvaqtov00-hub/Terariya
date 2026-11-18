@@ -26,6 +26,9 @@ var _noise := FastNoiseLite.new()
 var _cave_noise := FastNoiseLite.new()
 var _collision_root: StaticBody2D
 var selected_block_type: int = DIRT
+var water_flow_interval: float = 0.28
+var _water_flow_elapsed: float = 0.0
+var _water_flow_direction: int = 1
 
 func _ready() -> void:
 	add_to_group("world_generator")
@@ -259,6 +262,50 @@ func _generate_lakes() -> void:
 					if tiles[x][y] == AIR:
 						tiles[x][y] = WATER
 
+func _simulate_water_step() -> int:
+	# Collect moves first so water advances at most one tile per simulation step.
+	var moves: Array[Vector2i] = []
+	var reserved: Dictionary = {}
+	for y in range(WORLD_HEIGHT - 2, -1, -1):
+		for x in range(1, WORLD_WIDTH - 1):
+			if tiles[x][y] != WATER:
+				continue
+			var below := Vector2i(x, y + 1)
+			if tiles[below.x][below.y] == AIR and not reserved.has(below):
+				moves.append(Vector2i(x, y))
+				reserved[below] = true
+				continue
+			for side in [_water_flow_direction, -_water_flow_direction]:
+				var target := Vector2i(x + side, y)
+				var support := Vector2i(target.x, target.y + 1)
+				if tiles[target.x][target.y] == AIR and tiles[support.x][support.y] != AIR and tiles[support.x][support.y] != LEAVES and not reserved.has(target):
+					moves.append(Vector2i(x, y))
+					reserved[target] = true
+				break
+	if moves.is_empty():
+		_water_flow_direction *= -1
+		return 0
+	var destinations: Array[Vector2i] = []
+	for source in moves:
+		var below := Vector2i(source.x, source.y + 1)
+		if reserved.has(below) and tiles[below.x][below.y] == AIR:
+			destinations.append(below)
+			continue
+		var chosen := Vector2i(source.x, source.y)
+		for side in [_water_flow_direction, -_water_flow_direction]:
+			var target := Vector2i(source.x + side, source.y)
+			if reserved.has(target) and tiles[target.x][target.y] == AIR:
+				chosen = target
+				break
+		destinations.append(chosen)
+	for index in range(moves.size()):
+		tiles[moves[index].x][moves[index].y] = AIR
+	for destination in destinations:
+		tiles[destination.x][destination.y] = WATER
+	_water_flow_direction *= -1
+	queue_redraw()
+	return moves.size()
+
 func _has_water_above(tile_x: int, ground_y: int) -> bool:
 	for y in range(ground_y - 1, -1, -1):
 		if tiles[tile_x][y] == WATER:
@@ -316,7 +363,11 @@ func _rebuild_collision() -> void:
 			shape_node.position = Vector2((start_x + end_x) * TILE_SIZE * 0.5, y * TILE_SIZE + TILE_SIZE * 0.5)
 			_collision_root.add_child(shape_node)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_water_flow_elapsed += delta
+	if _water_flow_elapsed >= water_flow_interval:
+		_water_flow_elapsed = 0.0
+		_simulate_water_step()
 	if Input.is_action_just_pressed("cycle_block"):
 		cycle_block_selection()
 	if Input.is_action_just_pressed("mine"):
