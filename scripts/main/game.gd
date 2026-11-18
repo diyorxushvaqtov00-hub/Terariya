@@ -31,6 +31,8 @@ var _oxygen_bar: ProgressBar
 var _underwater_overlay: ColorRect
 var _oxygen_label: Label
 var _inventory_summary: Label
+var _quest_summary: Label
+var _quest_tracker: QuestTracker
 var _merchant_shop_panel: PanelContainer
 var _merchant_status: Label
 var _merchant: Node2D
@@ -59,11 +61,16 @@ func _ready() -> void:
 	player.health_changed.connect(_on_player_health_changed)
 	player.oxygen_changed.connect(_on_player_oxygen_changed)
 	player.underwater_changed.connect(_on_underwater_changed)
-	player.inventory.changed.connect(_on_inventory_changed)
 	player.progression_changed.connect(_on_progression_changed)
 	_connect_enemy_rewards(slime, 25)
 	world.selected_block_changed.connect(_on_selected_block_changed)
+	_quest_tracker = QuestTracker.new()
+	add_child(_quest_tracker)
+	_quest_tracker.quest_completed.connect(_on_quest_completed)
+	_quest_tracker.updated.connect(_on_quests_updated)
 	_load_game()
+	player.inventory.changed.connect(_on_inventory_changed)
+	_quest_tracker.sync_inventory(player.inventory.items)
 	_spawn_merchant()
 	_spawn_dungeon_hazards()
 	_spawn_dungeon_guards()
@@ -108,7 +115,8 @@ func save_game() -> bool:
 		},
 		"time_of_day": _world_time_seconds,
 		"inventory": player.inventory.serialize(),
-		"world": world.get_save_data()
+		"world": world.get_save_data(),
+		"quests": _quest_tracker.serialize() if is_instance_valid(_quest_tracker) else {}
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -130,6 +138,10 @@ func _load_game() -> bool:
 	if not parsed is Dictionary or int(parsed.get("version", -1)) != SAVE_VERSION:
 		push_warning("Save file is invalid or uses an unsupported version.")
 		return false
+	var quest_data: Variant = parsed.get("quests", {})
+	if quest_data is Dictionary and is_instance_valid(_quest_tracker):
+		if not quest_data.is_empty() and not _quest_tracker.restore(quest_data):
+			push_warning("Saved quest data is invalid; using new quest progress.")
 	var world_data: Variant = parsed.get("world", {})
 	if not world_data is Dictionary or not world.load_save_data(world_data):
 		push_warning("Saved world data is invalid; starting with generated world.")
@@ -283,6 +295,7 @@ func _connect_dungeon_reward(enemy: SlimeEnemy, xp_reward: int, item_id: String,
 
 func _grant_dungeon_reward(xp_reward: int, item_id: String, item_amount: int) -> void:
 	player.add_experience(xp_reward)
+	_quest_tracker.record_enemy_defeat()
 	player.inventory.add_item(item_id, item_amount)
 	player.inventory.add_item("coins", maxi(1, int(floori(float(xp_reward) / 12.0))))
 
@@ -292,6 +305,7 @@ func _connect_enemy_rewards(enemy: SlimeEnemy, reward: int) -> void:
 
 func _grant_enemy_experience(reward: int) -> void:
 	player.add_experience(reward)
+	_quest_tracker.record_enemy_defeat()
 	player.inventory.add_item("coins", maxi(1, int(floori(float(reward) / 10.0))))
 
 func _build_boss_ui() -> void:
@@ -464,6 +478,23 @@ func _on_boss_defeated() -> void:
 	player.add_experience(500)
 	_active_boss = null
 
+func _on_quests_updated(summary: String) -> void:
+	if is_instance_valid(_quest_summary):
+		_quest_summary.text = summary
+
+func _on_quest_completed(quest_id: String) -> void:
+	match quest_id:
+		"gather_wood":
+			player.inventory.add_item("coins", 15)
+			player.inventory.add_item("healing_potion", 1)
+		"hunter":
+			player.inventory.add_item("coins", 25)
+			player.inventory.add_item("silver_ore", 3)
+		"dungeon_delver":
+			player.inventory.add_item("coins", 40)
+			player.inventory.add_item("gold_ore", 2)
+	_on_inventory_changed(player.inventory.items)
+
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
 
@@ -554,6 +585,11 @@ func _build_inventory_ui() -> void:
 	_inventory_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	layout.add_child(_inventory_summary)
 
+	_quest_summary = Label.new()
+	_quest_summary.name = "QuestSummary"
+	_quest_summary.text = _quest_tracker.get_summary() if is_instance_valid(_quest_tracker) else "QUEST LOG"
+	_quest_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	layout.add_child(_quest_summary)
 	var recipe_title := Label.new()
 	recipe_title.text = "RECIPES"
 	recipe_title.add_theme_font_size_override("font_size", 18)
@@ -782,6 +818,7 @@ func _pour_water_bucket() -> void:
 
 func _open_nearby_chest() -> void:
 	if world.open_nearby_chest(player.global_position, player.inventory):
+		_quest_tracker.record_chest_opened()
 		_on_inventory_changed(player.inventory.items)
 
 func _use_healing_potion() -> void:
