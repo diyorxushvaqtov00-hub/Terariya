@@ -36,7 +36,11 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if health <= 0:
 		return
-	_summoned_minions = _summoned_minions.filter(func(minion: Node2D) -> bool: return is_instance_valid(minion))
+	var living_minions: Array[Node2D] = []
+	for minion in _summoned_minions:
+		if is_instance_valid(minion):
+			living_minions.append(minion)
+	_summoned_minions = living_minions
 	_summon_timer -= delta
 	if _summon_timer <= 0.0:
 		_summon_timer = 12.0 if current_phase == 1 else 8.0
