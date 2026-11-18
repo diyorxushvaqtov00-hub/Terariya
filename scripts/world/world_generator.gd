@@ -263,8 +263,9 @@ func _generate_lakes() -> void:
 						tiles[x][y] = WATER
 
 func _simulate_water_step() -> int:
-	# Collect moves first so water advances at most one tile per simulation step.
-	var moves: Array[Vector2i] = []
+	# Collect source/destination pairs first so water advances one tile per step.
+	var sources: Array[Vector2i] = []
+	var destinations: Array[Vector2i] = []
 	var reserved: Dictionary = {}
 	for y in range(WORLD_HEIGHT - 2, -1, -1):
 		for x in range(1, WORLD_WIDTH - 1):
@@ -272,39 +273,29 @@ func _simulate_water_step() -> int:
 				continue
 			var below := Vector2i(x, y + 1)
 			if tiles[below.x][below.y] == AIR and not reserved.has(below):
-				moves.append(Vector2i(x, y))
+				sources.append(Vector2i(x, y))
+				destinations.append(below)
 				reserved[below] = true
 				continue
 			for side in [_water_flow_direction, -_water_flow_direction]:
 				var target := Vector2i(x + side, y)
 				var support := Vector2i(target.x, target.y + 1)
-				if tiles[target.x][target.y] == AIR and tiles[support.x][support.y] != AIR and tiles[support.x][support.y] != LEAVES and not reserved.has(target):
-					moves.append(Vector2i(x, y))
+				var supported := tiles[support.x][support.y] != AIR and tiles[support.x][support.y] != LEAVES
+				if tiles[target.x][target.y] == AIR and supported and not reserved.has(target):
+					sources.append(Vector2i(x, y))
+					destinations.append(target)
 					reserved[target] = true
-				break
-	if moves.is_empty():
+					break
+	if sources.is_empty():
 		_water_flow_direction *= -1
 		return 0
-	var destinations: Array[Vector2i] = []
-	for source in moves:
-		var below := Vector2i(source.x, source.y + 1)
-		if reserved.has(below) and tiles[below.x][below.y] == AIR:
-			destinations.append(below)
-			continue
-		var chosen := Vector2i(source.x, source.y)
-		for side in [_water_flow_direction, -_water_flow_direction]:
-			var target := Vector2i(source.x + side, source.y)
-			if reserved.has(target) and tiles[target.x][target.y] == AIR:
-				chosen = target
-				break
-		destinations.append(chosen)
-	for index in range(moves.size()):
-		tiles[moves[index].x][moves[index].y] = AIR
+	for source in sources:
+		tiles[source.x][source.y] = AIR
 	for destination in destinations:
 		tiles[destination.x][destination.y] = WATER
 	_water_flow_direction *= -1
 	queue_redraw()
-	return moves.size()
+	return sources.size()
 
 func _has_water_above(tile_x: int, ground_y: int) -> bool:
 	for y in range(ground_y - 1, -1, -1):
