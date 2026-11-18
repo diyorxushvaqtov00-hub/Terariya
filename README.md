@@ -145,4 +145,5 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 
 - Craft Void Armor at an anvil using 8 Void Shards, 3 Dungeon Relics and 20 Gold Ore.
 - It provides 38 defense, currently the strongest armor set, and upgrades up to level 10 using Void Shards.
+- Its Void Ward passive reduces incoming damage by a further 15% before flat defense is applied.
 - The best-armor button prioritizes Void Armor; its equipped state and upgrade level persist in saves.
