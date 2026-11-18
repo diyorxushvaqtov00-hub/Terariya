@@ -26,6 +26,12 @@ func _run() -> void:
 	root.add_child(player)
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
+	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	var inventory_test_cell := Vector2i(12, world.get_surface_y(12))
+	assert(world.mine_cell(inventory_test_cell), "Mining a block with a player succeeds")
+	assert(player.inventory.count("dirt") == 21, "Mining a grass or dirt block adds a dirt drop")
+	assert(world.place_block(inventory_test_cell), "Player can place a block using inventory")
+	assert(player.inventory.count("dirt") == 20, "Placing a block consumes one dirt item")
 	player.take_damage(25)
 	assert(player.health == 75, "Damage subtracts health")
 	player.heal(10)
