@@ -507,6 +507,7 @@ func open_nearby_chest(world_position: Vector2, inventory: PlayerInventory) -> b
 		inventory.add_item("healing_potion", 2)
 		if index == 2:
 			inventory.add_item("gold_ore", 8)
+			inventory.add_item("dungeon_relic", 1)
 		queue_redraw()
 		return true
 	return false
