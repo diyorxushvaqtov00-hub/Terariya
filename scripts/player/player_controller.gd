@@ -36,6 +36,7 @@ var _is_dead: bool = false
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
+@onready var inventory: PlayerInventory = $Inventory
 
 func _ready() -> void:
 	_spawn_position = global_position
