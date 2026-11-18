@@ -13,7 +13,7 @@ Implemented in source:
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
-- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.
+- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.\n- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.\n- Healing potions restore 35 health and can be used from the inventory panel.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
@@ -43,7 +43,7 @@ Still required:
 - Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Add additional bosses, crafting stations and export/install a debug APK.
+- Add dungeon enemies, additional bosses, crafting stations and export/install a debug APK.
 
 ## Run
 
