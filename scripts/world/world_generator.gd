@@ -251,7 +251,30 @@ func mine_cell(cell: Vector2i) -> bool:
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
-		var drop := "gold_ore" if mined_type == GOLD_ORE else ("silver_ore" if mined_type == SILVER_ORE else ("glow_mushroom" if mined_type == GLOW_MUSHROOM else ("magma_rock" if mined_type == MAGMA_ROCK else ("ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else ("mushroom_soil" if mined_type == MUSHROOM_SOIL else "dirt")))))))))
+		var drop := "dirt"
+		match mined_type:
+			GOLD_ORE:
+				drop = "gold_ore"
+			SILVER_ORE:
+				drop = "silver_ore"
+			GLOW_MUSHROOM:
+				drop = "glow_mushroom"
+			MAGMA_ROCK:
+				drop = "magma_rock"
+			MUSHROOM_SOIL:
+				drop = "mushroom_soil"
+			ORE:
+				drop = "ore"
+			STONE:
+				drop = "stone"
+			WOOD:
+				drop = "wood"
+			LEAVES:
+				drop = "leaves"
+			SAND:
+				drop = "sand"
+			SNOW:
+				drop = "snow"
 		var amount := 1
 		if mined_type == WOOD and player.inventory.count("wooden_axe") > 0:
 			amount = 2
