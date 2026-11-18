@@ -346,6 +346,7 @@ func _simulate_water_step() -> int:
 		var destination: Vector2i = destinations[index]
 		if not (_water_sources.has(source) and destination.x == source.x and destination.y == source.y + 1):
 			tiles[source.x][source.y] = AIR
+			_water_sources.erase(source)
 	for destination in destinations:
 		tiles[destination.x][destination.y] = WATER
 	_water_flow_direction *= -1
