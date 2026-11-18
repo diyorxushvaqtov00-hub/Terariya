@@ -39,6 +39,18 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	var tree_cell := Vector2i(-1, -1)
+	for tree_x in range(WorldGenerator.WORLD_WIDTH):
+		for tree_y in range(WorldGenerator.WORLD_HEIGHT):
+			if world.get_tile(Vector2i(tree_x, tree_y)) == WorldGenerator.WOOD:
+				tree_cell = Vector2i(tree_x, tree_y)
+				break
+		if tree_cell.x >= 0:
+			break
+	assert(tree_cell.x >= 0, "Seeded world generates at least one tree")
+	assert(not world._is_solid_tile(WorldGenerator.LEAVES), "Tree leaves do not block player movement")
+	assert(world.mine_cell(tree_cell), "Tree trunk can be harvested")
+	assert(player.inventory.count("wood") == 1, "Harvesting a trunk adds one wood")
 	var inventory_test_cell := Vector2i(12, world.get_surface_y(12))
 	assert(world.mine_cell(inventory_test_cell), "Mining a block with a player succeeds")
 	assert(player.inventory.count("dirt") == 21, "Mining a grass or dirt block adds a dirt drop")
