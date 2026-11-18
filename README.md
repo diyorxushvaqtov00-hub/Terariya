@@ -14,7 +14,9 @@ Implemented in source:
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
 - Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.\n- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
-- Each dungeon is guarded by a heavy skeleton warrior and a fast cave spider. Skeleton guards reward XP and silver ore; cave spiders reward XP and healing potions. Dungeon guard positions are derived from the generated chamber layout.
+- Each dungeon is guarded by a heavy skeleton warrior and a fast cave spider. Skeleton guards reward XP and silver ore; cave spiders reward XP and spider fangs.
+- Dungeon hazards include six spike traps and three swinging blades, positioned deterministically in the three chambers and dealing contact damage to the player.
+- A summonable Spider Queen boss has 1,400 HP and two phases; below half health she becomes faster and deals heavier damage. Defeating her grants gold ore, spider fangs, healing potions and 900 XP.
 - Healing potions restore 35 health and can be used from the inventory panel.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
@@ -49,7 +51,7 @@ Still required:
 - Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Add additional dungeon traps, room variants, bosses, crafting stations and export/install a debug APK.
+- Add more dungeon room variants, boss attack patterns, crafting stations and export/install a debug APK.
 
 ## Run
 
