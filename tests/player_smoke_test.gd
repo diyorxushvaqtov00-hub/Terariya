@@ -599,7 +599,7 @@ func _run() -> void:
 	assert(player.health == player.max_health, "Player respawns with full health")
 	assert(player.is_physics_processing(), "Player physics resumes after respawn")
 
-	var quest_script := load("res://scripts/systems/quest_tracker.gd")
+	var quest_script: Script = load("res://scripts/systems/quest_tracker.gd") as Script
 	assert(quest_script != null, "Quest tracker script must load")
 	var quests := quest_script.new() as QuestTracker
 	assert(quests != null, "Quest tracker must instantiate")
