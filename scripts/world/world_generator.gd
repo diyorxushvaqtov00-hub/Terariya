@@ -497,11 +497,16 @@ func open_nearby_chest(world_position: Vector2, inventory: PlayerInventory) -> b
 		var chest_position := to_global(Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE))
 		if world_position.distance_to(chest_position) > TILE_SIZE * 2.4:
 			continue
+		if not inventory.remove_item("dungeon_key", 1):
+			return false
 		chest["opened"] = true
 		_dungeon_chests[index] = chest
 		inventory.add_item("ore", CHEST_REWARD_ORE)
+		inventory.add_item("silver_ore", 4 + index * 2)
 		inventory.add_item("torch", 3)
 		inventory.add_item("healing_potion", 2)
+		if index == 2:
+			inventory.add_item("gold_ore", 8)
 		queue_redraw()
 		return true
 	return false
