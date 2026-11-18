@@ -584,7 +584,7 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d (%s)\nSWORDS C%d / S%d / G%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)" % [
+	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d (%s)\nSWORDS C%d / S%d / G%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d" % [
 		int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
@@ -594,7 +594,9 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
 		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
-		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
+		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe"),
+		int(items.get("magma_core", 0)), int(items.get("magma_rock", 0)),
+		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0))
 	]
 
 func _refresh_craft_buttons() -> void:
