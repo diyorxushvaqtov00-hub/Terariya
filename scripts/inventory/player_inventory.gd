@@ -5,6 +5,24 @@ signal changed(items: Dictionary)
 
 var items: Dictionary = {}
 
+const RECIPES: Dictionary = {
+	"wooden_planks": {
+		"ingredients": {"wood": 2},
+		"output": "wooden_planks",
+		"amount": 4
+	},
+	"workbench": {
+		"ingredients": {"wood": 10},
+		"output": "workbench",
+		"amount": 1
+	},
+	"stone_sword": {
+		"ingredients": {"wood": 3, "stone": 8},
+		"output": "stone_sword",
+		"amount": 1
+	}
+}
+
 func _ready() -> void:
 	add_item("dirt", 20)
 
@@ -22,6 +40,26 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 		return false
 	items[item_id] = count(item_id) - amount
 	changed.emit(items.duplicate())
+	return true
+
+func can_craft(recipe_id: String) -> bool:
+	var recipe: Variant = RECIPES.get(recipe_id, null)
+	if not recipe is Dictionary:
+		return false
+	var ingredients: Dictionary = recipe.get("ingredients", {})
+	for item_id in ingredients:
+		if count(str(item_id)) < int(ingredients[item_id]):
+			return false
+	return true
+
+func craft(recipe_id: String) -> bool:
+	if not can_craft(recipe_id):
+		return false
+	var recipe: Dictionary = RECIPES[recipe_id]
+	var ingredients: Dictionary = recipe["ingredients"]
+	for item_id in ingredients:
+		remove_item(str(item_id), int(ingredients[item_id]))
+	add_item(str(recipe["output"]), int(recipe.get("amount", 1)))
 	return true
 
 func serialize() -> Dictionary:
