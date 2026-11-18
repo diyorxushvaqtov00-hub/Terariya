@@ -42,3 +42,12 @@ attack={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":70)]
 }
+
+mine={
+	"deadzone": 0.2,
+	"events": [Object(InputEventKey,"physical_keycode":81)]
+}
+place={
+	"deadzone": 0.2,
+	"events": [Object(InputEventKey,"physical_keycode":69)]
+}
