@@ -4,11 +4,12 @@ An original 2D sandbox survival RPG built with Godot 4 and GDScript, targeting A
 
 ## Current status
 
-**Milestone 2 — procedural terrain prototype (in progress; not yet runtime-verified)**
+**Milestone 3 — survival gameplay foundation (in progress; not yet runtime-verified)**
 
 Implemented in source:
 - Seeded 180 × 60 tile world with noise-based surface variation.
-- Grass, dirt, stone and ore tile types.
+- Grass, dirt, stone, ore, wood and leaf tile types.
+- Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
@@ -22,8 +23,8 @@ Implemented in source:
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add block selection, inventory UI and richer progression systems.
-- Add caves, trees, water, biome transitions and chunk streaming.
+- Build a full inventory UI, item tooltips, equipment slots and richer progression systems.
+- Add caves, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting and export/install a debug APK.
 
