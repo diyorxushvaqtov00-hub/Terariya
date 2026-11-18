@@ -87,7 +87,7 @@ Android:
 - JUMP / RUN / HIT: movement and combat
 - MINE / PLACE: edit terrain in front of the player
 - BLOCK: switch the selected build material
-- INVENTORY: open or close inventory and crafting
+- INV: open or close inventory and crafting
 
 ## Project structure
 
