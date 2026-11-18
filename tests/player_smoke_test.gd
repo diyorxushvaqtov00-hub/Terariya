@@ -634,6 +634,29 @@ func _run() -> void:
 	quests.queue_free()
 	restored_quests.queue_free()
 
+	var warden_scene: PackedScene = load("res://scenes/enemies/dungeon_warden_boss.tscn") as PackedScene
+	assert(warden_scene != null, "Dungeon Warden boss scene must load")
+	var warden := warden_scene.instantiate() as DungeonWardenBoss
+	assert(warden != null, "Dungeon Warden must instantiate")
+	root.add_child(warden)
+	await process_frame
+	assert(warden.max_health == 2800 and warden.current_phase == 1, "Dungeon Warden starts with two thousand eight hundred health")
+	warden.take_damage(1450)
+	assert(warden.current_phase == 2, "Dungeon Warden enters phase two below half health")
+	assert(warden.attack_damage == 52 and warden.move_speed == 126.0, "Dungeon Warden phase two increases aggression")
+	warden.queue_free()
+
+	var warden_inventory := PlayerInventory.new()
+	root.add_child(warden_inventory)
+	await process_frame
+	warden_inventory.add_item("dungeon_relic", 1)
+	warden_inventory.add_item("gold_ore", 20)
+	warden_inventory.add_item("silver_ore", 10)
+	warden_inventory.add_item("spider_fang", 6)
+	assert(warden_inventory.craft("dungeon_warden_sigil"), "Dungeon Warden sigil crafts from the final vault relic")
+	assert(warden_inventory.count("dungeon_warden_sigil") == 1, "Warden sigil crafting produces one summon item")
+	warden_inventory.queue_free()
+
 	var guide_scene: PackedScene = load("res://scenes/npcs/guide.tscn") as PackedScene
 	assert(guide_scene != null, "Elder guide scene must load")
 	var guide_instance := guide_scene.instantiate() as GuideNPC
