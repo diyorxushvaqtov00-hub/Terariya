@@ -248,6 +248,15 @@ func _run() -> void:
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
 
+	var merchant_scene := load("res://scenes/npcs/merchant.tscn") as PackedScene
+	assert(merchant_scene != null, "Travelling merchant scene loads")
+	var merchant_node := merchant_scene.instantiate() as MerchantNPC
+	assert(merchant_node != null and merchant_node.interaction_radius == 260.0, "Merchant NPC instantiates with its trade radius")
+	root.add_child(merchant_node)
+	await process_frame
+	assert(merchant_node.get_node_or_null("NameTag") != null, "Merchant displays an identifying name tag")
+	merchant_node.queue_free()
+
 	var trader_inventory := PlayerInventory.new()
 	root.add_child(trader_inventory)
 	await process_frame
