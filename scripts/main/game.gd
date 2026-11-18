@@ -388,13 +388,17 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
 	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
 	_add_recipe_button(layout, "eye_summon", "8 ORE + 12 STONE + 5 WOOD  →  EYE SIGIL")
+	_add_recipe_button(layout, "silver_sword", "12 SILVER + 4 PLANKS  →  SILVER SWORD")
+	_add_recipe_button(layout, "gold_sword", "10 GOLD + 5 PLANKS  →  GOLD SWORD")
+	_add_recipe_button(layout, "silver_armor", "28 SILVER + 8 PLANKS  →  SILVER ARMOR")
+	_add_recipe_button(layout, "gold_armor", "24 GOLD + 10 PLANKS  →  GOLD ARMOR")
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
 	layout.add_child(summon_button)
 	var equip_armor_button := Button.new()
-	equip_armor_button.text = "EQUIP WOODEN ARMOR"
-	equip_armor_button.pressed.connect(_equip_wooden_armor)
+	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
+	equip_armor_button.pressed.connect(_equip_best_armor)
 	layout.add_child(equip_armor_button)
 	var remove_armor_button := Button.new()
 	remove_armor_button.text = "UNEQUIP ARMOR"
@@ -435,13 +439,14 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nTORCHES: %d    EYE SIGIL: %d\nHEALING POTIONS: %d\nWOOD ARMOR: %d (%s)\nCOPPER SWORD: %d\nEMPTY BUCKET: %d    WATER BUCKET: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
+	return "DIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d (%s)\nSWORDS C%d / S%d / G%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)" % [
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
-		int(items.get("ore", 0)), int(items.get("wood", 0)),
-		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
-		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)), int(items.get("wooden_armor", 0)), "EQUIPPED" if player.inventory.equipped_armor == "wooden_armor" else "NOT EQUIPPED",
-		int(items.get("copper_sword", 0)), int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
-		int(items.get("stone_sword", 0)),
+		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
+		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
+		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE",
+		int(items.get("copper_sword", 0)), int(items.get("silver_sword", 0)), int(items.get("gold_sword", 0)),
+		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
+		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
 	]
@@ -456,9 +461,15 @@ func _get_water_target_cell() -> Vector2i:
 	var local_target := world.to_local(target)
 	return Vector2i(floori(local_target.x / WorldGenerator.TILE_SIZE), floori(local_target.y / WorldGenerator.TILE_SIZE))
 
-func _equip_wooden_armor() -> void:
-	player.inventory.equip_armor("wooden_armor")
-	_on_inventory_changed(player.inventory.items)
+func _equip_best_armor() -> void:
+	var inventory := player.inventory
+	if inventory.count("gold_armor") > 0:
+		inventory.equip_armor("gold_armor")
+	elif inventory.count("silver_armor") > 0:
+		inventory.equip_armor("silver_armor")
+	else:
+		inventory.equip_armor("wooden_armor")
+	_on_inventory_changed(inventory.items)
 
 func _unequip_armor() -> void:
 	player.inventory.equip_armor("")
