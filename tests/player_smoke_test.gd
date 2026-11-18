@@ -23,6 +23,8 @@ func _run() -> void:
 	assert(world.get_tile(Vector2i(82, magma_y + 3)) == WorldGenerator.MAGMA_ROCK, "Lava pool has a magma-rock floor")
 	assert(not world._is_solid_tile(WorldGenerator.LAVA), "Lava remains traversable as a hazard volume")
 	assert(not world._is_solid_tile(WorldGenerator.GLOW_MUSHROOM), "Glow mushrooms do not block movement")
+	var lava_world_position := world.to_global(Vector2((82.5) * WorldGenerator.TILE_SIZE, (magma_y + 1.5) * WorldGenerator.TILE_SIZE))
+	assert(world.is_position_in_lava(lava_world_position), "World detects the lava hazard volume")
 	var dungeon_positions := world.get_dungeon_guard_positions()
 	assert(dungeon_positions.size() == 6, "Three dungeons provide six guard spawn positions")
 	var skeleton_scene := load("res://scenes/enemies/dungeon_skeleton.tscn") as PackedScene
