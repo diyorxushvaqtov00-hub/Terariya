@@ -178,6 +178,8 @@ func _on_attack_area_body_entered(body: Node2D) -> void:
 		var total_damage := attack_damage + bonus_attack_damage
 		var weapon_id := inventory.get_best_weapon_id()
 		match weapon_id:
+			"obsidian_sword":
+				total_damage += 105
 			"queens_fang":
 				total_damage += 80
 			"gold_sword":
