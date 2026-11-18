@@ -263,6 +263,19 @@ func _run() -> void:
 	assert(player.health == player.max_health - slime.attack_damage, "Slime attacks the player inside contact range")
 	player.heal(slime.attack_damage)
 
+	var zombie_packed := load("res://scenes/enemies/zombie_enemy.tscn") as PackedScene
+	assert(zombie_packed != null, "Zombie enemy scene must load")
+	var zombie := zombie_packed.instantiate() as ZombieEnemy
+	assert(zombie != null, "Zombie enemy must instantiate")
+	root.add_child(zombie)
+	await process_frame
+	assert(zombie.health == 100, "Zombie starts with one hundred health")
+	assert(zombie.move_speed < slime.move_speed, "Zombie is slower than a slime")
+	assert(zombie.attack_damage > slime.attack_damage, "Zombie deals more contact damage than a slime")
+	zombie.set_night_mode(true)
+	assert(zombie.move_speed > 58.0 and zombie.attack_damage > 14, "Zombie becomes stronger at night")
+	zombie.queue_free()
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
