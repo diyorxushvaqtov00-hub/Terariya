@@ -93,7 +93,10 @@ func _start_attack() -> void:
 
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
-		body.take_damage(attack_damage)
+		var total_damage := attack_damage
+		if inventory.count("stone_sword") > 0:
+			total_damage += 15
+		body.take_damage(total_damage)
 
 func set_spawn_position(position: Vector2) -> void:
 	_spawn_position = position
