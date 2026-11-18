@@ -25,7 +25,7 @@ func _run() -> void:
 				water_count += 1
 				if water_cell.x < 0:
 					water_cell = Vector2i(water_x, water_y)
-	assert(water_count > 0, "Seeded world generates shallow lakes")
+	assert(water_count >= 15, "Seeded world generates three guaranteed shallow lakes")
 	assert(water_cell.x >= 0, "A water tile is available for swimming tests")
 	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
 	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
