@@ -159,14 +159,17 @@ func load_save_data(data: Dictionary) -> bool:
 		var column := PackedInt32Array()
 		column.resize(WORLD_HEIGHT)
 		var first_solid := -1
+		var grass_surface := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
 			if tile_value < AIR or tile_value > LEAVES:
 				return false
 			column[y] = tile_value
-			if tile_value == GRASS:
+			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES:
 				first_solid = y
-		restored_surfaces[x] = first_solid if first_solid >= 0 else 0
+			if grass_surface == -1 and tile_value == GRASS:
+				grass_surface = y
+		restored_surfaces[x] = grass_surface if grass_surface >= 0 else (first_solid if first_solid >= 0 else 0)
 		restored.append(column)
 	tiles = restored
 	surface_heights = restored_surfaces
