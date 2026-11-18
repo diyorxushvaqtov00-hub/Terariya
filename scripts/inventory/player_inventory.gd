@@ -71,6 +71,7 @@ const RECIPES: Dictionary = {
 	"obsidian_armor": {"ingredients": {"magma_core": 24, "gold_ore": 24, "wooden_planks": 12}, "output": "obsidian_armor", "amount": 1},
 	"guardian_totem": {"ingredients": {"glow_mushroom": 12, "mushroom_soil": 18, "silver_ore": 15}, "output": "guardian_totem", "amount": 1},
 	"dungeon_key": {"ingredients": {"silver_ore": 6, "gold_ore": 3, "spider_fang": 2}, "output": "dungeon_key", "amount": 3},
+	"dungeon_warden_sigil": {"ingredients": {"dungeon_relic": 1, "gold_ore": 20, "silver_ore": 10, "spider_fang": 6}, "output": "dungeon_warden_sigil", "amount": 1},
 	"mushroom_blade": {"ingredients": {"glow_mushroom": 18, "magma_core": 4, "wooden_planks": 10}, "output": "mushroom_blade", "amount": 1},
 	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1}
 }
