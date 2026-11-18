@@ -111,3 +111,7 @@ An Elder NPC now appears beside the starting camp. Open the inventory panel and 
 ## Locked dungeon vaults
 
 The three underground dungeon chests are now locked. Craft three **Dungeon Keys** using 6 silver ore, 3 gold ore and 2 spider fangs, then spend one key per vault. Each vault has its own saved opened state and grants base supplies plus increasing metal rewards; the final vault also grants gold ore. The inventory panel displays the key count and explains why a chest could not be opened.
+
+## Dungeon Warden boss
+
+The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20 gold ore, 10 silver ore and 6 spider fangs to craft a Dungeon Warden Sigil. Use it from the inventory panel to summon the two-phase Dungeon Warden. Its charged vault slam is telegraphed before impact, has a larger radius and heavier damage in phase two, and rewards 3 Dungeon Relics, 28 gold ore, 8 healing potions and 1,800 XP. Only one major boss encounter can be active at a time.
