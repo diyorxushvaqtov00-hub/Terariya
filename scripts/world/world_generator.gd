@@ -17,6 +17,8 @@ const SAND: int = 7
 const SNOW: int = 8
 const WATER: int = 9
 const CHEST_REWARD_ORE: int = 8
+const SILVER_ORE: int = 10
+const GOLD_ORE: int = 11
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -73,7 +75,12 @@ func generate_world() -> void:
 				tile = SAND if biome == "desert" else DIRT
 			elif y > surface + 7:
 				tile = STONE
-				if y > surface + 12 and _noise.get_noise_2d(float(x) * 1.7, float(y) * 1.7) > 0.62:
+				var deposit_noise := _noise.get_noise_2d(float(x) * 1.7, float(y) * 1.7)
+				if y > surface + 25 and deposit_noise > 0.68:
+					tile = GOLD_ORE
+				elif y > surface + 16 and deposit_noise > 0.62:
+					tile = SILVER_ORE
+				elif y > surface + 12 and deposit_noise > 0.58:
 					tile = ORE
 			column[y] = tile
 		tiles.append(column)
@@ -122,6 +129,10 @@ func _tile_color(tile: int) -> Color:
 			return Color(0.38, 0.42, 0.48)
 		ORE:
 			return Color(0.20, 0.68, 0.76)
+		SILVER_ORE:
+			return Color(0.72, 0.79, 0.88)
+		GOLD_ORE:
+			return Color(0.96, 0.68, 0.12)
 		WOOD:
 			return Color(0.43, 0.25, 0.12)
 		LEAVES:
@@ -214,7 +225,7 @@ func mine_cell(cell: Vector2i) -> bool:
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
-		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else "dirt")))))
+		var drop := "gold_ore" if mined_type == GOLD_ORE else ("silver_ore" if mined_type == SILVER_ORE else ("ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else "dirt")))))))
 		var amount := 1
 		if mined_type == WOOD and player.inventory.count("wooden_axe") > 0:
 			amount = 2
@@ -283,7 +294,7 @@ func load_save_data(data: Dictionary) -> bool:
 		var grass_surface := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
-			if tile_value < AIR or tile_value > WATER:
+			if tile_value < AIR or tile_value > GOLD_ORE:
 				return false
 			column[y] = tile_value
 			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES and tile_value != WATER:
