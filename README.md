@@ -32,7 +32,8 @@ Implemented in source:
 - Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
-- Craftable wooden armor can be equipped, persists in save data, and reduces incoming damage by 6 points per hit.
+- Craftable wooden, silver and gold armor can be equipped, persists in save data, and reduces incoming damage by 6, 12 and 20 points per hit respectively.
+- Silver and gold ore deposits generate deeper underground; silver/gold swords and armor can be crafted from their ores. Weapon priority is gold, silver, copper, then stone.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, renewable water-source persistence, water detection, bucket crafting/collection/pouring, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
