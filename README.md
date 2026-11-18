@@ -15,7 +15,7 @@ Implemented in source:
 - Selectable dirt and stone placement with a live HUD selection indicator.
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
-- JSON world/player/inventory save-load with validation and automatic save on app pause/close.
+- JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
