@@ -41,6 +41,7 @@ var max_water_tiles: int = 1800
 var _torch_cells: Array[Vector2i] = []
 var _torch_lights: Array[PointLight2D] = []
 var _dungeon_chests: Array[Dictionary] = []
+var _dungeon_secret_rooms: Array[Dictionary] = []
 
 func _ready() -> void:
 	add_to_group("world_generator")
@@ -123,6 +124,18 @@ func _draw() -> void:
 		draw_rect(chest_rect, Color(0.18, 0.11, 0.06), false, 2.0)
 		if bool(chest.get("opened", false)):
 			draw_line(chest_rect.position + Vector2(3, 4), chest_rect.position + Vector2(21, 16), Color(0.12, 0.09, 0.06), 2.0)
+	for room in _dungeon_secret_rooms:
+		var gate_cells: Array = room["gate_cells"]
+		if not gate_cells.is_empty() and get_tile(gate_cells[0]) != AIR:
+			var gate_rect := Rect2(Vector2(gate_cells[0].x * TILE_SIZE + 3, gate_cells[0].y * TILE_SIZE), Vector2(26, TILE_SIZE * 2))
+			draw_rect(gate_rect, Color(0.16, 0.19, 0.25), true)
+			for bar_x in range(4):
+				draw_line(gate_rect.position + Vector2(4 + bar_x * 6, 2), gate_rect.position + Vector2(4 + bar_x * 6, gate_rect.size.y - 2), Color(0.72, 0.77, 0.86), 2.0)
+		var cache_cell: Vector2i = room["cache_cell"]
+		var cache_rect := Rect2(Vector2(cache_cell.x * TILE_SIZE + 3, cache_cell.y * TILE_SIZE + 8), Vector2(26, 22))
+		draw_rect(cache_rect, Color(0.36, 0.22, 0.52) if not bool(room.get("cache_opened", false)) else Color(0.20, 0.18, 0.24), true)
+		draw_rect(Rect2(cache_rect.position, Vector2(26, 7)), Color(0.92, 0.72, 0.30), true)
+		draw_rect(cache_rect, Color(0.12, 0.10, 0.16), false, 2.0)
 	for cell in _torch_cells:
 		var torch_base := Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.82) * TILE_SIZE)
 		draw_line(torch_base, torch_base + Vector2(0.0, -17.0), Color(0.48, 0.28, 0.12), 4.0)
@@ -321,6 +334,7 @@ func get_save_data() -> Dictionary:
 		"water_sources": _serialize_water_sources(),
 		"torches": _serialize_torches(),
 		"chests": _serialize_chests(),
+		"secret_rooms": _serialize_secret_rooms(),
 		"tiles": saved_columns
 	}
 
@@ -362,6 +376,7 @@ func load_save_data(data: Dictionary) -> bool:
 	_water_sources = _restore_water_sources(data.get("water_sources", []))
 	_restore_torches(data.get("torches", []))
 	_restore_chests(data.get("chests", []))
+	_restore_secret_rooms(data.get("secret_rooms", []))
 	selected_block_changed.emit(selected_block_type)
 	_rebuild_collision()
 	queue_redraw()
@@ -443,6 +458,7 @@ func _restore_water_sources(raw_sources: Variant) -> Dictionary:
 
 func _generate_dungeons() -> void:
 	_dungeon_chests.clear()
+	_dungeon_secret_rooms.clear()
 	# Three fixed underground chambers, one in each biome, keep layouts reproducible.
 	for center_x in [42, 102, 160]:
 		var center_y := mini(get_surface_y(center_x) + 19, WORLD_HEIGHT - 9)
@@ -453,12 +469,86 @@ func _generate_dungeons() -> void:
 		for x in range(center_x - 8, center_x + 9):
 			var floor_cell := Vector2i(x, center_y + 4)
 			if _inside_world(floor_cell):
-				tiles[x][floor_cell.y] = STONE
+				tiles[floor_cell.x][floor_cell.y] = STONE
 		var chest_cell := Vector2i(center_x + 3, center_y + 2)
 		_dungeon_chests.append({"cell": chest_cell, "opened": false})
+		# A concealed side vault branches off the chamber's western wall.
+		for x in range(center_x - 15, center_x - 8):
+			for y in range(center_y - 3, center_y + 4):
+				if _inside_world(Vector2i(x, y)):
+					tiles[x][y] = AIR
+			for y in range(center_y + 1, center_y + 3):
+				var floor_cell := Vector2i(x, y + 3)
+				if _inside_world(floor_cell):
+					tiles[floor_cell.x][floor_cell.y] = STONE
+		var gate_cells: Array[Vector2i] = [Vector2i(center_x - 8, center_y + 1), Vector2i(center_x - 8, center_y + 2)]
+		for gate_cell in gate_cells:
+			if _inside_world(gate_cell):
+				tiles[gate_cell.x][gate_cell.y] = STONE
+		var cache_cell := Vector2i(center_x - 12, center_y + 2)
+		_dungeon_secret_rooms.append({"gate_cells": gate_cells, "cache_cell": cache_cell, "cache_opened": false})
 
 func get_dungeon_chest_count() -> int:
 	return _dungeon_chests.size()
+
+func get_dungeon_secret_room_count() -> int:
+	return _dungeon_secret_rooms.size()
+
+func get_secret_gate_position(index: int = 0) -> Vector2:
+	if index < 0 or index >= _dungeon_secret_rooms.size():
+		return Vector2.ZERO
+	var gate_cells: Array = _dungeon_secret_rooms[index]["gate_cells"]
+	if gate_cells.is_empty():
+		return Vector2.ZERO
+	var cell: Vector2i = gate_cells[0]
+	return to_global(Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 1.0) * TILE_SIZE))
+
+func get_secret_cache_position(index: int = 0) -> Vector2:
+	if index < 0 or index >= _dungeon_secret_rooms.size():
+		return Vector2.ZERO
+	var cell: Vector2i = _dungeon_secret_rooms[index]["cache_cell"]
+	return to_global(Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE))
+
+func unlock_nearby_secret_room(world_position: Vector2, inventory: PlayerInventory) -> bool:
+	if inventory == null:
+		return false
+	for index in range(_dungeon_secret_rooms.size()):
+		var room: Dictionary = _dungeon_secret_rooms[index]
+		var gate_cells: Array = room["gate_cells"]
+		if gate_cells.is_empty() or get_tile(gate_cells[0]) == AIR:
+			continue
+		if world_position.distance_to(get_secret_gate_position(index)) > TILE_SIZE * 2.5:
+			continue
+		if not inventory.remove_item("ancient_key", 1):
+			return false
+		for gate_cell in gate_cells:
+			var cell: Vector2i = gate_cell
+			if _inside_world(cell):
+				tiles[cell.x][cell.y] = AIR
+		_rebuild_collision()
+		queue_redraw()
+		return true
+	return false
+
+func open_nearby_secret_cache(world_position: Vector2, inventory: PlayerInventory) -> bool:
+	if inventory == null:
+		return false
+	for index in range(_dungeon_secret_rooms.size()):
+		var room: Dictionary = _dungeon_secret_rooms[index]
+		var gate_cells: Array = room["gate_cells"]
+		if gate_cells.is_empty() or get_tile(gate_cells[0]) != AIR or bool(room.get("cache_opened", false)):
+			continue
+		if world_position.distance_to(get_secret_cache_position(index)) > TILE_SIZE * 2.5:
+			continue
+		room["cache_opened"] = true
+		_dungeon_secret_rooms[index] = room
+		inventory.add_item("dungeon_relic", 1)
+		inventory.add_item("gold_ore", 12)
+		inventory.add_item("silver_ore", 8)
+		inventory.add_item("healing_potion", 3)
+		queue_redraw()
+		return true
+	return false
 
 func get_nearest_dungeon_arena_position(world_position: Vector2) -> Vector2:
 	if _dungeon_chests.is_empty():
@@ -544,6 +634,26 @@ func _restore_chests(raw_chests: Variant) -> void:
 			var cell := Vector2i(int(entry[0]), int(entry[1]))
 			if _inside_world(cell) and get_tile(cell) == AIR:
 				_dungeon_chests.append({"cell": cell, "opened": bool(entry[2])})
+
+func _serialize_secret_rooms() -> Array:
+	var result: Array = []
+	for room in _dungeon_secret_rooms:
+		var cache_cell: Vector2i = room["cache_cell"]
+		result.append([cache_cell.x, cache_cell.y, bool(room.get("cache_opened", false))])
+	return result
+
+func _restore_secret_rooms(raw_rooms: Variant) -> void:
+	if not raw_rooms is Array:
+		return
+	for entry in raw_rooms:
+		if entry is Array and entry.size() == 3:
+			var cache_cell := Vector2i(int(entry[0]), int(entry[1]))
+			for index in range(_dungeon_secret_rooms.size()):
+				var room: Dictionary = _dungeon_secret_rooms[index]
+				if room["cache_cell"] == cache_cell:
+					room["cache_opened"] = bool(entry[2])
+					_dungeon_secret_rooms[index] = room
+					break
 
 func _generate_caves() -> void:
 	# Carve deterministic underground pockets while protecting the surface layer.
