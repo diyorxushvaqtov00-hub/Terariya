@@ -94,6 +94,9 @@ func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(attack_damage)
 
+func set_spawn_position(position: Vector2) -> void:
+	_spawn_position = position
+
 func get_facing() -> int:
 	return _facing
 
