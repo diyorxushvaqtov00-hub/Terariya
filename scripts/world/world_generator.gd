@@ -19,6 +19,10 @@ const WATER: int = 9
 const CHEST_REWARD_ORE: int = 8
 const SILVER_ORE: int = 10
 const GOLD_ORE: int = 11
+const MUSHROOM_SOIL: int = 12
+const GLOW_MUSHROOM: int = 13
+const LAVA: int = 14
+const MAGMA_ROCK: int = 15
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -86,6 +90,7 @@ func generate_world() -> void:
 		tiles.append(column)
 	_generate_caves()
 	_generate_dungeons()
+	_generate_underground_biomes()
 	_generate_lakes()
 	_generate_trees()
 	_rebuild_collision()
@@ -105,6 +110,11 @@ func _draw() -> void:
 				draw_line(rect.position + Vector2(2.0, 2.0), rect.position + Vector2(TILE_SIZE - 2.0, 2.0), Color(0.58, 0.82, 1.0, 0.9), 2.0)
 			elif tile == WATER:
 				draw_line(rect.position + Vector2(7.0, 5.0), rect.position + Vector2(7.0, TILE_SIZE - 5.0), Color(0.42, 0.70, 1.0, 0.28), 2.0)
+			elif tile == GLOW_MUSHROOM:
+				draw_circle(rect.position + Vector2(16.0, 14.0), 7.0, Color(0.60, 0.35, 0.95, 0.95))
+				draw_rect(Rect2(rect.position + Vector2(14.0, 17.0), Vector2(4.0, 12.0)), Color(0.80, 0.72, 0.90), true)
+			elif tile == LAVA:
+				draw_line(rect.position + Vector2(2.0, 8.0), rect.position + Vector2(29.0, 8.0), Color(1.0, 0.85, 0.30, 0.9), 2.0)
 	for chest in _dungeon_chests:
 		var chest_cell: Vector2i = chest["cell"]
 		var chest_rect := Rect2(Vector2(chest_cell.x * TILE_SIZE + 4, chest_cell.y * TILE_SIZE + 10), Vector2(24, 19))
@@ -133,6 +143,14 @@ func _tile_color(tile: int) -> Color:
 			return Color(0.72, 0.79, 0.88)
 		GOLD_ORE:
 			return Color(0.96, 0.68, 0.12)
+		MUSHROOM_SOIL:
+			return Color(0.30, 0.22, 0.39)
+		GLOW_MUSHROOM:
+			return Color(0.62, 0.34, 0.90)
+		LAVA:
+			return Color(0.95, 0.22, 0.035, 0.92)
+		MAGMA_ROCK:
+			return Color(0.28, 0.16, 0.15)
 		WOOD:
 			return Color(0.43, 0.25, 0.12)
 		LEAVES:
@@ -170,6 +188,14 @@ func is_position_in_water(world_position: Vector2) -> bool:
 		var sample := to_local(world_position + Vector2(0.0, offset_y))
 		var cell := Vector2i(floori(sample.x / TILE_SIZE), floori(sample.y / TILE_SIZE))
 		if get_tile(cell) == WATER:
+			return true
+	return false
+
+func is_position_in_lava(world_position: Vector2) -> bool:
+	for offset_y in [-16.0, 0.0, 16.0, 28.0]:
+		var sample := to_local(world_position + Vector2(0.0, offset_y))
+		var cell := Vector2i(floori(sample.x / TILE_SIZE), floori(sample.y / TILE_SIZE))
+		if get_tile(cell) == LAVA:
 			return true
 	return false
 
@@ -220,12 +246,12 @@ func pour_bucket(cell: Vector2i, inventory: PlayerInventory, player_position: Ve
 	return true
 
 func mine_cell(cell: Vector2i) -> bool:
-	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER]:
+	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER, LAVA]:
 		return false
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
-		var drop := "gold_ore" if mined_type == GOLD_ORE else ("silver_ore" if mined_type == SILVER_ORE else ("ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else "dirt")))))))
+		var drop := "gold_ore" if mined_type == GOLD_ORE else ("silver_ore" if mined_type == SILVER_ORE else ("glow_mushroom" if mined_type == GLOW_MUSHROOM else ("magma_rock" if mined_type == MAGMA_ROCK else ("ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else ("mushroom_soil" if mined_type == MUSHROOM_SOIL else "dirt")))))))))
 		var amount := 1
 		if mined_type == WOOD and player.inventory.count("wooden_axe") > 0:
 			amount = 2
@@ -294,10 +320,10 @@ func load_save_data(data: Dictionary) -> bool:
 		var grass_surface := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
-			if tile_value < AIR or tile_value > GOLD_ORE:
+			if tile_value < AIR or tile_value > MAGMA_ROCK:
 				return false
 			column[y] = tile_value
-			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES and tile_value != WATER:
+			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES and tile_value != WATER and tile_value != GLOW_MUSHROOM and tile_value != LAVA:
 				first_solid = y
 			if grass_surface == -1 and tile_value == GRASS:
 				grass_surface = y
@@ -486,6 +512,42 @@ func _generate_caves() -> void:
 					tiles[x][y] = AIR
 
 
+func _generate_underground_biomes() -> void:
+	# A guaranteed glowing mushroom cavern in the western underground.
+	var mushroom_x := 25
+	var mushroom_y := mini(get_surface_y(mushroom_x) + 29, WORLD_HEIGHT - 7)
+	for x in range(mushroom_x - 7, mushroom_x + 8):
+		for y in range(mushroom_y - 3, mushroom_y + 3):
+			if _inside_world(Vector2i(x, y)):
+				tiles[x][y] = AIR
+		if mushroom_x - 6 <= x and x <= mushroom_x + 6:
+			var floor_cell := Vector2i(x, mushroom_y + 3)
+			if _inside_world(floor_cell):
+				tiles[floor_cell.x][floor_cell.y] = MUSHROOM_SOIL
+	for offset in [-5, -2, 2, 5]:
+		var mushroom_cell := Vector2i(mushroom_x + offset, mushroom_y + 2)
+		if _inside_world(mushroom_cell):
+			tiles[mushroom_cell.x][mushroom_cell.y] = GLOW_MUSHROOM
+
+	# A separate deep desert magma chamber with a non-solid lava pool.
+	var magma_x := 82
+	var magma_y := mini(get_surface_y(magma_x) + 30, WORLD_HEIGHT - 8)
+	for x in range(magma_x - 8, magma_x + 9):
+		for y in range(magma_y - 3, magma_y + 3):
+			if _inside_world(Vector2i(x, y)):
+				tiles[x][y] = AIR
+		var floor_cell := Vector2i(x, magma_y + 3)
+		if _inside_world(floor_cell):
+			tiles[floor_cell.x][floor_cell.y] = MAGMA_ROCK
+	for x in range(magma_x - 4, magma_x + 5):
+		for y in range(magma_y + 1, magma_y + 3):
+			if _inside_world(Vector2i(x, y)):
+				tiles[x][y] = LAVA
+	for offset in [-7, -6, 6, 7]:
+		var rim_cell := Vector2i(magma_x + offset, magma_y + 2)
+		if _inside_world(rim_cell):
+			tiles[rim_cell.x][rim_cell.y] = MAGMA_ROCK
+
 func _generate_lakes() -> void:
 	# Fixed centers and seeded widths create reproducible, guaranteed shallow basins.
 	for center_x in [28, 83, 145]:
@@ -577,7 +639,7 @@ func _generate_trees() -> void:
 					tiles[leaf_x][leaf_y] = LEAVES
 
 func _is_solid_tile(tile: int) -> bool:
-	return tile != AIR and tile != LEAVES and tile != WATER
+	return tile != AIR and tile != LEAVES and tile != WATER and tile != GLOW_MUSHROOM and tile != LAVA
 
 func _inside_world(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < WORLD_WIDTH and cell.y >= 0 and cell.y < WORLD_HEIGHT
