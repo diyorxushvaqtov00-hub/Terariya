@@ -58,7 +58,7 @@ func _input(event: InputEvent) -> void:
 func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 	if pressed:
 		var centers := _button_centers()
-		if pos.distance_to(centers.cycle) <= button_radius * 1.35:
+		if pos.distance_to(centers.cycle) <= button_radius * 0.62:
 			_cycle_touch_id = index
 			_press_action("cycle_block")
 		elif pos.distance_to(centers.mine) <= button_radius * 1.35:
@@ -138,9 +138,9 @@ func _button_centers() -> Dictionary:
 		"jump": Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius),
 		"attack": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 1.35),
 		"run": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15),
-		"mine": Vector2(size.x - edge_margin - button_radius * 3.0, edge_margin + button_radius),
+		"mine": Vector2(size.x - edge_margin - button_radius * 3.8, edge_margin + button_radius),
 		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
-		"cycle": Vector2(size.x - edge_margin - button_radius * 2.0, edge_margin + button_radius)
+		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius)
 	}
 
 func _exit_tree() -> void:
