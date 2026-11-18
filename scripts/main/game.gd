@@ -6,6 +6,8 @@ const AUTOSAVE_INTERVAL: float = 30.0
 
 var _autosave_elapsed: float = 0.0
 var _inventory_panel: PanelContainer
+var _oxygen_bar: ProgressBar
+var _oxygen_label: Label
 var _inventory_summary: Label
 var _craft_buttons: Dictionary = {}
 
@@ -22,10 +24,13 @@ func _ready() -> void:
 	training_dummy.global_position = world.get_spawn_position(15)
 	slime.global_position = world.get_spawn_position(20)
 	player.health_changed.connect(_on_player_health_changed)
+	player.oxygen_changed.connect(_on_player_oxygen_changed)
 	player.inventory.changed.connect(_on_inventory_changed)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
+	_build_oxygen_ui()
+	_on_player_oxygen_changed(player.oxygen_seconds, player.max_oxygen_seconds)
 	_on_inventory_changed(player.inventory.items)
 	_build_inventory_ui()
 
@@ -48,6 +53,7 @@ func save_game() -> bool:
 			"x": player.global_position.x,
 			"y": player.global_position.y,
 			"health": player.health,
+			"oxygen_seconds": player.oxygen_seconds,
 			"double_jump_unlocked": player.double_jump_unlocked
 		},
 		"inventory": player.inventory.serialize(),
@@ -86,12 +92,35 @@ func _load_game() -> bool:
 		player.global_position = Vector2(float(player_data.get("x", player.global_position.x)), float(player_data.get("y", player.global_position.y)))
 		player.set_spawn_position(player.global_position)
 		player.health = clampi(int(player_data.get("health", player.max_health)), 1, player.max_health)
+		player.oxygen_seconds = clampf(float(player_data.get("oxygen_seconds", player.max_oxygen_seconds)), 0.0, player.max_oxygen_seconds)
+		player.oxygen_changed.emit(player.oxygen_seconds, player.max_oxygen_seconds)
 		player.double_jump_unlocked = bool(player_data.get("double_jump_unlocked", false))
 		player.health_changed.emit(player.health, player.max_health)
 	return true
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
+
+func _build_oxygen_ui() -> void:
+	var hud := $HUD as CanvasLayer
+	_oxygen_bar = ProgressBar.new()
+	_oxygen_bar.name = "OxygenBar"
+	_oxygen_bar.position = Vector2(24, 91)
+	_oxygen_bar.size = Vector2(210, 18)
+	_oxygen_bar.show_percentage = false
+	hud.add_child(_oxygen_bar)
+	_oxygen_label = Label.new()
+	_oxygen_label.name = "OxygenLabel"
+	_oxygen_label.position = Vector2(242, 87)
+	_oxygen_label.size = Vector2(130, 26)
+	hud.add_child(_oxygen_label)
+
+func _on_player_oxygen_changed(current: float, maximum: float) -> void:
+	if is_instance_valid(_oxygen_bar):
+		_oxygen_bar.max_value = maximum
+		_oxygen_bar.value = current
+	if is_instance_valid(_oxygen_label):
+		_oxygen_label.text = "AIR  %.1fs" % current
 
 func _on_inventory_changed(items: Dictionary) -> void:
 	inventory_label.text = "DIRT %d | STONE %d | ORE %d | WOOD %d | SELECTED: %s" % [
@@ -110,14 +139,14 @@ func _build_inventory_ui() -> void:
 	var toggle := Button.new()
 	toggle.name = "InventoryToggle"
 	toggle.text = "INVENTORY"
-	toggle.position = Vector2(24, 96)
+	toggle.position = Vector2(24, 120)
 	toggle.size = Vector2(150, 44)
 	toggle.pressed.connect(_toggle_inventory)
 	hud.add_child(toggle)
 
 	_inventory_panel = PanelContainer.new()
 	_inventory_panel.name = "InventoryPanel"
-	_inventory_panel.position = Vector2(24, 150)
+	_inventory_panel.position = Vector2(24, 174)
 	_inventory_panel.custom_minimum_size = Vector2(360, 500)
 	_inventory_panel.visible = false
 	hud.add_child(_inventory_panel)
