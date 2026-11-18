@@ -472,7 +472,7 @@ func _summon_void_guardian() -> void:
 	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
 		return
 	var arena_position := world.get_nearest_secret_cache_position(player.global_position)
-	if player.global_position.distance_to(arena_position) > WorldGenerator.TILE_SIZE * 10.0:
+	if not world.is_secret_vault_open_nearby(player.global_position):
 		if is_instance_valid(_dungeon_status_label):
 			_dungeon_status_label.text = "THE VOID GUARDIAN CAN ONLY BE SUMMONED INSIDE A SECRET VAULT."
 		return
