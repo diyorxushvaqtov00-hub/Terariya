@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/training_dummy.gd" id="1_dummy"]
+
+[sub_resource type="RectangleShape2D" id="DummyShape"]
+size = Vector2(28, 42)
+
+[node name="TrainingDummy" type="StaticBody2D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_dummy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -21)
+shape = SubResource("DummyShape")
+
+[node name="Visual" type="Polygon2D" parent="."]
+position = Vector2(0, -21)
+color = Color(0.75, 0.34, 0.22, 1)
+polygon = PackedVector2Array(-14, -21, 14, -21, 14, 21, -14, 21)
