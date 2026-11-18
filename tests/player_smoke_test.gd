@@ -290,6 +290,12 @@ func _run() -> void:
 	assert(root.get_child(root.get_child_count() - 1) is EnemyProjectile, "Skeleton archer projectile uses the enemy projectile scene")
 	skeleton.queue_free()
 
+	player.inventory.add_item("ore", 8)
+	player.inventory.add_item("stone", 12)
+	player.inventory.add_item("wood", 5)
+	assert(player.inventory.craft("eye_summon"), "Eye Sigil can be crafted from ore, stone and wood")
+	assert(player.inventory.count("eye_summon") == 1, "Crafting creates one Eye Sigil")
+
 	var boss_packed := load("res://scenes/enemies/ancient_eye_boss.tscn") as PackedScene
 	assert(boss_packed != null, "Ancient Eye boss scene must load")
 	var boss := boss_packed.instantiate() as AncientEyeBoss
