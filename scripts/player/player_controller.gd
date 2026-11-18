@@ -2,6 +2,7 @@ extends CharacterBody2D
 class_name PlayerController
 
 signal health_changed(current: int, maximum: int)
+signal oxygen_changed(current: float, maximum: float)
 signal attack_requested
 signal died
 signal respawned
@@ -18,6 +19,9 @@ signal respawned
 @export var max_health: int = 100
 @export var fall_damage_threshold: float = 850.0
 @export var fall_damage_scale: float = 0.035
+@export var max_oxygen_seconds: float = 12.0
+@export var drowning_damage: int = 8
+@export var drowning_damage_interval: float = 1.5
 
 @export_category("Combat")
 @export var attack_damage: int = 25
@@ -34,6 +38,8 @@ var _can_attack: bool = true
 var _spawn_position := Vector2.ZERO
 var _is_dead: bool = false
 var is_swimming: bool = false
+var oxygen_seconds: float
+var _drowning_tick: float = 0.0
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -42,11 +48,14 @@ var is_swimming: bool = false
 func _ready() -> void:
 	_spawn_position = global_position
 	health = max_health
+	oxygen_seconds = max_oxygen_seconds
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
 	health_changed.emit(health, max_health)
+	oxygen_changed.emit(oxygen_seconds, max_oxygen_seconds)
 
 func _physics_process(delta: float) -> void:
 	is_swimming = _is_in_water()
+	_update_oxygen(delta)
 	var direction := Input.get_axis("move_left", "move_right")
 	if direction != 0.0:
 		_facing = 1 if direction > 0.0 else -1
@@ -96,6 +105,25 @@ func _is_in_water() -> bool:
 	if world == null:
 		return false
 	return world.is_position_in_water(global_position + Vector2(0.0, 12.0))
+
+func _is_head_underwater() -> bool:
+	var world := get_tree().get_first_node_in_group("world_generator") as WorldGenerator
+	if world == null:
+		return false
+	return world.is_position_in_water(global_position + Vector2(0.0, -30.0))
+
+func _update_oxygen(delta: float) -> void:
+	if _is_head_underwater():
+		oxygen_seconds = maxf(oxygen_seconds - delta, 0.0)
+		if oxygen_seconds <= 0.0:
+			_drowning_tick += delta
+			if _drowning_tick >= drowning_damage_interval:
+				_drowning_tick = 0.0
+				take_damage(drowning_damage)
+	else:
+		oxygen_seconds = minf(oxygen_seconds + delta * 2.0, max_oxygen_seconds)
+		_drowning_tick = 0.0
+	oxygen_changed.emit(oxygen_seconds, max_oxygen_seconds)
 
 func _start_attack() -> void:
 	if not _can_attack or health <= 0:
