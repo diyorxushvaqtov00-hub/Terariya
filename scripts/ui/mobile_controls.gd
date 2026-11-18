@@ -15,6 +15,7 @@ var _attack_touch_id: int = -1
 var _mine_touch_id: int = -1
 var _place_touch_id: int = -1
 var _cycle_touch_id: int = -1
+var _inventory_touch_id: int = -1
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -28,19 +29,17 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	if not OS.has_feature("mobile"):
 		return
-	var left_center := Vector2(edge_margin + joystick_radius, size.y - edge_margin - joystick_radius)
-	var jump_center := Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius)
-	var attack_center := Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.9)
-	var run_center := Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15)
-	_draw_button(left_center, joystick_radius, "MOVE")
-	var knob := left_center + _joystick_vector * joystick_radius * 0.55
+	var centers := _button_centers()
+	_draw_button(centers.joystick, joystick_radius, "MOVE")
+	var knob := centers.joystick + _joystick_vector * joystick_radius * 0.55
 	draw_circle(knob, joystick_radius * 0.34, Color(0.55, 0.8, 0.95, 0.62))
-	_draw_button(jump_center, button_radius, "JUMP")
-	_draw_button(attack_center, button_radius, "HIT")
-	_draw_button(run_center, button_radius * 0.82, "RUN")
-	_draw_button(_button_centers().mine, button_radius * 0.82, "MINE")
-	_draw_button(_button_centers().place, button_radius * 0.82, "PLACE")
-	_draw_button(_button_centers().cycle, button_radius * 0.82, "BLOCK")
+	_draw_button(centers.jump, button_radius, "JUMP")
+	_draw_button(centers.attack, button_radius, "HIT")
+	_draw_button(centers.run, button_radius * 0.82, "RUN")
+	_draw_button(centers.mine, button_radius * 0.82, "MINE")
+	_draw_button(centers.place, button_radius * 0.82, "PLACE")
+	_draw_button(centers.cycle, button_radius * 0.82, "BLOCK")
+	_draw_button(centers.inventory, button_radius * 0.82, "INV")
 
 func _draw_button(center: Vector2, radius: float, label: String) -> void:
 	draw_circle(center, radius, Color(0.08, 0.13, 0.2, 0.52))
@@ -58,7 +57,10 @@ func _input(event: InputEvent) -> void:
 func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 	if pressed:
 		var centers := _button_centers()
-		if pos.distance_to(centers.cycle) <= button_radius * 0.62:
+		if pos.distance_to(centers.inventory) <= button_radius * 1.15:
+			_inventory_touch_id = index
+			_press_action("inventory_toggle")
+		elif pos.distance_to(centers.cycle) <= button_radius * 0.62:
 			_cycle_touch_id = index
 			_press_action("cycle_block")
 		elif pos.distance_to(centers.mine) <= button_radius * 1.35:
@@ -81,7 +83,10 @@ func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 			_joystick_origin = pos
 			_update_joystick(pos)
 	else:
-		if index == _cycle_touch_id:
+		if index == _inventory_touch_id:
+			_inventory_touch_id = -1
+			_release_action("inventory_toggle")
+		elif index == _cycle_touch_id:
 			_cycle_touch_id = -1
 			_release_action("cycle_block")
 		elif index == _mine_touch_id:
@@ -135,12 +140,14 @@ func _release_action(action: String) -> void:
 
 func _button_centers() -> Dictionary:
 	return {
+		"joystick": Vector2(edge_margin + joystick_radius, size.y - edge_margin - joystick_radius),
 		"jump": Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius),
 		"attack": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 1.35),
 		"run": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15),
 		"mine": Vector2(size.x - edge_margin - button_radius * 3.8, edge_margin + button_radius),
 		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
-		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius)
+		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius),
+		"inventory": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius * 3.15)
 	}
 
 func _exit_tree() -> void:
