@@ -247,6 +247,25 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+
+	var trader_inventory := PlayerInventory.new()
+	root.add_child(trader_inventory)
+	await process_frame
+	trader_inventory.add_item("coins", 30)
+	assert(trader_inventory.buy_item("healing_potion", 2, 8), "Merchant purchase spends coins and grants items")
+	assert(trader_inventory.count("coins") == 14 and trader_inventory.count("healing_potion") == 2, "Merchant purchase updates both balances")
+	assert(not trader_inventory.buy_item("silver_ore", 2, 12), "Merchant blocks purchases the player cannot afford")
+	trader_inventory.add_item("wood", 10)
+	assert(trader_inventory.sell_item("wood", 10, 5), "Merchant accepts sellable resources")
+	assert(trader_inventory.count("coins") == 64 and trader_inventory.count("wood") == 0, "Merchant sale grants the correct coin payment")
+	assert(not trader_inventory.sell_item("wood", 1, 5), "Merchant refuses sales without stock")
+	var trader_snapshot := trader_inventory.serialize()
+	var trader_restored := PlayerInventory.new()
+	root.add_child(trader_restored)
+	await process_frame
+	assert(trader_restored.restore(trader_snapshot) and trader_restored.count("coins") == 64, "Merchant coin balance persists through save data")
+	trader_inventory.queue_free()
+	trader_restored.queue_free()
 	player.inventory.add_item("wooden_planks", 12)
 	assert(player.inventory.craft("wooden_armor"), "Wooden armor can be crafted")
 	assert(player.inventory.equip_armor("wooden_armor"), "Crafted wooden armor can be equipped")
