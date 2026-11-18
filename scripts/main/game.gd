@@ -11,6 +11,7 @@ const DUNGEON_SKELETON_SCENE: PackedScene = preload("res://scenes/enemies/dungeo
 const CAVE_SPIDER_SCENE: PackedScene = preload("res://scenes/enemies/cave_spider.tscn")
 const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
 const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_queen_boss.tscn")
+const MAGMA_GOLEM_SCENE: PackedScene = preload("res://scenes/enemies/magma_golem_boss.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
 const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
@@ -35,6 +36,7 @@ var _xp_bar: ProgressBar
 var _xp_label: Label
 var _active_boss: AncientEyeBoss
 var _active_spider_queen: SpiderQueenBoss
+var _active_magma_golem: MagmaGolemBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -301,7 +303,7 @@ func _build_boss_ui() -> void:
 	hud.add_child(_boss_health_bar)
 
 func _summon_spider_queen() -> void:
-	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss):
+	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem):
 		return
 	if not player.inventory.remove_item("spider_summon", 1):
 		return
@@ -339,7 +341,7 @@ func _on_spider_queen_defeated() -> void:
 	_active_spider_queen = null
 
 func _summon_ancient_eye() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen):
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem):
 		return
 	if not player.inventory.remove_item("eye_summon", 1):
 		return
@@ -359,6 +361,43 @@ func _summon_ancient_eye() -> void:
 	_boss_status_label.text = "BOSS: ANCIENT EYE — PHASE 1"
 	_boss_status_label.visible = true
 	_on_inventory_changed(player.inventory.items)
+
+func _summon_magma_golem() -> void:
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem):
+		return
+	if not player.inventory.remove_item("magma_heart", 1):
+		return
+	_active_magma_golem = MAGMA_GOLEM_SCENE.instantiate() as MagmaGolemBoss
+	if _active_magma_golem == null:
+		player.inventory.add_item("magma_heart", 1)
+		return
+	_active_magma_golem.name = "MagmaGolemBoss"
+	_active_magma_golem.health_changed.connect(_on_boss_health_changed)
+	_active_magma_golem.defeated.connect(_on_magma_golem_defeated)
+	_active_magma_golem.phase_changed.connect(_on_magma_golem_phase_changed)
+	add_child(_active_magma_golem)
+	_active_magma_golem.global_position = player.global_position + Vector2(460.0 * player.get_facing(), 0.0)
+	_boss_health_bar.max_value = _active_magma_golem.max_health
+	_boss_health_bar.value = _active_magma_golem.health
+	_boss_health_bar.visible = true
+	_boss_status_label.text = "BOSS: MAGMA GOLEM — PHASE 1"
+	_boss_status_label.visible = true
+	_on_inventory_changed(player.inventory.items)
+
+func _on_magma_golem_phase_changed(phase: int) -> void:
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "BOSS: MAGMA GOLEM — PHASE %d" % phase
+
+func _on_magma_golem_defeated() -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.visible = false
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "MAGMA GOLEM DEFEATED!"
+	player.inventory.add_item("magma_core", 16)
+	player.inventory.add_item("gold_ore", 35)
+	player.inventory.add_item("healing_potion", 6)
+	player.add_experience(1400)
+	_active_magma_golem = null
 
 func _on_boss_health_changed(current: int, maximum: int) -> void:
 	if is_instance_valid(_boss_health_bar):
@@ -479,6 +518,9 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "gold_armor", "24 GOLD + 10 PLANKS  →  GOLD ARMOR")
 	_add_recipe_button(layout, "anvil", "20 STONE + 10 ORE + 8 PLANKS  →  ANVIL")
 	_add_recipe_button(layout, "spider_summon", "6 FANGS + 20 SILVER + 8 GOLD  →  QUEEN SIGIL")
+	_add_recipe_button(layout, "magma_heart", "8 CORES + 30 GOLD + 20 MAGMA ROCK  →  MAGMA HEART")
+	_add_recipe_button(layout, "obsidian_sword", "12 CORES + 18 GOLD + 8 PLANKS  →  OBSIDIAN SWORD")
+	_add_recipe_button(layout, "obsidian_armor", "24 CORES + 24 GOLD + 12 PLANKS  →  OBSIDIAN ARMOR")
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
@@ -487,6 +529,10 @@ func _build_inventory_ui() -> void:
 	spider_summon_button.text = "SUMMON SPIDER QUEEN BOSS"
 	spider_summon_button.pressed.connect(_summon_spider_queen)
 	layout.add_child(spider_summon_button)
+	var magma_summon_button := Button.new()
+	magma_summon_button.text = "SUMMON MAGMA GOLEM BOSS"
+	magma_summon_button.pressed.connect(_summon_magma_golem)
+	layout.add_child(magma_summon_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
@@ -563,7 +609,9 @@ func _get_water_target_cell() -> Vector2i:
 
 func _equip_best_armor() -> void:
 	var inventory := player.inventory
-	if inventory.count("gold_armor") > 0:
+	if inventory.count("obsidian_armor") > 0:
+		inventory.equip_armor("obsidian_armor")
+	elif inventory.count("gold_armor") > 0:
 		inventory.equip_armor("gold_armor")
 	elif inventory.count("silver_armor") > 0:
 		inventory.equip_armor("silver_armor")
