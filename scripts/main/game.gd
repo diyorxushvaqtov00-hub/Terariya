@@ -525,9 +525,19 @@ func _build_inventory_ui() -> void:
 	_inventory_panel.visible = false
 	hud.add_child(_inventory_panel)
 
+	var recipe_scroll := ScrollContainer.new()
+	recipe_scroll.name = "InventoryScroll"
+	recipe_scroll.custom_minimum_size = Vector2(340, 460)
+	recipe_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	recipe_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	recipe_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	recipe_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	_inventory_panel.add_child(recipe_scroll)
+
 	var layout := VBoxContainer.new()
+	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	layout.add_theme_constant_override("separation", 8)
-	_inventory_panel.add_child(layout)
+	recipe_scroll.add_child(layout)
 	var heading := Label.new()
 	heading.text = "INVENTORY & CRAFTING"
 	heading.add_theme_font_size_override("font_size", 20)
