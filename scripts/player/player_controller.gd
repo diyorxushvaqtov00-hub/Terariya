@@ -94,6 +94,9 @@ func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(attack_damage)
 
+func get_facing() -> int:
+	return _facing
+
 func unlock_double_jump() -> void:
 	double_jump_unlocked = true
 
