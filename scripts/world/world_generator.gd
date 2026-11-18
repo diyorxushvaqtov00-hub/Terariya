@@ -104,7 +104,14 @@ func mine_cell(cell: Vector2i) -> bool:
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
 		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else "dirt")))
-		player.inventory.add_item(drop, 1)
+		var amount := 1
+		if mined_type == WOOD and player.inventory.count("wooden_axe") > 0:
+			amount = 2
+			player.inventory.use_tool("wooden_axe")
+		elif mined_type in [STONE, ORE] and player.inventory.count("wooden_pickaxe") > 0:
+			amount = 2 if mined_type == STONE else 1
+			player.inventory.use_tool("wooden_pickaxe")
+		player.inventory.add_item(drop, amount)
 	tiles[cell.x][cell.y] = AIR
 	_rebuild_collision()
 	queue_redraw()
