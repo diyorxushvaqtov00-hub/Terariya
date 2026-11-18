@@ -145,6 +145,9 @@ func _run() -> void:
 	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
 	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
 	assert(world.get_dungeon_chest_count() == 3, "World generates one dungeon chest in each biome")
+	var first_arena := world.get_nearest_dungeon_arena_position(world.get_spawn_position(10))
+	assert(is_equal_approx(first_arena.x, 42.5 * WorldGenerator.TILE_SIZE), "Dungeon arena locator targets the center of the nearest forest vault")
+	assert(first_arena.y > world.get_spawn_position(10).y, "Dungeon arena is positioned underground at the chamber floor")
 	var first_chest: Dictionary = world._dungeon_chests[0]
 	var first_chest_cell: Vector2i = first_chest["cell"]
 	var chest_position := world.to_global(Vector2((first_chest_cell.x + 0.5) * WorldGenerator.TILE_SIZE, (first_chest_cell.y + 0.5) * WorldGenerator.TILE_SIZE))
