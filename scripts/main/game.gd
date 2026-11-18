@@ -10,6 +10,9 @@ const SKELETON_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/skeleton
 const DUNGEON_SKELETON_SCENE: PackedScene = preload("res://scenes/enemies/dungeon_skeleton.tscn")
 const CAVE_SPIDER_SCENE: PackedScene = preload("res://scenes/enemies/cave_spider.tscn")
 const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
+const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_queen_boss.tscn")
+const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
+const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
 const NIGHT_SPAWN_INTERVAL: float = 18.0
 
@@ -31,6 +34,7 @@ var _boss_status_label: Label
 var _xp_bar: ProgressBar
 var _xp_label: Label
 var _active_boss: AncientEyeBoss
+var _active_spider_queen: SpiderQueenBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -52,6 +56,7 @@ func _ready() -> void:
 	_connect_enemy_rewards(slime, 25)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
+	_spawn_dungeon_hazards()
 	_spawn_dungeon_guards()
 	_on_player_health_changed(player.health, player.max_health)
 	_rng.randomize()
@@ -232,6 +237,20 @@ func _on_progression_changed(current_level: int, current_xp: int, required_xp: i
 	_xp_bar.value = current_xp
 	_xp_bar.visible = current_level < 50
 
+func _spawn_dungeon_hazards() -> void:
+	for position in world.get_dungeon_spike_positions():
+		var trap := SPIKE_TRAP_SCENE.instantiate() as SpikeTrap
+		if trap == null:
+			continue
+		add_child(trap)
+		trap.global_position = position
+	for position in world.get_dungeon_blade_positions():
+		var blade := SWINGING_BLADE_SCENE.instantiate() as SwingingBlade
+		if blade == null:
+			continue
+		add_child(blade)
+		blade.global_position = position
+
 func _spawn_dungeon_guards() -> void:
 	var spawn_positions := world.get_dungeon_guard_positions()
 	for index in range(spawn_positions.size()):
@@ -247,7 +266,7 @@ func _spawn_dungeon_guards() -> void:
 		if is_skeleton:
 			_connect_dungeon_reward(enemy, 55, "silver_ore", 3)
 		else:
-			_connect_dungeon_reward(enemy, 35, "healing_potion", 1)
+			_connect_dungeon_reward(enemy, 35, "spider_fang", 2)
 
 func _connect_dungeon_reward(enemy: SlimeEnemy, xp_reward: int, item_id: String, item_amount: int) -> void:
 	if enemy != null:
@@ -281,8 +300,45 @@ func _build_boss_ui() -> void:
 	_boss_health_bar.visible = false
 	hud.add_child(_boss_health_bar)
 
+func _summon_spider_queen() -> void:
+	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss):
+		return
+	if not player.inventory.remove_item("spider_summon", 1):
+		return
+	_active_spider_queen = SPIDER_QUEEN_SCENE.instantiate() as SpiderQueenBoss
+	if _active_spider_queen == null:
+		player.inventory.add_item("spider_summon", 1)
+		return
+	_active_spider_queen.name = "SpiderQueenBoss"
+	_active_spider_queen.health_changed.connect(_on_boss_health_changed)
+	_active_spider_queen.defeated.connect(_on_spider_queen_defeated)
+	_active_spider_queen.phase_changed.connect(_on_spider_queen_phase_changed)
+	add_child(_active_spider_queen)
+	_active_spider_queen.global_position = player.global_position + Vector2(420.0 * player.get_facing(), 0.0)
+	_boss_health_bar.max_value = _active_spider_queen.max_health
+	_boss_health_bar.value = _active_spider_queen.health
+	_boss_health_bar.visible = true
+	_boss_status_label.text = "BOSS: SPIDER QUEEN — PHASE 1"
+	_boss_status_label.visible = true
+	_on_inventory_changed(player.inventory.items)
+
+func _on_spider_queen_phase_changed(phase: int) -> void:
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "BOSS: SPIDER QUEEN — PHASE %d" % phase
+
+func _on_spider_queen_defeated() -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.visible = false
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "SPIDER QUEEN DEFEATED!"
+	player.inventory.add_item("gold_ore", 30)
+	player.inventory.add_item("spider_fang", 12)
+	player.inventory.add_item("healing_potion", 5)
+	player.add_experience(900)
+	_active_spider_queen = null
+
 func _summon_ancient_eye() -> void:
-	if is_instance_valid(_active_boss):
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen):
 		return
 	if not player.inventory.remove_item("eye_summon", 1):
 		return
@@ -421,10 +477,15 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "silver_armor", "28 SILVER + 8 PLANKS  →  SILVER ARMOR")
 	_add_recipe_button(layout, "gold_armor", "24 GOLD + 10 PLANKS  →  GOLD ARMOR")
 	_add_recipe_button(layout, "anvil", "20 STONE + 10 ORE + 8 PLANKS  →  ANVIL")
+	_add_recipe_button(layout, "spider_summon", "6 FANGS + 20 SILVER + 8 GOLD  →  QUEEN SIGIL")
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
 	layout.add_child(summon_button)
+	var spider_summon_button := Button.new()
+	spider_summon_button.text = "SUMMON SPIDER QUEEN BOSS"
+	spider_summon_button.pressed.connect(_summon_spider_queen)
+	layout.add_child(spider_summon_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
