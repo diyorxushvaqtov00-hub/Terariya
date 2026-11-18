@@ -127,3 +127,9 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 - Craft two Ancient Keys from 1 Dungeon Relic, 8 Gold Ore and 4 Spider Fangs; each gate consumes one key.
 - Open the sealed gate beside the dungeon, enter the side room and claim its one-time cache for a Dungeon Relic, Gold Ore, Silver Ore and Healing Potions.
 - Gate tiles and cache claim state are saved with the world, preventing duplicate loot after reloading.
+
+## Voidbreaker — endgame weapon
+
+- Craft the Voidbreaker at an anvil using 2 Dungeon Relics, 16 Gold Ore, 8 Magma Cores and 12 Spider Fangs.
+- It adds 145 base melee damage and has the highest weapon priority.
+- Upgrade it up to level 10 using additional Dungeon Relics; each upgrade adds the existing +3 weapon damage bonus.
