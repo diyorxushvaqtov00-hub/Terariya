@@ -21,5 +21,18 @@ func _run() -> void:
 	player.unlock_double_jump()
 	assert(player.double_jump_unlocked, "Double jump unlock flag is persistent on player instance")
 
-	print("PLAYER_SMOKE_TEST: PASS")
+	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
+	assert(dummy_packed != null, "Training dummy scene must load")
+	var dummy := dummy_packed.instantiate() as TrainingDummy
+	assert(dummy != null, "Training dummy must instantiate")
+	root.add_child(dummy)
+	await process_frame
+	player._on_attack_area_body_entered(dummy)
+	assert(dummy.health == 75, "Player melee hit applies configured damage")
+	player._on_attack_area_body_entered(dummy)
+	player._on_attack_area_body_entered(dummy)
+	player._on_attack_area_body_entered(dummy)
+	assert(dummy.health == 0, "Training dummy is defeated at zero health")
+
+	print("PLAYER_AND_COMBAT_SMOKE_TEST: PASS")
 	quit(0)
