@@ -15,6 +15,15 @@ func _run() -> void:
 	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
 	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
+	var silver_nodes := 0
+	var gold_nodes := 0
+	for x in range(WorldGenerator.WORLD_WIDTH):
+		for y in range(world.get_surface_y(x) + 1, WorldGenerator.WORLD_HEIGHT):
+			if world.get_tile(Vector2i(x, y)) == WorldGenerator.SILVER_ORE:
+				silver_nodes += 1
+			elif world.get_tile(Vector2i(x, y)) == WorldGenerator.GOLD_ORE:
+				gold_nodes += 1
+	assert(silver_nodes > 0 and gold_nodes > 0, "World generation includes silver and gold deposits")
 	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
 	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
 	assert(world.get_dungeon_chest_count() == 3, "World generates one dungeon chest in each biome")
@@ -344,6 +353,30 @@ func _run() -> void:
 	assert(boss.current_phase == 2, "Ancient Eye enters phase two below half health")
 	assert(boss.attack_damage == 26 and boss.move_speed > 92.0, "Phase two increases boss damage and movement speed")
 	boss.queue_free()
+
+	var metal_inventory := PlayerInventory.new()
+	root.add_child(metal_inventory)
+	await process_frame
+	metal_inventory.add_item("silver_ore", 40)
+	metal_inventory.add_item("gold_ore", 40)
+	metal_inventory.add_item("wooden_planks", 30)
+	assert(metal_inventory.craft("silver_sword"), "Silver sword recipe crafts")
+	assert(metal_inventory.craft("gold_sword"), "Gold sword recipe crafts")
+	assert(metal_inventory.craft("silver_armor"), "Silver armor recipe crafts")
+	assert(metal_inventory.craft("gold_armor"), "Gold armor recipe crafts")
+	assert(metal_inventory.equip_armor("silver_armor"), "Silver armor can be equipped")
+	assert(metal_inventory.get_armor_defense() == 12, "Silver armor grants twelve defense")
+	assert(metal_inventory.equip_armor("gold_armor"), "Gold armor can be equipped")
+	assert(metal_inventory.get_armor_defense() == 20, "Gold armor grants twenty defense")
+	var metal_snapshot := metal_inventory.serialize()
+	var restored_metal_inventory := PlayerInventory.new()
+	root.add_child(restored_metal_inventory)
+	await process_frame
+	assert(restored_metal_inventory.restore(metal_snapshot), "Silver and gold equipment restore from inventory save")
+	assert(restored_metal_inventory.equipped_armor == "gold_armor", "Gold armor equipment state persists")
+	assert(restored_metal_inventory.get_armor_defense() == 20, "Restored gold armor keeps its defense")
+	metal_inventory.queue_free()
+	restored_metal_inventory.queue_free()
 
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
