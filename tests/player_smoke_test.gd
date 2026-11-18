@@ -17,6 +17,12 @@ func _run() -> void:
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
 	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
 	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
+	var sand_build_cell := Vector2i(90, world.get_surface_y(90) - 1)
+	assert(world.place_block(sand_build_cell, WorldGenerator.SAND), "Sand blocks can be placed")
+	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "Placed sand keeps its material")
+	var snow_build_cell := Vector2i(150, world.get_surface_y(150) - 1)
+	assert(world.place_block(snow_build_cell, WorldGenerator.SNOW), "Snow blocks can be placed")
+	assert(world.get_tile(snow_build_cell) == WorldGenerator.SNOW, "Placed snow keeps its material")
 	var cave_air_count := 0
 	var ore_count := 0
 	for scan_x in range(WorldGenerator.WORLD_WIDTH):
