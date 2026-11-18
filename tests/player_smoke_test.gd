@@ -15,6 +15,22 @@ func _run() -> void:
 	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
 	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
+	var dungeon_positions := world.get_dungeon_guard_positions()
+	assert(dungeon_positions.size() == 6, "Three dungeons provide six guard spawn positions")
+	var skeleton_scene := load("res://scenes/enemies/dungeon_skeleton.tscn") as PackedScene
+	var spider_scene := load("res://scenes/enemies/cave_spider.tscn") as PackedScene
+	assert(skeleton_scene != null and spider_scene != null, "Dungeon enemy scenes load")
+	var dungeon_skeleton := skeleton_scene.instantiate() as SlimeEnemy
+	var cave_spider := spider_scene.instantiate() as SlimeEnemy
+	assert(dungeon_skeleton != null and cave_spider != null, "Dungeon enemies instantiate")
+	root.add_child(dungeon_skeleton)
+	root.add_child(cave_spider)
+	await process_frame
+	assert(dungeon_skeleton.max_health == 150 and dungeon_skeleton.attack_damage == 20, "Dungeon skeleton has elite guard stats")
+	assert(cave_spider.max_health == 85 and cave_spider.move_speed == 112.0, "Cave spider has fast ambush stats")
+	dungeon_skeleton.queue_free()
+	cave_spider.queue_free()
+
 	var silver_nodes := 0
 	var gold_nodes := 0
 	for x in range(WorldGenerator.WORLD_WIDTH):
