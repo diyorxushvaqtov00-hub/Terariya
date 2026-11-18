@@ -599,5 +599,31 @@ func _run() -> void:
 	assert(player.health == player.max_health, "Player respawns with full health")
 	assert(player.is_physics_processing(), "Player physics resumes after respawn")
 
+	var quest_script := load("res://scripts/systems/quest_tracker.gd")
+	assert(quest_script != null, "Quest tracker script must load")
+	var quests := quest_script.new() as QuestTracker
+	assert(quests != null, "Quest tracker must instantiate")
+	root.add_child(quests)
+	var completed_quests: Array[String] = []
+	quests.quest_completed.connect(func(quest_id: String) -> void: completed_quests.append(quest_id))
+	quests.sync_inventory({"wood": 6})
+	assert(int(quests.progress["gather_wood"]) == 6, "Wood collection objective tracks inventory")
+	quests.sync_inventory({"wood": 10})
+	assert(bool(quests.completed["gather_wood"]), "Woodcutter quest completes at ten wood")
+	assert(completed_quests.has("gather_wood"), "Quest completion signal fires once")
+	quests.record_enemy_defeat()
+	quests.record_enemy_defeat()
+	quests.record_enemy_defeat()
+	assert(bool(quests.completed["hunter"]), "Hunter quest completes after three enemy defeats")
+	quests.record_chest_opened()
+	assert(bool(quests.completed["dungeon_delver"]), "Dungeon quest completes after opening a chest")
+	var quest_snapshot := quests.serialize()
+	var restored_quests := quest_script.new() as QuestTracker
+	root.add_child(restored_quests)
+	assert(restored_quests.restore(quest_snapshot), "Quest progress restores from save data")
+	assert(bool(restored_quests.completed["gather_wood"]) and bool(restored_quests.completed["hunter"]) and bool(restored_quests.completed["dungeon_delver"]), "All completed quest flags persist")
+	quests.queue_free()
+	restored_quests.queue_free()
+
 	print("WORLD_PLAYER_COMBAT_RESPAWN_TEST: PASS")
 	quit(0)
