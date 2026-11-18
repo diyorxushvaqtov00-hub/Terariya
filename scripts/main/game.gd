@@ -118,7 +118,7 @@ func _build_inventory_ui() -> void:
 	_inventory_panel = PanelContainer.new()
 	_inventory_panel.name = "InventoryPanel"
 	_inventory_panel.position = Vector2(24, 150)
-	_inventory_panel.custom_minimum_size = Vector2(330, 390)
+	_inventory_panel.custom_minimum_size = Vector2(360, 500)
 	_inventory_panel.visible = false
 	hud.add_child(_inventory_panel)
 
@@ -141,6 +141,8 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_planks", "2 WOOD  →  4 PLANKS")
 	_add_recipe_button(layout, "workbench", "10 WOOD  →  WORKBENCH")
 	_add_recipe_button(layout, "stone_sword", "3 WOOD + 8 STONE  →  STONE SWORD")
+	_add_recipe_button(layout, "wooden_pickaxe", "5 PLANKS + 3 STONE  →  PICKAXE")
+	_add_recipe_button(layout, "wooden_axe", "4 PLANKS + 2 STONE  →  AXE")
 	var close_button := Button.new()
 	close_button.text = "CLOSE"
 	close_button.pressed.connect(_toggle_inventory)
@@ -156,11 +158,13 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nSTONE SWORD: %d" % [
+	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("wood", 0)),
 		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
-		int(items.get("stone_sword", 0))
+		int(items.get("stone_sword", 0)),
+		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
+		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
 	]
 
 func _refresh_craft_buttons() -> void:
