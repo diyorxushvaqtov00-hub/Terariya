@@ -7,6 +7,7 @@ const AUTOSAVE_INTERVAL: float = 30.0
 var _autosave_elapsed: float = 0.0
 var _inventory_panel: PanelContainer
 var _oxygen_bar: ProgressBar
+var _underwater_overlay: ColorRect
 var _oxygen_label: Label
 var _inventory_summary: Label
 var _craft_buttons: Dictionary = {}
@@ -25,11 +26,14 @@ func _ready() -> void:
 	slime.global_position = world.get_spawn_position(20)
 	player.health_changed.connect(_on_player_health_changed)
 	player.oxygen_changed.connect(_on_player_oxygen_changed)
+	player.underwater_changed.connect(_on_underwater_changed)
 	player.inventory.changed.connect(_on_inventory_changed)
 	world.selected_block_changed.connect(_on_selected_block_changed)
 	_load_game()
 	_on_player_health_changed(player.health, player.max_health)
+	_build_underwater_overlay()
 	_build_oxygen_ui()
+	_on_underwater_changed(player.is_head_underwater)
 	_on_player_oxygen_changed(player.oxygen_seconds, player.max_oxygen_seconds)
 	_on_inventory_changed(player.inventory.items)
 	_build_inventory_ui()
@@ -100,6 +104,21 @@ func _load_game() -> bool:
 
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
+
+func _build_underwater_overlay() -> void:
+	var hud := $HUD as CanvasLayer
+	_underwater_overlay = ColorRect.new()
+	_underwater_overlay.name = "UnderwaterOverlay"
+	_underwater_overlay.color = Color(0.08, 0.30, 0.72, 0.20)
+	_underwater_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_underwater_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_underwater_overlay.visible = false
+	hud.add_child(_underwater_overlay)
+	hud.move_child(_underwater_overlay, 0)
+
+func _on_underwater_changed(is_underwater: bool) -> void:
+	if is_instance_valid(_underwater_overlay):
+		_underwater_overlay.visible = is_underwater
 
 func _build_oxygen_ui() -> void:
 	var hud := $HUD as CanvasLayer
