@@ -426,7 +426,7 @@ func get_dungeon_spike_positions() -> Array[Vector2]:
 		var cell: Vector2i = chest["cell"]
 		var floor_y := (cell.y + 2) * TILE_SIZE
 		positions.append(to_global(Vector2((cell.x - 4) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
-		positions.append(to_global(Vector2((cell.x + 6) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
+		positions.append(to_global(Vector2((cell.x + 3) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
 	return positions
 
 func get_dungeon_blade_positions() -> Array[Vector2]:
