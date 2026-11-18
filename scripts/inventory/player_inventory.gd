@@ -5,6 +5,7 @@ signal changed(items: Dictionary)
 
 var items: Dictionary = {}
 var tool_durability: Dictionary = {}
+var equipped_armor: String = ""
 
 const RECIPES: Dictionary = {
 	"wooden_planks": {
@@ -41,6 +42,16 @@ const RECIPES: Dictionary = {
 		"ingredients": {"wood": 1},
 		"output": "torch",
 		"amount": 4
+	},
+	"wooden_armor": {
+		"ingredients": {"wooden_planks": 12},
+		"output": "wooden_armor",
+		"amount": 1
+	},
+	"copper_sword": {
+		"ingredients": {"ore": 10, "wooden_planks": 2},
+		"output": "copper_sword",
+		"amount": 1
 	}
 }
 
@@ -103,11 +114,29 @@ func use_tool(tool_id: String) -> bool:
 func get_tool_durability(tool_id: String) -> int:
 	return int(tool_durability.get(tool_id, 0))
 
+func equip_armor(armor_id: String) -> bool:
+	if armor_id.is_empty():
+		equipped_armor = ""
+		changed.emit(items.duplicate())
+		return true
+	if count(armor_id) <= 0 or armor_id != "wooden_armor":
+		return false
+	equipped_armor = armor_id
+	changed.emit(items.duplicate())
+	return true
+
+func get_armor_defense() -> int:
+	match equipped_armor:
+		"wooden_armor":
+			return 6
+		_:
+			return 0
+
 func serialize() -> Dictionary:
 	var snapshot: Dictionary = {}
 	for item_id in items:
 		snapshot[str(item_id)] = maxi(int(items[item_id]), 0)
-	return {"items": snapshot, "tool_durability": tool_durability.duplicate(true)}
+	return {"items": snapshot, "tool_durability": tool_durability.duplicate(true), "equipped_armor": equipped_armor}
 
 func restore(snapshot: Dictionary) -> bool:
 	var source: Variant = snapshot.get("items", snapshot)
@@ -133,7 +162,13 @@ func restore(snapshot: Dictionary) -> bool:
 			return false
 		if restored.get(str(tool_id), 0) > 0 and int(durability_value) > 0:
 			restored_durability[str(tool_id)] = int(durability_value)
+	var restored_armor := str(snapshot.get("equipped_armor", ""))
+	if not restored_armor.is_empty() and restored.get(restored_armor, 0) <= 0:
+		restored_armor = ""
+	if not restored_armor.is_empty() and restored_armor != "wooden_armor":
+		return false
 	items = restored
 	tool_durability = restored_durability
+	equipped_armor = restored_armor
 	changed.emit(items.duplicate())
 	return true
