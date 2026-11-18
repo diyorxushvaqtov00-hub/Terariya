@@ -75,6 +75,7 @@ const RECIPES: Dictionary = {
 	"ancient_key": {"ingredients": {"dungeon_relic": 1, "gold_ore": 8, "spider_fang": 4}, "output": "ancient_key", "amount": 2},
 	"mushroom_blade": {"ingredients": {"glow_mushroom": 18, "magma_core": 4, "wooden_planks": 10}, "output": "mushroom_blade", "amount": 1},
 	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1},
+	"void_guardian_sigil": {"ingredients": {"dungeon_relic": 1, "gold_ore": 12, "magma_core": 6, "spider_fang": 6}, "output": "void_guardian_sigil", "amount": 1},
 	"voidbreaker": {"ingredients": {"dungeon_relic": 2, "gold_ore": 16, "magma_core": 8, "spider_fang": 12}, "output": "voidbreaker", "amount": 1}
 }
 
