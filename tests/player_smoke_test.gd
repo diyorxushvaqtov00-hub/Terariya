@@ -93,6 +93,11 @@ func _run() -> void:
 	player.inventory.use_tool("wooden_pickaxe")
 	assert(player.inventory.restore(tool_snapshot), "Tool durability restores from save data")
 	assert(player.inventory.get_tool_durability("wooden_pickaxe") == 39, "Restored pickaxe keeps its remaining durability")
+	assert(not player.inventory.can_craft("wooden_pickaxe"), "A second pickaxe cannot stack over durability state")
+	player.inventory.tool_durability["wooden_axe"] = 1
+	assert(player.inventory.use_tool("wooden_axe"), "A tool can consume its final durability point")
+	assert(player.inventory.count("wooden_axe") == 0, "Broken axe is removed from inventory")
+	assert(player.inventory.get_tool_durability("wooden_axe") == 0, "Broken axe has no remaining durability")
 	var inventory_test_cell := Vector2i(12, world.get_surface_y(12))
 	assert(world.mine_cell(inventory_test_cell), "Mining a block with a player succeeds")
 	assert(player.inventory.count("dirt") == 21, "Mining a grass or dirt block adds a dirt drop")
