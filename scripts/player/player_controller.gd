@@ -154,14 +154,18 @@ func _start_attack() -> void:
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
 		var total_damage := attack_damage + bonus_attack_damage
-		if inventory.count("gold_sword") > 0:
-			total_damage += 55
-		elif inventory.count("silver_sword") > 0:
-			total_damage += 40
-		elif inventory.count("copper_sword") > 0:
-			total_damage += 25
-		elif inventory.count("stone_sword") > 0:
-			total_damage += 15
+		var weapon_id := inventory.get_best_weapon_id()
+		match weapon_id:
+			"gold_sword":
+				total_damage += 55
+			"silver_sword":
+				total_damage += 40
+			"copper_sword":
+				total_damage += 25
+			"stone_sword":
+				total_damage += 15
+		if not weapon_id.is_empty():
+			total_damage += inventory.get_weapon_upgrade_level(weapon_id) * 3
 		body.take_damage(total_damage)
 
 func set_spawn_position(position: Vector2) -> void:
