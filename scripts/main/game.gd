@@ -8,11 +8,13 @@ const SAVE_VERSION: int = 1
 @onready var player: PlayerController = $Player
 @onready var world: WorldGenerator = $World
 @onready var training_dummy: TrainingDummy = $TrainingDummy
+@onready var slime: SlimeEnemy = $SlimeEnemy
 
 func _ready() -> void:
 	player.global_position = world.get_spawn_position(10)
 	player.set_spawn_position(player.global_position)
 	training_dummy.global_position = world.get_spawn_position(15)
+	slime.global_position = world.get_spawn_position(20)
 	player.health_changed.connect(_on_player_health_changed)
 	player.inventory.changed.connect(_on_inventory_changed)
 	world.selected_block_changed.connect(_on_selected_block_changed)
