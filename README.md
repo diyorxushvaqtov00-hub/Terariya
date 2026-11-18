@@ -107,3 +107,7 @@ The quest log currently includes three persistent objectives: collect 10 wood, d
 ## Elder guide NPC
 
 An Elder NPC now appears beside the starting camp. Open the inventory panel and choose **TALK TO THE ELDER** while nearby to receive contextual guidance for the current objective, basic survival and exploration. The dialogue adapts to the three quest milestones and points players toward later biomes after the starter quests are complete.
+
+## Locked dungeon vaults
+
+The three underground dungeon chests are now locked. Craft three **Dungeon Keys** using 6 silver ore, 3 gold ore and 2 spider fangs, then spend one key per vault. Each vault has its own saved opened state and grants base supplies plus increasing metal rewards; the final vault also grants gold ore. The inventory panel displays the key count and explains why a chest could not be opened.
