@@ -193,6 +193,10 @@ func get_armor_defense() -> int:
 		_:
 			return 0
 
+func get_armor_damage_multiplier() -> float:
+	# Void Armor bends incoming force away from the wearer.
+	return 0.85 if equipped_armor == "void_armor" else 1.0
+
 func get_best_weapon_id() -> String:
 	for weapon_id in ["voidbreaker", "obsidian_sword", "queens_fang", "mushroom_blade", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
 		if count(weapon_id) > 0:
