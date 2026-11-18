@@ -56,3 +56,8 @@ cycle_block={
 	"deadzone": 0.2,
 	"events": [Object(InputEventKey,"physical_keycode":82)]
 }
+
+inventory_toggle={
+	"deadzone": 0.2,
+	"events": [Object(InputEventKey,"physical_keycode":73)]
+}
