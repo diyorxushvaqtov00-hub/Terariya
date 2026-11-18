@@ -333,6 +333,7 @@ func _on_spider_queen_defeated() -> void:
 		_boss_status_label.text = "SPIDER QUEEN DEFEATED!"
 	player.inventory.add_item("gold_ore", 30)
 	player.inventory.add_item("spider_fang", 12)
+	player.inventory.add_item("queens_fang", 1)
 	player.inventory.add_item("healing_potion", 5)
 	player.add_experience(900)
 	_active_spider_queen = null
