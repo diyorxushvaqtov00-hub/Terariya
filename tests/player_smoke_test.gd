@@ -290,6 +290,19 @@ func _run() -> void:
 	assert(root.get_child(root.get_child_count() - 1) is EnemyProjectile, "Skeleton archer projectile uses the enemy projectile scene")
 	skeleton.queue_free()
 
+	var boss_packed := load("res://scenes/enemies/ancient_eye_boss.tscn") as PackedScene
+	assert(boss_packed != null, "Ancient Eye boss scene must load")
+	var boss := boss_packed.instantiate() as AncientEyeBoss
+	assert(boss != null, "Ancient Eye boss must instantiate")
+	root.add_child(boss)
+	await process_frame
+	assert(boss.health == 900, "Ancient Eye starts with nine hundred health")
+	assert(boss.current_phase == 1, "Ancient Eye starts in phase one")
+	boss.take_damage(460)
+	assert(boss.current_phase == 2, "Ancient Eye enters phase two below half health")
+	assert(boss.attack_damage == 26 and boss.move_speed > 92.0, "Phase two increases boss damage and movement speed")
+	boss.queue_free()
+
 	var dummy_packed := load("res://scenes/enemies/training_dummy.tscn") as PackedScene
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
