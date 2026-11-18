@@ -625,5 +625,12 @@ func _run() -> void:
 	quests.queue_free()
 	restored_quests.queue_free()
 
+	var guide_scene: PackedScene = load("res://scenes/npcs/guide.tscn") as PackedScene
+	assert(guide_scene != null, "Elder guide scene must load")
+	var guide_instance := guide_scene.instantiate() as GuideNPC
+	assert(guide_instance != null, "Elder guide must instantiate")
+	assert(guide_instance.interaction_radius >= 200.0, "Guide interaction radius must be usable on mobile")
+	guide_instance.queue_free()
+
 	print("WORLD_PLAYER_COMBAT_RESPAWN_TEST: PASS")
 	quit(0)
