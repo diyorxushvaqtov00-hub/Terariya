@@ -29,6 +29,9 @@ func _run() -> void:
 	assert(water_cell.x >= 0, "A water tile is available for swimming tests")
 	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
 	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
+	assert(world.is_water_source(water_cell) or world.is_water_source(Vector2i(water_cell.x, world.get_surface_y(water_cell.x))), "Lake has a renewable water source")
+	var water_sample_world := world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 16.0))
+	assert(world.is_position_in_water(water_sample_world), "Water detection samples the actual tile position")
 	var flow_test_source := Vector2i(WorldGenerator.WORLD_WIDTH - 2, 1)
 	var flow_test_destination := flow_test_source + Vector2i(0, 1)
 	world.tiles[flow_test_source.x][flow_test_source.y] = WorldGenerator.WATER
@@ -36,6 +39,16 @@ func _run() -> void:
 	assert(world.get_tile(flow_test_source) == WorldGenerator.AIR, "Falling water leaves its previous tile")
 	assert(world.get_tile(flow_test_destination) == WorldGenerator.WATER, "Water flows down into an empty tile")
 	world.tiles[flow_test_destination.x][flow_test_destination.y] = WorldGenerator.AIR
+	var source_test_cell := Vector2i(170, 2)
+	world.tiles[source_test_cell.x][source_test_cell.y] = WorldGenerator.WATER
+	assert(world.set_water_source(source_test_cell), "A water tile can be marked as a renewable source")
+	var source_below := source_test_cell + Vector2i(0, 1)
+	assert(world._simulate_water_step() > 0, "Renewable water source produces flowing water")
+	assert(world.get_tile(source_test_cell) == WorldGenerator.WATER, "Renewable source remains in place after flowing")
+	assert(world.get_tile(source_below) == WorldGenerator.WATER, "Renewable source fills the tile below")
+	world.tiles[source_test_cell.x][source_test_cell.y] = WorldGenerator.AIR
+	world.tiles[source_below.x][source_below.y] = WorldGenerator.AIR
+	world._water_sources.erase(source_test_cell)
 	var sand_build_cell := Vector2i(90, world.get_surface_y(90) - 1)
 	assert(world.place_block(sand_build_cell, WorldGenerator.SAND), "Sand blocks can be placed")
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "Placed sand keeps its material")
@@ -66,6 +79,7 @@ func _run() -> void:
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "World save preserves placed sand")
 	assert(world.get_tile(snow_build_cell) == WorldGenerator.SNOW, "World save preserves placed snow")
 	assert(world.get_tile(water_cell) == WorldGenerator.WATER, "World save preserves lake water")
+	assert(world._water_sources.size() > 0, "World save preserves renewable lake source positions")
 	assert(world.selected_block_type == WorldGenerator.DIRT, "World restore preserves selected block")
 	world.cycle_block_selection()
 	assert(world.selected_block_type == WorldGenerator.STONE, "Block selection cycles to stone")
