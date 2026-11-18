@@ -31,6 +31,8 @@ var _water_flow_elapsed: float = 0.0
 var _water_flow_direction: int = 1
 var _water_sources: Dictionary = {}
 var max_water_tiles: int = 1800
+var _torch_cells: Array[Vector2i] = []
+var _torch_lights: Array[PointLight2D] = []
 
 func _ready() -> void:
 	add_to_group("world_generator")
@@ -93,6 +95,11 @@ func _draw() -> void:
 				draw_line(rect.position + Vector2(2.0, 2.0), rect.position + Vector2(TILE_SIZE - 2.0, 2.0), Color(0.58, 0.82, 1.0, 0.9), 2.0)
 			elif tile == WATER:
 				draw_line(rect.position + Vector2(7.0, 5.0), rect.position + Vector2(7.0, TILE_SIZE - 5.0), Color(0.42, 0.70, 1.0, 0.28), 2.0)
+	for cell in _torch_cells:
+		var torch_base := Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.82) * TILE_SIZE)
+		draw_line(torch_base, torch_base + Vector2(0.0, -17.0), Color(0.48, 0.28, 0.12), 4.0)
+		draw_colored_polygon(PackedVector2Array([torch_base + Vector2(-5, -15), torch_base + Vector2(0, -27), torch_base + Vector2(5, -15)]), Color(1.0, 0.55, 0.12, 0.95))
+		draw_circle(torch_base + Vector2(0, -20), 3.0, Color(1.0, 0.88, 0.42))
 
 func _tile_color(tile: int) -> Color:
 	match tile:
@@ -241,6 +248,7 @@ func get_save_data() -> Dictionary:
 		"height": WORLD_HEIGHT,
 		"selected_block": selected_block_type,
 		"water_sources": _serialize_water_sources(),
+		"torches": _serialize_torches(),
 		"tiles": saved_columns
 	}
 
@@ -280,10 +288,66 @@ func load_save_data(data: Dictionary) -> bool:
 		selected_block_type = DIRT
 	_noise.seed = world_seed
 	_water_sources = _restore_water_sources(data.get("water_sources", []))
+	_restore_torches(data.get("torches", []))
 	selected_block_changed.emit(selected_block_type)
 	_rebuild_collision()
 	queue_redraw()
 	return true
+
+func place_torch(cell: Vector2i, inventory: PlayerInventory) -> bool:
+	if not _inside_world(cell) or get_tile(cell) != AIR or inventory == null:
+		return false
+	if _torch_cells.has(cell) or not inventory.remove_item("torch", 1):
+		return false
+	_torch_cells.append(cell)
+	_create_torch_light(cell)
+	queue_redraw()
+	return true
+
+func _serialize_torches() -> Array:
+	var result: Array = []
+	for cell in _torch_cells:
+		if _inside_world(cell) and get_tile(cell) == AIR:
+			result.append([cell.x, cell.y])
+	return result
+
+func _restore_torches(raw_torches: Variant) -> void:
+	_torch_cells.clear()
+	for light in _torch_lights:
+		if is_instance_valid(light):
+			light.queue_free()
+	_torch_lights.clear()
+	if not raw_torches is Array:
+		return
+	for entry in raw_torches:
+		if entry is Array and entry.size() == 2:
+			var cell := Vector2i(int(entry[0]), int(entry[1]))
+			if _inside_world(cell) and get_tile(cell) == AIR and not _torch_cells.has(cell):
+				_torch_cells.append(cell)
+				_create_torch_light(cell)
+
+func _create_torch_light(cell: Vector2i) -> void:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 0.78, 0.38, 0.72))
+	gradient.add_point(0.38, Color(1.0, 0.48, 0.12, 0.32))
+	gradient.add_point(1.0, Color(1.0, 0.30, 0.08, 0.0))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 128
+	texture.height = 128
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(0.5, 0.0)
+	var light := PointLight2D.new()
+	light.name = "TorchLight_%d_%d" % [cell.x, cell.y]
+	light.texture = texture
+	light.texture_scale = 3.0
+	light.energy = 1.25
+	light.color = Color(1.0, 0.72, 0.42)
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	light.position = Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE)
+	add_child(light)
+	_torch_lights.append(light)
 
 func _serialize_water_sources() -> Array:
 	var result: Array = []
