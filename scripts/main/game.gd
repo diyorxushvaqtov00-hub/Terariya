@@ -275,6 +275,11 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_pickaxe", "5 PLANKS + 3 STONE  →  PICKAXE")
 	_add_recipe_button(layout, "wooden_axe", "4 PLANKS + 2 STONE  →  AXE")
 	_add_recipe_button(layout, "wooden_bucket", "5 PLANKS  →  EMPTY BUCKET")
+	_add_recipe_button(layout, "torch", "1 WOOD  →  4 TORCHES")
+	var torch_button := Button.new()
+	torch_button.text = "PLACE TORCH (EMPTY TILE IN FRONT)"
+	torch_button.pressed.connect(_place_torch)
+	layout.add_child(torch_button)
 	var fill_button := Button.new()
 	fill_button.text = "FILL BUCKET (WATER IN FRONT)"
 	fill_button.pressed.connect(_fill_water_bucket)
@@ -298,11 +303,11 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nEMPTY BUCKET: %d    WATER BUCKET: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
+	return "DIRT: %d    STONE: %d\nORE: %d    WOOD: %d\nPLANKS: %d    WORKBENCH: %d\nTORCHES: %d\nEMPTY BUCKET: %d    WATER BUCKET: %d\nSTONE SWORD: %d\nPICKAXE: %d (%d durability)\nAXE: %d (%d durability)" % [
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("wood", 0)),
 		int(items.get("wooden_planks", 0)), int(items.get("workbench", 0)),
-		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
+		int(items.get("torch", 0)), int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("stone_sword", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe")
@@ -317,6 +322,10 @@ func _get_water_target_cell() -> Vector2i:
 	var target := player.global_position + Vector2(player.get_facing() * WorldGenerator.TILE_SIZE * 1.35, WorldGenerator.TILE_SIZE * 0.5)
 	var local_target := world.to_local(target)
 	return Vector2i(floori(local_target.x / WorldGenerator.TILE_SIZE), floori(local_target.y / WorldGenerator.TILE_SIZE))
+
+func _place_torch() -> void:
+	if world.place_torch(_get_water_target_cell(), player.inventory):
+		_on_inventory_changed(player.inventory.items)
 
 func _fill_water_bucket() -> void:
 	if world.fill_bucket(_get_water_target_cell(), player.inventory):
