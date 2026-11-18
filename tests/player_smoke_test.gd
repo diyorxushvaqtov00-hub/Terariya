@@ -34,5 +34,12 @@ func _run() -> void:
 	player._on_attack_area_body_entered(dummy)
 	assert(dummy.health == 0, "Training dummy is defeated at zero health")
 
-	print("PLAYER_AND_COMBAT_SMOKE_TEST: PASS")
+	player.respawn_delay = 0.02
+	player.take_damage(player.max_health)
+	assert(player.health == 0, "Lethal damage reduces player health to zero")
+	await create_timer(0.06).timeout
+	assert(player.health == player.max_health, "Player respawns with full health")
+	assert(player.is_physics_processing(), "Player physics resumes after respawn")
+
+	print("PLAYER_COMBAT_RESPAWN_SMOKE_TEST: PASS")
 	quit(0)
