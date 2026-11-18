@@ -12,6 +12,7 @@ const CAVE_SPIDER_SCENE: PackedScene = preload("res://scenes/enemies/cave_spider
 const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
 const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_queen_boss.tscn")
 const MAGMA_GOLEM_SCENE: PackedScene = preload("res://scenes/enemies/magma_golem_boss.tscn")
+const MUSHROOM_GUARDIAN_SCENE: PackedScene = preload("res://scenes/enemies/mushroom_guardian_boss.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
 const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
@@ -37,6 +38,7 @@ var _xp_label: Label
 var _active_boss: AncientEyeBoss
 var _active_spider_queen: SpiderQueenBoss
 var _active_magma_golem: MagmaGolemBoss
+var _active_mushroom_guardian: MushroomGuardianBoss
 
 @onready var health_label: Label = $HUD/HealthLabel
 @onready var inventory_label: Label = $HUD/InventoryLabel
@@ -303,7 +305,7 @@ func _build_boss_ui() -> void:
 	hud.add_child(_boss_health_bar)
 
 func _summon_spider_queen() -> void:
-	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem):
+	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian):
 		return
 	if not player.inventory.remove_item("spider_summon", 1):
 		return
@@ -398,6 +400,43 @@ func _on_magma_golem_defeated() -> void:
 	player.inventory.add_item("healing_potion", 6)
 	player.add_experience(1400)
 	_active_magma_golem = null
+
+func _summon_mushroom_guardian() -> void:
+	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian):
+		return
+	if not player.inventory.remove_item("guardian_totem", 1):
+		return
+	_active_mushroom_guardian = MUSHROOM_GUARDIAN_SCENE.instantiate() as MushroomGuardianBoss
+	if _active_mushroom_guardian == null:
+		player.inventory.add_item("guardian_totem", 1)
+		return
+	_active_mushroom_guardian.name = "MushroomGuardianBoss"
+	_active_mushroom_guardian.health_changed.connect(_on_boss_health_changed)
+	_active_mushroom_guardian.defeated.connect(_on_mushroom_guardian_defeated)
+	_active_mushroom_guardian.phase_changed.connect(_on_mushroom_guardian_phase_changed)
+	add_child(_active_mushroom_guardian)
+	_active_mushroom_guardian.global_position = player.global_position + Vector2(390.0 * player.get_facing(), 0.0)
+	_boss_health_bar.max_value = _active_mushroom_guardian.max_health
+	_boss_health_bar.value = _active_mushroom_guardian.health
+	_boss_health_bar.visible = true
+	_boss_status_label.text = "BOSS: MUSHROOM GUARDIAN — PHASE 1"
+	_boss_status_label.visible = true
+	_on_inventory_changed(player.inventory.items)
+
+func _on_mushroom_guardian_phase_changed(phase: int) -> void:
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "BOSS: MUSHROOM GUARDIAN — PHASE %d" % phase
+
+func _on_mushroom_guardian_defeated() -> void:
+	if is_instance_valid(_boss_health_bar):
+		_boss_health_bar.visible = false
+	if is_instance_valid(_boss_status_label):
+		_boss_status_label.text = "MUSHROOM GUARDIAN DEFEATED!"
+	player.inventory.add_item("glow_mushroom", 30)
+	player.inventory.add_item("mushroom_soil", 20)
+	player.inventory.add_item("healing_potion", 5)
+	player.add_experience(1100)
+	_active_mushroom_guardian = null
 
 func _on_boss_health_changed(current: int, maximum: int) -> void:
 	if is_instance_valid(_boss_health_bar):
@@ -521,6 +560,9 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "magma_heart", "8 CORES + 30 GOLD + 20 MAGMA ROCK  →  MAGMA HEART")
 	_add_recipe_button(layout, "obsidian_sword", "12 CORES + 18 GOLD + 8 PLANKS  →  OBSIDIAN SWORD")
 	_add_recipe_button(layout, "obsidian_armor", "24 CORES + 24 GOLD + 12 PLANKS  →  OBSIDIAN ARMOR")
+	_add_recipe_button(layout, "guardian_totem", "12 GLOW MUSHROOM + 18 SOIL + 15 SILVER  →  GUARDIAN TOTEM")
+	_add_recipe_button(layout, "mushroom_blade", "18 GLOW MUSHROOM + 4 CORES + 10 PLANKS  →  MUSHROOM BLADE")
+	_add_recipe_button(layout, "fungal_armor", "24 GLOW MUSHROOM + 20 SOIL + 18 SILVER  →  FUNGAL ARMOR")
 	var summon_button := Button.new()
 	summon_button.text = "SUMMON ANCIENT EYE BOSS"
 	summon_button.pressed.connect(_summon_ancient_eye)
@@ -533,6 +575,10 @@ func _build_inventory_ui() -> void:
 	magma_summon_button.text = "SUMMON MAGMA GOLEM BOSS"
 	magma_summon_button.pressed.connect(_summon_magma_golem)
 	layout.add_child(magma_summon_button)
+	var guardian_button := Button.new()
+	guardian_button.text = "SUMMON MUSHROOM GUARDIAN"
+	guardian_button.pressed.connect(_summon_mushroom_guardian)
+	layout.add_child(guardian_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
@@ -584,7 +630,7 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d" % [
+	return "ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d" % [
 		int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
@@ -596,7 +642,8 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe"),
 		int(items.get("magma_core", 0)), int(items.get("magma_rock", 0)),
-		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0))
+		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0)),
+		int(items.get("mushroom_blade", 0)), int(items.get("fungal_armor", 0)), int(items.get("guardian_totem", 0))
 	]
 
 func _refresh_craft_buttons() -> void:
@@ -613,6 +660,8 @@ func _equip_best_armor() -> void:
 	var inventory := player.inventory
 	if inventory.count("obsidian_armor") > 0:
 		inventory.equip_armor("obsidian_armor")
+	elif inventory.count("fungal_armor") > 0:
+		inventory.equip_armor("fungal_armor")
 	elif inventory.count("gold_armor") > 0:
 		inventory.equip_armor("gold_armor")
 	elif inventory.count("silver_armor") > 0:
