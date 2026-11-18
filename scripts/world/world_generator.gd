@@ -29,6 +29,8 @@ var selected_block_type: int = DIRT
 var water_flow_interval: float = 0.28
 var _water_flow_elapsed: float = 0.0
 var _water_flow_direction: int = 1
+var _water_sources: Dictionary = {}
+var max_water_tiles: int = 1800
 
 func _ready() -> void:
 	add_to_group("world_generator")
@@ -47,6 +49,7 @@ func generate_world() -> void:
 	_cave_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	_cave_noise.frequency = 0.075
 	tiles.clear()
+	_water_sources.clear()
 	surface_heights.resize(WORLD_WIDTH)
 	for x in range(WORLD_WIDTH):
 		var column: PackedInt32Array = PackedInt32Array()
@@ -130,12 +133,32 @@ func get_tile(cell: Vector2i) -> int:
 	return int(tiles[cell.x][cell.y])
 
 func is_position_in_water(world_position: Vector2) -> bool:
-	var local_position := to_local(world_position)
-	var base_cell := Vector2i(floori(local_position.x / TILE_SIZE), floori(local_position.y / TILE_SIZE))
-	for offset_y in [-12, 0, 12, 24]:
-		if get_tile(base_cell + Vector2i(0, floori(float(offset_y) / TILE_SIZE))) == WATER:
+	for offset_y in [-18.0, 0.0, 18.0, 30.0]:
+		var sample := to_local(world_position + Vector2(0.0, offset_y))
+		var cell := Vector2i(floori(sample.x / TILE_SIZE), floori(sample.y / TILE_SIZE))
+		if get_tile(cell) == WATER:
 			return true
 	return false
+
+func count_water_tiles() -> int:
+	var total := 0
+	for column in tiles:
+		for tile in column:
+			if int(tile) == WATER:
+				total += 1
+	return total
+
+func set_water_source(cell: Vector2i, enabled: bool = true) -> bool:
+	if not _inside_world(cell) or get_tile(cell) != WATER:
+		return false
+	if enabled:
+		_water_sources[cell] = true
+	else:
+		_water_sources.erase(cell)
+	return true
+
+func is_water_source(cell: Vector2i) -> bool:
+	return _water_sources.has(cell)
 
 func mine_cell(cell: Vector2i) -> bool:
 	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER]:
@@ -187,6 +210,7 @@ func get_save_data() -> Dictionary:
 		"width": WORLD_WIDTH,
 		"height": WORLD_HEIGHT,
 		"selected_block": selected_block_type,
+		"water_sources": _serialize_water_sources(),
 		"tiles": saved_columns
 	}
 
@@ -225,10 +249,30 @@ func load_save_data(data: Dictionary) -> bool:
 	if selected_block_type not in [DIRT, STONE, SAND, SNOW]:
 		selected_block_type = DIRT
 	_noise.seed = world_seed
+	_water_sources = _restore_water_sources(data.get("water_sources", []))
 	selected_block_changed.emit(selected_block_type)
 	_rebuild_collision()
 	queue_redraw()
 	return true
+
+func _serialize_water_sources() -> Array:
+	var result: Array = []
+	for cell in _water_sources:
+		var source_cell: Vector2i = cell
+		if get_tile(source_cell) == WATER:
+			result.append([source_cell.x, source_cell.y])
+	return result
+
+func _restore_water_sources(raw_sources: Variant) -> Dictionary:
+	var result: Dictionary = {}
+	if not raw_sources is Array:
+		return result
+	for entry in raw_sources:
+		if entry is Array and entry.size() == 2:
+			var cell := Vector2i(int(entry[0]), int(entry[1]))
+			if _inside_world(cell) and get_tile(cell) == WATER:
+				result[cell] = true
+	return result
 
 func _generate_caves() -> void:
 	# Carve deterministic underground pockets while protecting the surface layer.
@@ -261,9 +305,13 @@ func _generate_lakes() -> void:
 				for y in range(waterline, ground_y):
 					if tiles[x][y] == AIR:
 						tiles[x][y] = WATER
+			if waterline >= 0 and waterline < WORLD_HEIGHT and tiles[x][waterline] == WATER:
+				_water_sources[Vector2i(x, waterline)] = true
 
 func _simulate_water_step() -> int:
 	# Collect source/destination pairs first so water advances one tile per step.
+	if count_water_tiles() >= max_water_tiles:
+		return 0
 	var sources: Array[Vector2i] = []
 	var destinations: Array[Vector2i] = []
 	var reserved: Dictionary = {}
@@ -289,8 +337,11 @@ func _simulate_water_step() -> int:
 	if sources.is_empty():
 		_water_flow_direction *= -1
 		return 0
-	for source in sources:
-		tiles[source.x][source.y] = AIR
+	for index in range(sources.size()):
+		var source: Vector2i = sources[index]
+		var destination: Vector2i = destinations[index]
+		if not (_water_sources.has(source) and destination.x == source.x and destination.y == source.y + 1):
+			tiles[source.x][source.y] = AIR
 	for destination in destinations:
 		tiles[destination.x][destination.y] = WATER
 	_water_flow_direction *= -1
