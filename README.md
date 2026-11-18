@@ -115,3 +115,8 @@ The three underground dungeon chests are now locked. Craft three **Dungeon Keys*
 ## Dungeon Warden boss
 
 The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20 gold ore, 10 silver ore and 6 spider fangs to craft a Dungeon Warden Sigil. Use it from the inventory panel to summon the two-phase Dungeon Warden. Its charged vault slam is telegraphed before impact, has a larger radius and heavier damage in phase two, and rewards 3 Dungeon Relics, 28 gold ore, 8 healing potions and 1,800 XP. Only one major boss encounter can be active at a time.
+
+
+### Dungeon Warden Arena Update
+- Dungeon Warden summoning now places the boss in the center of the nearest generated dungeon chamber instead of spawning beside the player anywhere in the world.
+- The arena locator uses each chamber's generated chest anchor and floor height, so it follows the generated dungeon layout and works across all three biome vaults.
