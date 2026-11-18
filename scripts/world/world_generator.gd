@@ -13,6 +13,8 @@ const STONE: int = 3
 const ORE: int = 4
 const WOOD: int = 5
 const LEAVES: int = 6
+const SAND: int = 7
+const SNOW: int = 8
 
 @export var player_path: NodePath = NodePath("../Player")
 @export var world_seed: int = 20261119
@@ -45,13 +47,18 @@ func generate_world() -> void:
 		var column: PackedInt32Array = PackedInt32Array()
 		column.resize(WORLD_HEIGHT)
 		var surface := clampi(15 + int(round(_noise.get_noise_1d(float(x)) * 5.0)), 9, 22)
+		var biome := get_biome_at(x)
+		if biome == "desert":
+			surface = clampi(surface + 1, 10, 23)
+		elif biome == "snow":
+			surface = clampi(surface - 1, 8, 21)
 		surface_heights[x] = surface
 		for y in range(WORLD_HEIGHT):
 			var tile := AIR
 			if y == surface:
-				tile = GRASS
+				tile = SAND if biome == "desert" else (SNOW if biome == "snow" else GRASS)
 			elif y > surface and y <= surface + 7:
-				tile = DIRT
+				tile = SAND if biome == "desert" else DIRT
 			elif y > surface + 7:
 				tile = STONE
 				if y > surface + 12 and _noise.get_noise_2d(float(x) * 1.7, float(y) * 1.7) > 0.62:
@@ -88,10 +95,22 @@ func _tile_color(tile: int) -> Color:
 			return Color(0.43, 0.25, 0.12)
 		LEAVES:
 			return Color(0.20, 0.55, 0.22)
+		SAND:
+			return Color(0.82, 0.72, 0.43)
+		SNOW:
+			return Color(0.84, 0.91, 0.98)
 	return Color.TRANSPARENT
 
 func get_surface_y(tile_x: int) -> int:
 	return surface_heights[clampi(tile_x, 0, WORLD_WIDTH - 1)]
+
+func get_biome_at(tile_x: int) -> String:
+	var safe_x := clampi(tile_x, 0, WORLD_WIDTH - 1)
+	if safe_x < 60:
+		return "forest"
+	if safe_x < 120:
+		return "desert"
+	return "snow"
 
 func get_spawn_position(tile_x: int) -> Vector2:
 	var safe_x := clampi(tile_x, 2, WORLD_WIDTH - 3)
@@ -108,7 +127,7 @@ func mine_cell(cell: Vector2i) -> bool:
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
 	if player != null:
-		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else "dirt")))
+		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else ("wood" if mined_type == WOOD else ("leaves" if mined_type == LEAVES else ("sand" if mined_type == SAND else ("snow" if mined_type == SNOW else "dirt")))))
 		var amount := 1
 		if mined_type == WOOD and player.inventory.count("wooden_axe") > 0:
 			amount = 2
@@ -125,10 +144,10 @@ func mine_cell(cell: Vector2i) -> bool:
 func place_block(cell: Vector2i, block_type: int = DIRT) -> bool:
 	if not _inside_world(cell) or get_tile(cell) != AIR:
 		return false
-	if block_type not in [DIRT, STONE]:
+	if block_type not in [DIRT, STONE, SAND, SNOW]:
 		return false
 	var player := get_node_or_null(player_path) as PlayerController
-	var item_id := "stone" if block_type == STONE else "dirt"
+	var item_id := "stone" if block_type == STONE else ("sand" if block_type == SAND else ("snow" if block_type == SNOW else "dirt"))
 	if player != null:
 		var block_center := Vector2(cell.x * TILE_SIZE + TILE_SIZE * 0.5, cell.y * TILE_SIZE + TILE_SIZE * 0.5)
 		if player.global_position.distance_to(to_global(block_center)) < TILE_SIZE * 1.15:
@@ -174,7 +193,7 @@ func load_save_data(data: Dictionary) -> bool:
 		var grass_surface := -1
 		for y in range(WORLD_HEIGHT):
 			var tile_value := int(saved_column[y])
-			if tile_value < AIR or tile_value > LEAVES:
+			if tile_value < AIR or tile_value > SNOW:
 				return false
 			column[y] = tile_value
 			if first_solid == -1 and tile_value != AIR and tile_value != LEAVES:
@@ -187,7 +206,7 @@ func load_save_data(data: Dictionary) -> bool:
 	surface_heights = restored_surfaces
 	world_seed = int(data.get("seed", world_seed))
 	selected_block_type = int(data.get("selected_block", DIRT))
-	if selected_block_type not in [DIRT, STONE]:
+	if selected_block_type not in [DIRT, STONE, SAND, SNOW]:
 		selected_block_type = DIRT
 	_noise.seed = world_seed
 	selected_block_changed.emit(selected_block_type)
@@ -212,6 +231,8 @@ func _generate_trees() -> void:
 		if _noise.get_noise_1d(float(x) + 913.0) < -0.12:
 			continue
 		var ground_y := surface_heights[x]
+		if tiles[x][ground_y] != GRASS:
+			continue
 		var trunk_height := 3 + int(absf(_noise.get_noise_1d(float(x) * 0.73)) * 3.0)
 		for offset in range(1, trunk_height + 1):
 			var trunk_y := ground_y - offset
@@ -264,11 +285,20 @@ func _process(_delta: float) -> void:
 		_edit_target(true)
 
 func cycle_block_selection() -> void:
-	selected_block_type = STONE if selected_block_type == DIRT else DIRT
+	var build_blocks: Array[int] = [DIRT, STONE, SAND, SNOW]
+	var current_index := build_blocks.find(selected_block_type)
+	selected_block_type = build_blocks[(current_index + 1) % build_blocks.size()]
 	selected_block_changed.emit(selected_block_type)
 
 func get_selected_block_name() -> String:
-	return "STONE" if selected_block_type == STONE else "DIRT"
+	match selected_block_type:
+		STONE:
+			return "STONE"
+		SAND:
+			return "SAND"
+		SNOW:
+			return "SNOW"
+	return "DIRT"
 
 func _edit_target(placing: bool) -> void:
 	var player := get_node_or_null(player_path) as Node2D
