@@ -36,6 +36,11 @@ const RECIPES: Dictionary = {
 		"ingredients": {"wooden_planks": 5},
 		"output": "empty_bucket",
 		"amount": 1
+	},
+	"torch": {
+		"ingredients": {"wood": 1},
+		"output": "torch",
+		"amount": 4
 	}
 }
 
