@@ -21,7 +21,7 @@ shape = SubResource("GroundShape")
 
 [node name="GroundVisual" type="Polygon2D" parent="Ground"]
 color = Color(0.22, 0.42, 0.24, 1)
-polygon = PackedVector2Array(-640, -12, 640, -12, 640, 40, -640, 40)
+polygon = PackedVector2Array(-640, -32, 640, -32, 640, 32, -640, 32)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
