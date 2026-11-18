@@ -54,6 +54,8 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	return true
 
 func can_craft(recipe_id: String) -> bool:
+	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
+		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
 		return false
