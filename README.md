@@ -29,7 +29,7 @@ Still required:
 - Add item tooltips, equipment slots, inventory capacity and tool durability; connect crafted tools to mining speed.
 - Add caves, water, biome transitions and chunk streaming.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
-- Add more enemy species, boss encounters, crafting and export/install a debug APK.
+- Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
 
 ## Run
 
@@ -49,12 +49,14 @@ Desktop:
 - Q: mine the block in front
 - E: place the selected block in front
 - R: switch between dirt and stone
+- I: open or close inventory and crafting
 
 Android:
 - Left virtual joystick: move
 - JUMP / RUN / HIT: movement and combat
 - MINE / PLACE: edit terrain in front of the player
 - BLOCK: switch the selected build material
+- INVENTORY: open or close inventory and crafting
 
 ## Project structure
 
