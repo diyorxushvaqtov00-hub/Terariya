@@ -14,6 +14,7 @@ const SPIDER_QUEEN_SCENE: PackedScene = preload("res://scenes/enemies/spider_que
 const MAGMA_GOLEM_SCENE: PackedScene = preload("res://scenes/enemies/magma_golem_boss.tscn")
 const MUSHROOM_GUARDIAN_SCENE: PackedScene = preload("res://scenes/enemies/mushroom_guardian_boss.tscn")
 const MERCHANT_SCENE: PackedScene = preload("res://scenes/npcs/merchant.tscn")
+const GUIDE_SCENE: PackedScene = preload("res://scenes/npcs/guide.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
 const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
 const MAX_NIGHT_ENEMIES: int = 4
@@ -36,6 +37,9 @@ var _quest_tracker: QuestTracker
 var _merchant_shop_panel: PanelContainer
 var _merchant_status: Label
 var _merchant: Node2D
+var _guide: GuideNPC
+var _guide_dialogue_label: Label
+var _guide_dialogue_index: int = 0
 var _craft_buttons: Dictionary = {}
 var _boss_health_bar: ProgressBar
 var _boss_status_label: Label
@@ -619,6 +623,19 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "mushroom_blade", "18 GLOW MUSHROOM + 4 CORES + 10 PLANKS  →  MUSHROOM BLADE")
 	_add_recipe_button(layout, "fungal_armor", "24 GLOW MUSHROOM + 20 SOIL + 18 SILVER  →  FUNGAL ARMOR")
 
+	var guide_title := Label.new()
+	guide_title.text = "THE ELDER'S ADVICE"
+	guide_title.add_theme_font_size_override("font_size", 18)
+	layout.add_child(guide_title)
+	_guide_dialogue_label = Label.new()
+	_guide_dialogue_label.name = "GuideDialogue"
+	_guide_dialogue_label.text = "Find the Elder near your starting camp."
+	_guide_dialogue_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	layout.add_child(_guide_dialogue_label)
+	var guide_button := Button.new()
+	guide_button.text = "TALK TO THE ELDER"
+	guide_button.pressed.connect(_talk_to_guide)
+	layout.add_child(guide_button)
 	var merchant_button := Button.new()
 	merchant_button.text = "OPEN MERCHANT SHOP"
 	merchant_button.pressed.connect(_open_merchant_shop)
@@ -702,6 +719,11 @@ func _build_inventory_ui() -> void:
 	_refresh_craft_buttons()
 
 func _spawn_merchant() -> void:
+	_guide = GUIDE_SCENE.instantiate() as GuideNPC
+	if is_instance_valid(_guide):
+		_guide.name = "ElderGuide"
+		add_child(_guide)
+		_guide.global_position = world.get_spawn_position(8)
 	_merchant = MERCHANT_SCENE.instantiate() as Node2D
 	if _merchant == null:
 		return
@@ -715,6 +737,24 @@ func _add_shop_button(parent: VBoxContainer, caption: String, callback: Callable
 	shop_button.custom_minimum_size = Vector2(290, 42)
 	shop_button.pressed.connect(callback)
 	parent.add_child(shop_button)
+
+func _talk_to_guide() -> void:
+	if not is_instance_valid(_guide) or player.global_position.distance_to(_guide.global_position) > _guide.interaction_radius:
+		_guide_dialogue_label.text = "The Elder is near the starting camp. Move closer to speak."
+		return
+	var lines := PackedStringArray()
+	lines.append("Welcome, traveller. This world rewards patience, preparation and courage.")
+	if not bool(_quest_tracker.completed.get("gather_wood", false)):
+		lines.append("Your first task: gather 10 wood. Chop trees with your axe, then return to your inventory to track progress.")
+	elif not bool(_quest_tracker.completed.get("hunter", false)):
+		lines.append("Good work gathering wood. Now defeat 3 enemies. Craft a sword first and watch your health.")
+	elif not bool(_quest_tracker.completed.get("dungeon_delver", false)):
+		lines.append("You are ready for the next trial. Explore underground and open a dungeon chest. Beware the guards and traps.")
+	else:
+		lines.append("You have proven yourself. Explore the desert, snowfields, glowing caverns and magma depths. Prepare before challenging their guardians.")
+	lines.append("Tip: open INVENTORY to craft, trade with the merchant, and review your quest log.")
+	_guide_dialogue_label.text = lines[mini(_guide_dialogue_index, lines.size() - 1)]
+	_guide_dialogue_index = (_guide_dialogue_index + 1) % lines.size()
 
 func _open_merchant_shop() -> void:
 	if not is_instance_valid(_merchant) or player.global_position.distance_to(_merchant.global_position) > 260.0:
