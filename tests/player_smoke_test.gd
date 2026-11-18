@@ -17,6 +17,18 @@ func _run() -> void:
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
 	assert(world.get_tile(Vector2i(90, world.get_surface_y(90))) == WorldGenerator.SAND, "Desert surface uses sand")
 	assert(world.get_tile(Vector2i(150, world.get_surface_y(150))) == WorldGenerator.SNOW, "Snow biome surface uses snow")
+	var water_cell := Vector2i(-1, -1)
+	var water_count := 0
+	for water_x in range(WorldGenerator.WORLD_WIDTH):
+		for water_y in range(WorldGenerator.WORLD_HEIGHT):
+			if world.get_tile(Vector2i(water_x, water_y)) == WorldGenerator.WATER:
+				water_count += 1
+				if water_cell.x < 0:
+					water_cell = Vector2i(water_x, water_y)
+	assert(water_count > 0, "Seeded world generates shallow lakes")
+	assert(water_cell.x >= 0, "A water tile is available for swimming tests")
+	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
+	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
 	var sand_build_cell := Vector2i(90, world.get_surface_y(90) - 1)
 	assert(world.place_block(sand_build_cell, WorldGenerator.SAND), "Sand blocks can be placed")
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "Placed sand keeps its material")
@@ -67,6 +79,10 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	player.global_position = world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 16.0))
+	assert(player._is_in_water(), "Player detects water around the body")
+	player.is_swimming = player._is_in_water()
+	assert(player.is_swimming, "Player enters swimming state in water")
 	var tree_cell := Vector2i(-1, -1)
 	for tree_x in range(WorldGenerator.WORLD_WIDTH):
 		for tree_y in range(WorldGenerator.WORLD_HEIGHT):
