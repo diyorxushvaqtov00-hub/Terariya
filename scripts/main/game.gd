@@ -1,9 +1,13 @@
 extends Node2D
 
 @onready var health_label: Label = $HUD/HealthLabel
+@onready var player: PlayerController = $Player
+@onready var world: WorldGenerator = $World
+@onready var training_dummy: TrainingDummy = $TrainingDummy
 
 func _ready() -> void:
-	var player := $Player
+	player.global_position = world.get_spawn_position(10)
+	training_dummy.global_position = world.get_spawn_position(15)
 	player.health_changed.connect(_on_player_health_changed)
 	_on_player_health_changed(player.health, player.max_health)
 
