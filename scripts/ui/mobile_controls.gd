@@ -29,7 +29,7 @@ func _draw() -> void:
 		return
 	var left_center := Vector2(edge_margin + joystick_radius, size.y - edge_margin - joystick_radius)
 	var jump_center := Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius)
-	var attack_center := Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 1.35)
+	var attack_center := Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.9)
 	var run_center := Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15)
 	_draw_button(left_center, joystick_radius, "MOVE")
 	var knob := left_center + _joystick_vector * joystick_radius * 0.55
@@ -130,7 +130,7 @@ func _button_centers() -> Dictionary:
 		"jump": Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius),
 		"attack": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 1.35),
 		"run": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15),
-		"mine": Vector2(size.x - edge_margin - button_radius * 2.5, edge_margin + button_radius),
+		"mine": Vector2(size.x - edge_margin - button_radius * 3.0, edge_margin + button_radius),
 		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius)
 	}
 
