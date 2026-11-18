@@ -103,3 +103,7 @@ Features are marked complete only after validation and gameplay testing. Source 
 ## Quests and progression
 
 The quest log currently includes three persistent objectives: collect 10 wood, defeat 3 enemies, and open a dungeon chest. Completing them grants coins and progression materials. Quest progress and completion flags are saved with the world and restored when the save is loaded. The quest log is displayed inside the inventory and crafting panel.
+
+## Elder guide NPC
+
+An Elder NPC now appears beside the starting camp. Open the inventory panel and choose **TALK TO THE ELDER** while nearby to receive contextual guidance for the current objective, basic survival and exploration. The dialogue adapts to the three quest milestones and points players toward later biomes after the starter quests are complete.
