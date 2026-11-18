@@ -663,6 +663,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "mushroom_blade", "18 GLOW MUSHROOM + 4 CORES + 10 PLANKS  →  MUSHROOM BLADE")
 	_add_recipe_button(layout, "fungal_armor", "24 GLOW MUSHROOM + 20 SOIL + 18 SILVER  →  FUNGAL ARMOR")
 	_add_recipe_button(layout, "dungeon_key", "6 SILVER + 3 GOLD + 2 FANGS  →  3 DUNGEON KEYS")
+	_add_recipe_button(layout, "ancient_key", "1 RELIC + 8 GOLD + 4 FANGS  →  2 ANCIENT KEYS")
 	_add_recipe_button(layout, "dungeon_warden_sigil", "1 RELIC + 20 GOLD + 10 SILVER + 6 FANGS  →  WARDEN SIGIL")
 
 	var guide_title := Label.new()
@@ -754,6 +755,14 @@ func _build_inventory_ui() -> void:
 	chest_button.text = "UNLOCK NEARBY DUNGEON CHEST (1 KEY)"
 	chest_button.pressed.connect(_open_nearby_chest)
 	layout.add_child(chest_button)
+	var secret_gate_button := Button.new()
+	secret_gate_button.text = "OPEN NEARBY SECRET VAULT (1 ANCIENT KEY)"
+	secret_gate_button.pressed.connect(_unlock_nearby_secret_room)
+	layout.add_child(secret_gate_button)
+	var secret_cache_button := Button.new()
+	secret_cache_button.text = "LOOT SECRET VAULT CACHE"
+	secret_cache_button.pressed.connect(_loot_nearby_secret_cache)
+	layout.add_child(secret_cache_button)
 	_dungeon_status_label = Label.new()
 	_dungeon_status_label.text = "Craft dungeon keys to unlock the three vault chests."
 	_dungeon_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -916,6 +925,20 @@ func _open_nearby_chest() -> void:
 		_on_inventory_changed(player.inventory.items)
 	else:
 		_dungeon_status_label.text = "No unopened chest nearby, or you need a DUNGEON KEY. Craft 3 keys from silver, gold and spider fangs."
+
+func _unlock_nearby_secret_room() -> void:
+	if world.unlock_nearby_secret_room(player.global_position, player.inventory):
+		_dungeon_status_label.text = "ANCIENT SEAL BROKEN! The hidden chamber is open."
+		_on_inventory_changed(player.inventory.items)
+	else:
+		_dungeon_status_label.text = "No sealed secret vault nearby, or you need an ANCIENT KEY."
+
+func _loot_nearby_secret_cache() -> void:
+	if world.open_nearby_secret_cache(player.global_position, player.inventory):
+		_dungeon_status_label.text = "SECRET CACHE CLAIMED! Relic, gold, silver and potions added."
+		_on_inventory_changed(player.inventory.items)
+	else:
+		_dungeon_status_label.text = "Open a nearby secret vault first, then stand beside its cache."
 
 func _use_healing_potion() -> void:
 	if player.inventory.remove_item("healing_potion", 1):
