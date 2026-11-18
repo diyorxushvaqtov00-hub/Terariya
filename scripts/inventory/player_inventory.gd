@@ -162,7 +162,7 @@ func get_armor_defense() -> int:
 			return 0
 
 func get_best_weapon_id() -> String:
-	for weapon_id in ["mushroom_blade", "obsidian_sword", "queens_fang", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
+	for weapon_id in ["obsidian_sword", "queens_fang", "mushroom_blade", "gold_sword", "silver_sword", "copper_sword", "stone_sword"]:
 		if count(weapon_id) > 0:
 			return weapon_id
 	return ""
