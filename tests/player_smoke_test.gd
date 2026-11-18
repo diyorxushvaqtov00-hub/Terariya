@@ -58,6 +58,7 @@ func _run() -> void:
 	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "World restore reinstates the saved block")
 	assert(world.get_tile(sand_build_cell) == WorldGenerator.SAND, "World save preserves placed sand")
 	assert(world.get_tile(snow_build_cell) == WorldGenerator.SNOW, "World save preserves placed snow")
+assert(world.get_tile(water_cell) == WorldGenerator.WATER, "World save preserves lake water")
 	assert(world.selected_block_type == WorldGenerator.DIRT, "World restore preserves selected block")
 	world.cycle_block_selection()
 	assert(world.selected_block_type == WorldGenerator.STONE, "Block selection cycles to stone")
