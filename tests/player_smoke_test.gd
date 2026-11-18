@@ -101,6 +101,15 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	player.inventory.add_item("wood", 1)
+	assert(player.inventory.craft("torch"), "Torches can be crafted from wood")
+	assert(player.inventory.count("torch") == 4, "Torch recipe produces four torches")
+	var torch_cell := Vector2i(WorldGenerator.WORLD_WIDTH - 5, 1)
+	assert(world.place_torch(torch_cell, player.inventory), "A torch can be placed in an empty world cell")
+	assert(player.inventory.count("torch") == 3, "Placing a torch consumes one torch")
+	var torch_snapshot := world.get_save_data()
+	assert(world.load_save_data(torch_snapshot), "World restores placed torches")
+	assert(world._torch_cells.has(torch_cell), "Placed torch position persists after world restore")
 	player.inventory.add_item("wooden_planks", 5)
 	assert(player.inventory.craft("wooden_bucket"), "Wooden bucket can be crafted")
 	assert(player.inventory.count("empty_bucket") == 1, "Crafting creates an empty bucket")
@@ -222,6 +231,12 @@ func _run() -> void:
 	root.add_child(slime)
 	await process_frame
 	assert(slime.health == slime.max_health, "Slime starts at full health")
+	var daytime_speed := slime.move_speed
+	var daytime_damage := slime.attack_damage
+	slime.set_night_mode(true)
+	assert(slime.move_speed > daytime_speed and slime.attack_damage > daytime_damage, "Slime becomes stronger at night")
+	slime.set_night_mode(false)
+	assert(is_equal_approx(slime.move_speed, daytime_speed) and slime.attack_damage == daytime_damage, "Slime returns to daytime stats")
 	slime.take_damage(20)
 	assert(slime.health == 40, "Slime receives damage")
 	slime.global_position = player.global_position
