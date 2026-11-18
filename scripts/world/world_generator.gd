@@ -411,6 +411,15 @@ func _generate_dungeons() -> void:
 func get_dungeon_chest_count() -> int:
 	return _dungeon_chests.size()
 
+func get_dungeon_guard_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+	for chest in _dungeon_chests:
+		var cell: Vector2i = chest["cell"]
+		var floor_y := (cell.y + 2) * TILE_SIZE
+		positions.append(to_global(Vector2((cell.x - 5) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
+		positions.append(to_global(Vector2((cell.x + 5) * TILE_SIZE + TILE_SIZE * 0.5, floor_y)))
+	return positions
+
 func open_nearby_chest(world_position: Vector2, inventory: PlayerInventory) -> bool:
 	if inventory == null:
 		return false
