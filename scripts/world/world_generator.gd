@@ -522,6 +522,16 @@ func get_nearest_secret_cache_position(world_position: Vector2) -> Vector2:
 			nearest_position = candidate
 	return nearest_position
 
+func is_secret_vault_open_nearby(world_position: Vector2) -> bool:
+	for index in range(_dungeon_secret_rooms.size()):
+		var room: Dictionary = _dungeon_secret_rooms[index]
+		var gate_cells: Array = room["gate_cells"]
+		if gate_cells.is_empty() or get_tile(gate_cells[0]) != AIR:
+			continue
+		if world_position.distance_to(get_secret_cache_position(index)) <= TILE_SIZE * 10.0:
+			return true
+	return false
+
 func unlock_nearby_secret_room(world_position: Vector2, inventory: PlayerInventory) -> bool:
 	if inventory == null:
 		return false
