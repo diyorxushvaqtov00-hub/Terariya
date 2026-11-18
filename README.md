@@ -11,6 +11,8 @@ Implemented in source:
 - Forest, desert and snow biomes with distinct surface materials; grass, dirt, sand, snow, stone, ore, wood and leaf tile types.
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
+- Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
+- Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
@@ -22,14 +24,14 @@ Implemented in source:
 - Crafted stone sword adds 15 melee damage while owned.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
-- Smoke-test source covering forest/desert/snow biome generation, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
+- Smoke-test source covering forest/desert/snow biome generation, lakes and swimming detection, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, equipment slots, inventory capacity, and mining-speed progression for tools.
-- Add water, smoother biome transitions and chunk streaming; expand cave variety and underground structures.
+- Add underwater visuals/effects, flowing water and fluid interaction; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more enemy species, boss encounters, crafting stations and export/install a debug APK.
 
