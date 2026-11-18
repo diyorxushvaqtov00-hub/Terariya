@@ -164,6 +164,32 @@ func set_water_source(cell: Vector2i, enabled: bool = true) -> bool:
 func is_water_source(cell: Vector2i) -> bool:
 	return _water_sources.has(cell)
 
+func fill_bucket(cell: Vector2i, inventory: PlayerInventory) -> bool:
+	if not _inside_world(cell) or get_tile(cell) != WATER or inventory == null:
+		return false
+	if not inventory.remove_item("empty_bucket", 1):
+		return false
+	inventory.add_item("water_bucket", 1)
+	_water_sources.erase(cell)
+	tiles[cell.x][cell.y] = AIR
+	queue_redraw()
+	return true
+
+func pour_bucket(cell: Vector2i, inventory: PlayerInventory, player_position: Vector2 = Vector2.INF) -> bool:
+	if not _inside_world(cell) or get_tile(cell) != AIR or inventory == null:
+		return false
+	if not inventory.remove_item("water_bucket", 1):
+		return false
+	if player_position != Vector2.INF:
+		var center := to_global(Vector2(cell.x * TILE_SIZE + TILE_SIZE * 0.5, cell.y * TILE_SIZE + TILE_SIZE * 0.5))
+		if player_position.distance_to(center) < TILE_SIZE * 1.15:
+			inventory.add_item("water_bucket", 1)
+			return false
+	tiles[cell.x][cell.y] = WATER
+	inventory.add_item("empty_bucket", 1)
+	queue_redraw()
+	return true
+
 func mine_cell(cell: Vector2i) -> bool:
 	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER]:
 		return false
