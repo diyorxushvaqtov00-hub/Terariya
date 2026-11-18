@@ -4,38 +4,33 @@ An original 2D sandbox survival RPG built with Godot 4 and GDScript, targeting A
 
 ## Current status
 
-**Milestone 1 — foundation and player controller (in progress; not yet runtime-verified)**
+**Milestone 2 — procedural terrain prototype (in progress; not yet runtime-verified)**
 
 Implemented in source:
-- Godot 4 project configuration using the mobile-compatible GL Compatibility renderer.
-- Main scene, reusable player scene and follow camera.
-- CharacterBody2D movement with acceleration, walking, running and jumping.
-- Basic health, healing and fall-damage logic.
-- Unlockable double-jump state.
-- Android virtual joystick and jump, run and attack touch controls.
-- Melee attack area with configurable damage, active window and cooldown.
-- Training dummy target with health and defeat behavior.
-- Player smoke-test script and GitHub Actions validation workflow.
+- Seeded 180 × 60 tile world with noise-based surface variation.
+- Grass, dirt, stone and ore tile types.
+- Runtime terrain collision generated from solid horizontal runs.
+- Mining and block placement, including occupied-cell and player-overlap checks.
+- Desktop Q/E and Android MINE/PLACE controls.
+- Player movement, running, jumping, double jump, health, fall damage and timed respawn.
+- Melee attack area, configurable damage/cooldown and a damageable training dummy.
+- Smoke-test source covering world edits, player health, combat and respawn.
+- GitHub Actions workflow for headless Godot import and smoke tests.
 
-Still required before Milestone 1 can be marked complete:
+Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
-- Verify touch controls and melee combat on physical Android devices.
-- Replace temporary polygon visuals with original pixel-art sprites and animations.
-- Implement death/respawn flow and real enemy AI.
-- Export and install a debug APK for device testing.
-
-Later milestones:
-- Procedural chunked world, biomes, mining and building.
-- Inventory, chests, item data and crafting.
-- Enemy AI, bosses, NPCs, quests and progression.
-- Survival systems, persistent world saves, audio, polish and release builds.
+- Verify touch controls, terrain collision and combat on a physical Android device.
+- Add inventory counts, mining drops, block selection and world persistence.
+- Add caves, trees, water, biome transitions and chunk streaming.
+- Replace placeholder polygon visuals with original pixel-art assets and animations.
+- Implement enemy AI, crafting, save/load and export/install a debug APK.
 
 ## Run
 
-1. Install a stable Godot 4.x build.
+1. Install Godot 4.3 or a compatible Godot 4.x version.
 2. Clone this repository.
 3. Import the folder containing `project.godot`.
-4. Press **F6** to run the main scene, or **F5** to run the project.
+4. Press **F5** to run the project.
 
 ## Controls
 
@@ -45,20 +40,19 @@ Desktop:
 - Space: jump
 - Shift: run
 - F: melee attack
+- Q: mine the block in front
+- E: place a dirt block in front
 
 Android:
 - Left virtual joystick: move
-- JUMP: jump
-- RUN: run while held
-- HIT: melee attack
+- JUMP / RUN / HIT: movement and combat
+- MINE / PLACE: edit terrain in front of the player
 
 ## Project structure
 
-- `scenes/` — reusable Godot scenes
-- `scripts/` — gameplay code
-- `data/` — data-driven definitions (to be added)
-- `assets/` — original art, audio and fonts (to be added)
-- `tests/` — automated gameplay tests
+- `scenes/` — reusable player, world and target scenes
+- `scripts/` — gameplay and procedural world code
+- `tests/` — automated smoke tests
 - `.github/workflows/` — automated Godot validation
 
 ## Development policy
