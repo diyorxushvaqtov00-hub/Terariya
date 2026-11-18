@@ -100,7 +100,7 @@ func _run() -> void:
 	root.add_child(dummy)
 	await process_frame
 	player._on_attack_area_body_entered(dummy)
-	assert(dummy.health == 75, "Player melee hit applies configured damage")
+	assert(dummy.health == 60, "Crafted stone sword increases melee damage to forty")
 	player._on_attack_area_body_entered(dummy)
 	player._on_attack_area_body_entered(dummy)
 	player._on_attack_area_body_entered(dummy)
