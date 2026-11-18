@@ -13,6 +13,8 @@ Implemented in source:
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - A glowing mushroom cavern in the western underground with harvestable glow mushrooms and fungal soil.
 - A deep desert magma chamber with lava pools and solid magma-rock borders; lava is non-solid, cannot be mined as a block, and burns the player for 12 damage every 0.8 seconds while touched.
+- A summonable Magma Golem boss with 2,200 HP, two phases and a telegraphed area-of-effect magma slam; victory grants magma cores, gold ore, healing potions and 1,400 XP.
+- Obsidian sword and armor are crafted from magma cores at an anvil; the sword adds 105 base melee damage, armor grants 28 defense, and both can be upgraded up to level 10 with magma cores.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
 - Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.\n- Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.\n- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
