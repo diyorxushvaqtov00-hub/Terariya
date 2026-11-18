@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/slime_enemy.gd" id="1_slime"]
+
+[sub_resource type="CapsuleShape2D" id="SlimeShape"]
+radius = 13.0
+height = 24.0
+
+[node name="SlimeEnemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_slime")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("SlimeShape")
+
+[node name="Visual" type="Polygon2D" parent="."]
+position = Vector2(0, -12)
+color = Color(0.35, 0.85, 0.42, 1)
+polygon = PackedVector2Array(-14, 7, -13, -2, -7, -11, 7, -11, 13, -2, 14, 7)
