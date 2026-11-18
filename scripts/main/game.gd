@@ -40,6 +40,7 @@ var _merchant: Node2D
 var _guide: GuideNPC
 var _guide_dialogue_label: Label
 var _guide_dialogue_index: int = 0
+var _dungeon_status_label: Label
 var _craft_buttons: Dictionary = {}
 var _boss_health_bar: ProgressBar
 var _boss_status_label: Label
@@ -622,6 +623,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "guardian_totem", "12 GLOW MUSHROOM + 18 SOIL + 15 SILVER  →  GUARDIAN TOTEM")
 	_add_recipe_button(layout, "mushroom_blade", "18 GLOW MUSHROOM + 4 CORES + 10 PLANKS  →  MUSHROOM BLADE")
 	_add_recipe_button(layout, "fungal_armor", "24 GLOW MUSHROOM + 20 SOIL + 18 SILVER  →  FUNGAL ARMOR")
+	_add_recipe_button(layout, "dungeon_key", "6 SILVER + 3 GOLD + 2 FANGS  →  3 DUNGEON KEYS")
 
 	var guide_title := Label.new()
 	guide_title.text = "THE ELDER'S ADVICE"
@@ -705,9 +707,13 @@ func _build_inventory_ui() -> void:
 	pour_button.pressed.connect(_pour_water_bucket)
 	layout.add_child(pour_button)
 	var chest_button := Button.new()
-	chest_button.text = "OPEN NEARBY DUNGEON CHEST"
+	chest_button.text = "UNLOCK NEARBY DUNGEON CHEST (1 KEY)"
 	chest_button.pressed.connect(_open_nearby_chest)
 	layout.add_child(chest_button)
+	_dungeon_status_label = Label.new()
+	_dungeon_status_label.text = "Craft dungeon keys to unlock the three vault chests."
+	_dungeon_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	layout.add_child(_dungeon_status_label)
 	var potion_button := Button.new()
 	potion_button.text = "USE HEALING POTION (+35 HP)"
 	potion_button.pressed.connect(_use_healing_potion)
@@ -794,14 +800,14 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d" % [
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d" % [
 		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
 		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), int(items.get("obsidian_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE",
 		int(items.get("copper_sword", 0)), int(items.get("silver_sword", 0)), int(items.get("gold_sword", 0)), int(items.get("obsidian_sword", 0)),
-		int(items.get("torch", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
+		int(items.get("torch", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
 		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe"),
@@ -860,8 +866,11 @@ func _pour_water_bucket() -> void:
 
 func _open_nearby_chest() -> void:
 	if world.open_nearby_chest(player.global_position, player.inventory):
+		_dungeon_status_label.text = "VAULT UNLOCKED! Loot added to your inventory."
 		_quest_tracker.record_chest_opened()
 		_on_inventory_changed(player.inventory.items)
+	else:
+		_dungeon_status_label.text = "No unopened chest nearby, or you need a DUNGEON KEY. Craft 3 keys from silver, gold and spider fangs."
 
 func _use_healing_potion() -> void:
 	if player.inventory.remove_item("healing_potion", 1):
