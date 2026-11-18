@@ -64,7 +64,8 @@ const RECIPES: Dictionary = {
 	"gold_sword": {"ingredients": {"gold_ore": 10, "wooden_planks": 5}, "output": "gold_sword", "amount": 1},
 	"silver_armor": {"ingredients": {"silver_ore": 28, "wooden_planks": 8}, "output": "silver_armor", "amount": 1},
 	"gold_armor": {"ingredients": {"gold_ore": 24, "wooden_planks": 10}, "output": "gold_armor", "amount": 1},
-	"anvil": {"ingredients": {"stone": 20, "ore": 10, "wooden_planks": 8}, "output": "anvil", "amount": 1}
+	"anvil": {"ingredients": {"stone": 20, "ore": 10, "wooden_planks": 8}, "output": "anvil", "amount": 1},
+	"spider_summon": {"ingredients": {"spider_fang": 6, "silver_ore": 20, "gold_ore": 8}, "output": "spider_summon", "amount": 1}
 }
 
 func _ready() -> void:
