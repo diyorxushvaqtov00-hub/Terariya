@@ -22,6 +22,11 @@ func _run() -> void:
 	assert(world.mine_cell(test_cell), "A saved test block can be mined")
 	assert(world.load_save_data(world_snapshot), "World snapshot restores successfully")
 	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "World restore reinstates the saved block")
+	assert(world.selected_block_type == WorldGenerator.DIRT, "World restore preserves selected block")
+	world.cycle_block_selection()
+	assert(world.selected_block_type == WorldGenerator.STONE, "Block selection cycles to stone")
+	world.cycle_block_selection()
+	assert(world.selected_block_type == WorldGenerator.DIRT, "Block selection cycles back to dirt")
 	var invalid_snapshot := world_snapshot.duplicate(true)
 	invalid_snapshot["width"] = 1
 	assert(not world.load_save_data(invalid_snapshot), "World restore rejects incompatible dimensions")
