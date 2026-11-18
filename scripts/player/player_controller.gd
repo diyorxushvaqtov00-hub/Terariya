@@ -7,6 +7,8 @@ signal underwater_changed(is_underwater: bool)
 signal attack_requested
 signal died
 signal respawned
+signal progression_changed(level: int, experience: int, required: int)
+signal level_up(new_level: int)
 
 @export_category("Movement")
 @export var walk_speed: float = 220.0
@@ -42,6 +44,10 @@ var is_swimming: bool = false
 var is_head_underwater: bool = false
 var oxygen_seconds: float
 var _drowning_tick: float = 0.0
+var level: int = 1
+var experience: int = 0
+var experience_to_next_level: int = 100
+var bonus_attack_damage: int = 0
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -147,7 +153,7 @@ func _start_attack() -> void:
 
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
-		var total_damage := attack_damage
+		var total_damage := attack_damage + bonus_attack_damage
 		if inventory.count("copper_sword") > 0:
 			total_damage += 25
 		elif inventory.count("stone_sword") > 0:
@@ -159,6 +165,35 @@ func set_spawn_position(position: Vector2) -> void:
 
 func get_facing() -> int:
 	return _facing
+
+func add_experience(amount: int) -> void:
+	if amount <= 0 or level >= 50:
+		return
+	experience += amount
+	while level < 50 and experience >= experience_to_next_level:
+		experience -= experience_to_next_level
+		level += 1
+		experience_to_next_level = level * 100
+		if level % 5 == 0:
+			max_health += 10
+			health = mini(health + 10, max_health)
+			health_changed.emit(health, max_health)
+		if level % 2 == 0:
+			bonus_attack_damage += 2
+		level_up.emit(level)
+	if level >= 50:
+		experience = 0
+		experience_to_next_level = 0
+	progression_changed.emit(level, experience, experience_to_next_level)
+
+func restore_progress(saved_level: int, saved_experience: int) -> void:
+	level = clampi(saved_level, 1, 50)
+	experience_to_next_level = 0 if level >= 50 else level * 100
+	experience = clampi(saved_experience, 0, maxi(experience_to_next_level - 1, 0))
+	bonus_attack_damage = int(floori(float(level - 1) / 2.0)) * 2
+	max_health = 100 + int(floori(float(level) / 5.0)) * 10
+	health = mini(health, max_health)
+	progression_changed.emit(level, experience, experience_to_next_level)
 
 func unlock_double_jump() -> void:
 	double_jump_unlocked = true
