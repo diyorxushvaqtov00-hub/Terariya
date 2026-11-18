@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape_player"]
 radius = 10.0
 height = 38.0
+
+[sub_resource type="RectangleShape2D" id="AttackShape"]
+size = Vector2(30, 28)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -19,6 +22,15 @@ shape = SubResource("CapsuleShape_player")
 position = Vector2(0, -20)
 color = Color(0.25, 0.78, 0.95, 1)
 polygon = PackedVector2Array(-9, -17, 9, -17, 10, 8, -10, 8)
+
+[node name="AttackArea" type="Area2D" parent="."]
+position = Vector2(24, -20)
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+shape = SubResource("AttackShape")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
