@@ -18,6 +18,13 @@ func _run() -> void:
 	assert(world.place_block(test_cell), "Placing a block into an empty cell succeeds")
 	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "Placed block becomes dirt")
 	assert(not world.place_block(test_cell), "Cannot place a block into an occupied cell")
+	var world_snapshot := world.get_save_data()
+	assert(world.mine_cell(test_cell), "A saved test block can be mined")
+	assert(world.load_save_data(world_snapshot), "World snapshot restores successfully")
+	assert(world.get_tile(test_cell) == WorldGenerator.DIRT, "World restore reinstates the saved block")
+	var invalid_snapshot := world_snapshot.duplicate(true)
+	invalid_snapshot["width"] = 1
+	assert(not world.load_save_data(invalid_snapshot), "World restore rejects incompatible dimensions")
 
 	var player_packed := load("res://scenes/player/player.tscn") as PackedScene
 	assert(player_packed != null, "Player scene must load")
@@ -32,6 +39,11 @@ func _run() -> void:
 	assert(player.inventory.count("dirt") == 21, "Mining a grass or dirt block adds a dirt drop")
 	assert(world.place_block(inventory_test_cell), "Player can place a block using inventory")
 	assert(player.inventory.count("dirt") == 20, "Placing a block consumes one dirt item")
+	var inventory_snapshot := player.inventory.serialize()
+	player.inventory.add_item("stone", 3)
+	assert(player.inventory.restore(inventory_snapshot), "Inventory snapshot restores successfully")
+	assert(player.inventory.count("stone") == 0, "Inventory restore removes unsaved items")
+	assert(player.inventory.count("dirt") == 20, "Inventory restore preserves saved counts")
 	player.take_damage(25)
 	assert(player.health == 75, "Damage subtracts health")
 	player.heal(10)
