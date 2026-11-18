@@ -13,7 +13,7 @@ Implemented in source:
 - Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
-- Slimes become faster and deal more damage at night; additional hostile slimes and durable zombies spawn at a distance during night and disappear at dawn, with a capped population.
+- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.
 - Craftable torches can be placed in empty world cells, emit warm point light, and persist in world saves.
 - Player swimming detection, reduced horizontal speed and gravity in water, buoyancy and a swim stroke on jump.
 - Underwater head detection, a blue-tinted underwater screen effect, a 12-second oxygen reserve, oxygen recovery outside water, an on-screen air meter and periodic drowning damage after oxygen runs out.
@@ -38,7 +38,7 @@ Implemented in source:
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
-- Add skeleton archers and other night-only enemy species, more light-source types, and configurable day-length settings.
+- Add more night-only enemy species, more light-source types, and configurable day-length settings.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
