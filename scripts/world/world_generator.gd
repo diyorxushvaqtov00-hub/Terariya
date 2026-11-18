@@ -90,6 +90,11 @@ func get_tile(cell: Vector2i) -> int:
 func mine_cell(cell: Vector2i) -> bool:
 	if not _inside_world(cell) or get_tile(cell) == AIR:
 		return false
+	var mined_type := get_tile(cell)
+	var player := get_node_or_null(player_path) as PlayerController
+	if player != null:
+		var drop := "ore" if mined_type == ORE else ("stone" if mined_type == STONE else "dirt")
+		player.inventory.add_item(drop, 1)
 	tiles[cell.x][cell.y] = AIR
 	_rebuild_collision()
 	queue_redraw()
@@ -100,10 +105,13 @@ func place_block(cell: Vector2i, block_type: int = DIRT) -> bool:
 		return false
 	if block_type not in [DIRT, STONE]:
 		return false
-	var player := get_node_or_null(player_path) as Node2D
+	var player := get_node_or_null(player_path) as PlayerController
+	var item_id := "stone" if block_type == STONE else "dirt"
 	if player != null:
 		var block_center := Vector2(cell.x * TILE_SIZE + TILE_SIZE * 0.5, cell.y * TILE_SIZE + TILE_SIZE * 0.5)
 		if player.global_position.distance_to(to_global(block_center)) < TILE_SIZE * 1.15:
+			return false
+		if not player.inventory.remove_item(item_id, 1):
 			return false
 	tiles[cell.x][cell.y] = block_type
 	_rebuild_collision()
