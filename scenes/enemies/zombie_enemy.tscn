@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/zombie_enemy.gd" id="1_zombie"]
+
+[sub_resource type="CapsuleShape2D" id="ZombieShape"]
+radius = 14.0
+height = 28.0
+
+[node name="ZombieEnemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_zombie")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("ZombieShape")
+
+[node name="Visual" type="Polygon2D" parent="."]
+position = Vector2(0, -14)
+color = Color(0.30, 0.58, 0.28, 1)
+polygon = PackedVector2Array(-15, 8, -14, -5, -10, -13, -5, -15, 5, -15, 10, -13, 14, -5, 15, 8)
