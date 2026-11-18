@@ -706,6 +706,30 @@ func _run() -> void:
 	assert(warden_inventory.count("dungeon_warden_sigil") == 1, "Warden sigil crafting produces one summon item")
 	warden_inventory.queue_free()
 
+	var void_guardian_scene: PackedScene = load("res://scenes/enemies/void_guardian_boss.tscn") as PackedScene
+	assert(void_guardian_scene != null, "Void Guardian boss scene must load")
+	var void_guardian := void_guardian_scene.instantiate() as VoidGuardianBoss
+	assert(void_guardian != null, "Void Guardian must instantiate")
+	root.add_child(void_guardian)
+	await process_frame
+	assert(void_guardian.max_health == 1350 and void_guardian.current_phase == 1, "Void Guardian starts with thirteen hundred fifty health")
+	void_guardian.take_damage(700)
+	assert(void_guardian.current_phase == 2, "Void Guardian enters phase two below half health")
+	assert(void_guardian.attack_damage == 44 and void_guardian.move_speed == 132.0, "Void Guardian phase two increases aggression")
+	void_guardian.queue_free()
+
+	var void_sigil_inventory := PlayerInventory.new()
+	root.add_child(void_sigil_inventory)
+	await process_frame
+	void_sigil_inventory.add_item("dungeon_relic", 1)
+	void_sigil_inventory.add_item("gold_ore", 12)
+	void_sigil_inventory.add_item("magma_core", 6)
+	void_sigil_inventory.add_item("spider_fang", 6)
+	assert(void_sigil_inventory.craft("void_guardian_sigil"), "Void Guardian sigil crafts from vault relic and endgame materials")
+	assert(void_sigil_inventory.count("void_guardian_sigil") == 1, "Void Guardian sigil recipe creates one summon item")
+	assert(world.get_nearest_secret_cache_position(world.get_secret_gate_position(0)).distance_to(world.get_secret_cache_position(0)) < WorldGenerator.TILE_SIZE * 3.0, "Secret vault locator selects its own cache as boss arena")
+	void_sigil_inventory.queue_free()
+
 	var guide_scene: PackedScene = load("res://scenes/npcs/guide.tscn") as PackedScene
 	assert(guide_scene != null, "Elder guide scene must load")
 	var guide_instance := guide_scene.instantiate() as GuideNPC
