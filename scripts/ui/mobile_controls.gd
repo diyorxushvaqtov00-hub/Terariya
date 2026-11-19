@@ -16,6 +16,7 @@ var _mine_touch_id: int = -1
 var _place_touch_id: int = -1
 var _cycle_touch_id: int = -1
 var _inventory_touch_id: int = -1
+var _magic_touch_id: int = -1
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -40,6 +41,7 @@ func _draw() -> void:
 	_draw_button(centers.place, button_radius * 0.82, "PLACE")
 	_draw_button(centers.cycle, button_radius * 0.82, "BLOCK")
 	_draw_button(centers.inventory, button_radius * 0.82, "INV")
+	_draw_button(centers.magic, button_radius * 0.82, "VOID")
 
 func _draw_button(center: Vector2, radius: float, label: String) -> void:
 	draw_circle(center, radius, Color(0.08, 0.13, 0.2, 0.52))
@@ -57,7 +59,10 @@ func _input(event: InputEvent) -> void:
 func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 	if pressed:
 		var centers := _button_centers()
-		if pos.distance_to(centers.inventory) <= button_radius * 1.15:
+		if pos.distance_to(centers.magic) <= button_radius * 1.15:
+			_magic_touch_id = index
+			_press_action("magic")
+		elif pos.distance_to(centers.inventory) <= button_radius * 1.15:
 			_inventory_touch_id = index
 			_press_action("inventory_toggle")
 		elif pos.distance_to(centers.cycle) <= button_radius * 0.62:
@@ -83,7 +88,10 @@ func _handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 			_joystick_origin = pos
 			_update_joystick(pos)
 	else:
-		if index == _inventory_touch_id:
+		if index == _magic_touch_id:
+			_magic_touch_id = -1
+			_release_action("magic")
+		elif index == _inventory_touch_id:
 			_inventory_touch_id = -1
 			_release_action("inventory_toggle")
 		elif index == _cycle_touch_id:
@@ -147,7 +155,8 @@ func _button_centers() -> Dictionary:
 		"mine": Vector2(size.x - edge_margin - button_radius * 3.8, edge_margin + button_radius),
 		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
 		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius),
-		"inventory": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius * 3.15)
+		"inventory": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius * 3.15),
+		"magic": Vector2(size.x - edge_margin - button_radius * 3.8, size.y - edge_margin - button_radius * 1.35)
 	}
 
 func _exit_tree() -> void:
