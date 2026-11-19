@@ -47,6 +47,7 @@ func _run() -> void:
 	assert(world.tiles.size() == WorldGenerator.WORLD_WIDTH, "World has expected width")
 	var visible_bounds: Rect2i = world._get_visible_tile_bounds()
 	assert(visible_bounds.size.x <= WorldGenerator.WORLD_WIDTH and visible_bounds.size.y <= WorldGenerator.WORLD_HEIGHT, "Terrain draw bounds are clamped to generated world dimensions")
+	assert(world._loaded_collision_chunks.size() <= 9, "World loads only nearby terrain collision chunks")
 	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Forest surface is grass")
 	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
 	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
@@ -352,6 +353,16 @@ func _run() -> void:
 	await process_frame
 	assert(player.health == player.max_health, "Player starts at full health")
 	assert(player.inventory.count("dirt") == 20, "Player starts with twenty dirt blocks")
+	var original_player_position := player.global_position
+	player.global_position = Vector2(72 * WorldGenerator.TILE_SIZE, world.get_surface_y(72) * WorldGenerator.TILE_SIZE)
+	world._update_loaded_collision_chunks()
+	assert(world._loaded_collision_chunks.has(Vector2i(4, 0)), "Nearby chunk collision loads around the player")
+	player.global_position = Vector2(150 * WorldGenerator.TILE_SIZE, world.get_surface_y(150) * WorldGenerator.TILE_SIZE)
+	world._update_loaded_collision_chunks()
+	assert(world._loaded_collision_chunks.has(Vector2i(9, 0)), "World streams collision chunks as the player travels")
+	assert(not world._loaded_collision_chunks.has(Vector2i(4, 0)), "Distant terrain collision chunks unload behind the player")
+	player.global_position = original_player_position
+	world._update_loaded_collision_chunks()
 
 	var merchant_scene := load("res://scenes/npcs/merchant.tscn") as PackedScene
 	assert(merchant_scene != null, "Travelling merchant scene loads")
