@@ -26,6 +26,13 @@ func _run() -> void:
 	assert(not Input.is_action_pressed("inventory_toggle"), "Releasing inventory button releases inventory action")
 	mobile_controls.queue_free()
 
+	var player_visual_scene := load("res://scenes/player/player.tscn") as PackedScene
+	assert(player_visual_scene != null, "Pixel-art player scene loads")
+	var player_visual_instance := player_visual_scene.instantiate() as PlayerController
+	assert(player_visual_instance != null and player_visual_instance.get_node("BodyVisual") is AnimatedSprite2D, "Player uses an animated pixel-art sprite")
+	assert((player_visual_instance.get_node("BodyVisual") as AnimatedSprite2D).sprite_frames.has_animation("walk"), "Player sprite has a walk animation")
+	player_visual_instance.queue_free()
+
 	var world_packed := load("res://scenes/world/world.tscn") as PackedScene
 	assert(world_packed != null, "World scene must load")
 	var world := world_packed.instantiate() as WorldGenerator
