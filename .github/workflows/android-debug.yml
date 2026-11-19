@@ -63,10 +63,29 @@ jobs:
           godot --headless --path . --export-debug "Android" build/eternal-world-debug.apk
           test -s build/eternal-world-debug.apk
 
+      - name: Launch APK in Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Pixel_6
+          disable-animations: true
+          script: |
+            adb install -r build/eternal-world-debug.apk
+            adb shell monkey -p org.eternalworld.game 1
+            sleep 15
+            adb shell pidof org.eternalworld.game
+            mkdir -p build/emulator
+            adb shell screencap -p /sdcard/eternal-world-launch.png
+            adb pull /sdcard/eternal-world-launch.png build/emulator/launch.png
+
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
         with:
           name: eternal-world-android-debug
-          path: build/eternal-world-debug.apk
+          path: |
+            build/eternal-world-debug.apk
+            build/emulator/launch.png
           if-no-files-found: error
           retention-days: 14
