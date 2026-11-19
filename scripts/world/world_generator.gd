@@ -240,7 +240,7 @@ func is_water_source(cell: Vector2i) -> bool:
 	return _water_sources.has(cell)
 
 func install_water_pump(cell: Vector2i, inventory: PlayerInventory) -> bool:
-	if inventory == null or not _inside_world(cell) or get_tile(cell) != WATER or _water_sources.has(cell):
+	if inventory == null or not _inside_world(cell) or get_tile(cell) != WATER:
 		return false
 	if not inventory.remove_item("water_pump", 1):
 		return false
