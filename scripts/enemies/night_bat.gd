@@ -6,6 +6,7 @@ class_name NightBat
 @export var vertical_speed: float = 95.0
 
 var _hover_clock: float = 0.0
+@onready var pixel_sprite: AnimatedSprite2D = $PixelSprite
 
 func _ready() -> void:
 	max_health = 48
@@ -16,10 +17,14 @@ func _ready() -> void:
 	attack_cooldown = 1.45
 	super._ready()
 	visual.color = Color(0.40, 0.28, 0.68, 1.0)
+	visual.visible = false
+	pixel_sprite.play("fly")
 
 func set_night_mode(enabled: bool) -> void:
 	super.set_night_mode(enabled)
 	visual.color = Color(0.48, 0.30, 0.82, 1.0) if enabled else Color(0.32, 0.38, 0.48, 1.0)
+	if is_instance_valid(pixel_sprite):
+		pixel_sprite.modulate = Color.WHITE if enabled else Color(0.70, 0.70, 0.78, 1.0)
 
 func _physics_process(delta: float) -> void:
 	_hover_clock += delta
@@ -40,4 +45,6 @@ func _physics_process(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, direction * move_speed, 620.0 * delta)
 	if direction != 0.0:
 		visual.scale.x = direction
+		pixel_sprite.flip_h = direction < 0.0
+	pixel_sprite.rotation = sin(_hover_clock * hover_speed * 0.5) * 0.04
 	move_and_slide()
