@@ -4,6 +4,8 @@ class_name WorldGenerator
 signal selected_block_changed(block_type: int)
 
 const TILE_SIZE: int = 32
+const CHUNK_SIZE: int = 16
+const CHUNK_LOAD_RADIUS: int = 1
 const WORLD_WIDTH: int = 180
 const WORLD_HEIGHT: int = 60
 const AIR: int = 0
@@ -33,6 +35,8 @@ var _noise := FastNoiseLite.new()
 var _cave_noise := FastNoiseLite.new()
 var _cave_detail_noise := FastNoiseLite.new()
 var _collision_root: StaticBody2D
+var _loaded_collision_chunks: Dictionary = {}
+var _chunk_update_elapsed: float = 0.0
 var selected_block_type: int = DIRT
 var water_flow_interval: float = 0.28
 var _water_flow_elapsed: float = 0.0
@@ -996,27 +1000,71 @@ func _rebuild_collision() -> void:
 	if _collision_root == null:
 		return
 	for child in _collision_root.get_children():
-		_collision_root.remove_child(child)
-		child.free()
-	for y in range(WORLD_HEIGHT):
-		var x := 0
-		while x < WORLD_WIDTH:
-			while x < WORLD_WIDTH and not _is_solid_tile(tiles[x][y]):
+		child.queue_free()
+	_loaded_collision_chunks.clear()
+	_update_loaded_collision_chunks()
+
+func _update_loaded_collision_chunks() -> void:
+	if _collision_root == null:
+		return
+	var tile_position := Vector2i(WORLD_WIDTH / 2, get_surface_y(WORLD_WIDTH / 2))
+	var player := get_node_or_null(player_path) as Node2D
+	if player != null:
+		var local_position := to_local(player.global_position)
+		tile_position = Vector2i(floori(local_position.x / TILE_SIZE), floori(local_position.y / TILE_SIZE))
+	var chunk_columns := ceili(float(WORLD_WIDTH) / float(CHUNK_SIZE))
+	var chunk_rows := ceili(float(WORLD_HEIGHT) / float(CHUNK_SIZE))
+	var center_chunk := Vector2i(
+		clampi(floori(float(tile_position.x) / float(CHUNK_SIZE)), 0, chunk_columns - 1),
+		clampi(floori(float(tile_position.y) / float(CHUNK_SIZE)), 0, chunk_rows - 1)
+	)
+	var desired_chunks: Dictionary = {}
+	for chunk_y in range(maxi(center_chunk.y - CHUNK_LOAD_RADIUS, 0), mini(center_chunk.y + CHUNK_LOAD_RADIUS + 1, chunk_rows)):
+		for chunk_x in range(maxi(center_chunk.x - CHUNK_LOAD_RADIUS, 0), mini(center_chunk.x + CHUNK_LOAD_RADIUS + 1, chunk_columns)):
+			desired_chunks[Vector2i(chunk_x, chunk_y)] = true
+	for loaded_key in _loaded_collision_chunks.keys():
+		if not desired_chunks.has(loaded_key):
+			var old_body := _loaded_collision_chunks[loaded_key] as StaticBody2D
+			if is_instance_valid(old_body):
+				old_body.queue_free()
+			_loaded_collision_chunks.erase(loaded_key)
+	for desired_key in desired_chunks.keys():
+		if not _loaded_collision_chunks.has(desired_key):
+			_create_collision_chunk(desired_key)
+
+func _create_collision_chunk(chunk_coord: Vector2i) -> void:
+	var chunk_body := StaticBody2D.new()
+	chunk_body.name = "TerrainChunk_%d_%d" % [chunk_coord.x, chunk_coord.y]
+	chunk_body.collision_layer = 1
+	chunk_body.collision_mask = 0
+	_collision_root.add_child(chunk_body)
+	var start_x := chunk_coord.x * CHUNK_SIZE
+	var end_x := mini(start_x + CHUNK_SIZE, WORLD_WIDTH)
+	var start_y := chunk_coord.y * CHUNK_SIZE
+	var end_y := mini(start_y + CHUNK_SIZE, WORLD_HEIGHT)
+	for y in range(start_y, end_y):
+		var x := start_x
+		while x < end_x:
+			while x < end_x and not _is_solid_tile(tiles[x][y]):
 				x += 1
-			if x >= WORLD_WIDTH:
+			if x >= end_x:
 				break
-			var start_x := x
-			while x < WORLD_WIDTH and _is_solid_tile(tiles[x][y]):
+			var run_start := x
+			while x < end_x and _is_solid_tile(tiles[x][y]):
 				x += 1
-			var end_x := x
 			var shape_node := CollisionShape2D.new()
 			var shape := RectangleShape2D.new()
-			shape.size = Vector2((end_x - start_x) * TILE_SIZE, TILE_SIZE)
+			shape.size = Vector2((x - run_start) * TILE_SIZE, TILE_SIZE)
 			shape_node.shape = shape
-			shape_node.position = Vector2((start_x + end_x) * TILE_SIZE * 0.5, y * TILE_SIZE + TILE_SIZE * 0.5)
-			_collision_root.add_child(shape_node)
+			shape_node.position = Vector2((run_start + x) * TILE_SIZE * 0.5, y * TILE_SIZE + TILE_SIZE * 0.5)
+			chunk_body.add_child(shape_node)
+	_loaded_collision_chunks[chunk_coord] = chunk_body
 
 func _process(delta: float) -> void:
+	_chunk_update_elapsed += delta
+	if _chunk_update_elapsed >= 0.2:
+		_chunk_update_elapsed = 0.0
+		_update_loaded_collision_chunks()
 	_mine_cooldown_remaining = maxf(_mine_cooldown_remaining - delta, 0.0)
 	_water_flow_elapsed += delta
 	if _water_flow_elapsed >= water_flow_interval:
