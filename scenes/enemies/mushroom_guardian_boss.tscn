@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/mushroom_guardian_boss.gd" id="1_boss"]
+[ext_resource type="Texture2D" path="res://assets/sprites/boss_sheet.svg" id="2_boss_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="GuardianShape"]
 radius = 36.0
 height = 82.0
+
+[sub_resource type="AtlasTexture" id="BossFrameA"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(384, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="BossFrameB"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(448, 0, 64, 48)
+
+[sub_resource type="SpriteFrames" id="MushroomFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("BossFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("BossFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.6
+}]
 
 [node name="MushroomGuardianBoss" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("GuardianShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -41)
 color = Color(0.18, 0.48, 0.24, 1)
-polygon = PackedVector2Array(-34, 18, -39, -8, -29, -27, -12, -31, -8, -48, 5, -48, 12, -31, 29, -28, 39, -6, 32, 18, 18, 39, -20, 39)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("MushroomFrames")
+animation = &"idle"
+autoplay = "idle"
