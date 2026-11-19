@@ -42,7 +42,7 @@ Implemented in source:
 - Player movement, running, jumping, double jump, health, fall damage and timed respawn.
 - XP and level progression up to level 50, with enemy and boss rewards, a HUD experience bar, +2 melee damage every two levels and +10 maximum health every five levels; progression is saved.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
-- Inventory and crafting panel with live item counts, recipe buttons and disabled recipes when materials are missing (I key or INVENTORY button).
+- Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden, silver and gold armor can be equipped, persists in save data, and reduces incoming damage by 6, 12 and 20 points per hit respectively.
@@ -58,7 +58,7 @@ Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 - Add more light-source types and additional day/night tuning options.
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
+- Add a dedicated multi-slot equipment screen and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more dungeon room variants, boss attack patterns, crafting stations and export/install a debug APK.
