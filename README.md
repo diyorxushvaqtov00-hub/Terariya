@@ -34,7 +34,7 @@ Implemented in source:
 - Step-based water simulation that moves water downward into open cells and spreads it sideways over supported ground; renewable lake sources feed downward flow, and a global water-tile cap prevents unbounded flooding.
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
-- Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring.
+- Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring. Craftable pumps convert water tiles into renewable sources, while drain charges remove water tiles and disable their source status.
 - Runtime terrain collision generated from solid horizontal runs.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
@@ -59,7 +59,7 @@ Still required:
 - Add more light-source types and additional day/night tuning options.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add a dedicated multi-slot equipment screen and mining-speed progression for tools.
-- Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
+- Improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more dungeon room variants, boss attack patterns, crafting stations and export/install a debug APK.
 
