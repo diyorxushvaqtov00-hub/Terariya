@@ -111,6 +111,7 @@ func _run() -> void:
 	assert(golem_scene != null, "Magma Golem boss scene loads")
 	var golem := golem_scene.instantiate() as MagmaGolemBoss
 	assert(golem != null, "Magma Golem boss instantiates")
+	assert(golem.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Magma Golem uses animated pixel-art")
 	root.add_child(golem)
 	await process_frame
 	assert(golem.max_health == 2200 and golem.attack_damage == 30, "Magma Golem starts with its heavy boss stats")
@@ -123,6 +124,7 @@ func _run() -> void:
 	assert(guardian_scene != null and spore_scene != null, "Mushroom Guardian and spore projectile scenes load")
 	var guardian := guardian_scene.instantiate() as MushroomGuardianBoss
 	assert(guardian != null, "Mushroom Guardian boss instantiates")
+	assert(guardian.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Mushroom Guardian uses animated pixel-art")
 	root.add_child(guardian)
 	await process_frame
 	assert(guardian.max_health == 1750 and guardian.attack_damage == 22, "Mushroom Guardian starts with boss stats")
