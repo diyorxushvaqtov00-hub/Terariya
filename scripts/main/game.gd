@@ -727,6 +727,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_axe", "4 PLANKS + 2 STONE  →  AXE")
 	_add_recipe_button(layout, "wooden_bucket", "5 PLANKS  →  EMPTY BUCKET")
 	_add_recipe_button(layout, "torch", "1 WOOD  →  4 TORCHES")
+	_add_recipe_button(layout, "lantern", "6 PLANKS + 3 ORE  →  LANTERN")
 	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
 	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
 	_add_recipe_button(layout, "eye_summon", "8 ORE + 12 STONE + 5 WOOD  →  EYE SIGIL")
@@ -835,6 +836,10 @@ func _build_inventory_ui() -> void:
 	torch_button.text = "PLACE TORCH (EMPTY TILE IN FRONT)"
 	torch_button.pressed.connect(_place_torch)
 	layout.add_child(torch_button)
+	var lantern_button := Button.new()
+	lantern_button.text = "PLACE LANTERN (BRIGHTER LIGHT)"
+	lantern_button.pressed.connect(_place_lantern)
+	layout.add_child(lantern_button)
 	var fill_button := Button.new()
 	fill_button.text = "FILL BUCKET (WATER IN FRONT)"
 	fill_button.pressed.connect(_fill_water_bucket)
@@ -945,14 +950,14 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | LANTERN %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
 		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
 		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), int(items.get("obsidian_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE",
 		int(items.get("copper_sword", 0)), int(items.get("silver_sword", 0)), int(items.get("gold_sword", 0)), int(items.get("obsidian_sword", 0)),
-		int(items.get("torch", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
+		int(items.get("torch", 0)), int(items.get("lantern", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
 		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe"),
@@ -1006,6 +1011,10 @@ func _unequip_armor() -> void:
 
 func _place_torch() -> void:
 	if world.place_torch(_get_water_target_cell(), player.inventory):
+		_on_inventory_changed(player.inventory.items)
+
+func _place_lantern() -> void:
+	if world.place_lantern(_get_water_target_cell(), player.inventory):
 		_on_inventory_changed(player.inventory.items)
 
 func _fill_water_bucket() -> void:
