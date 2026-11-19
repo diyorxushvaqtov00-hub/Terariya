@@ -39,7 +39,7 @@ Implemented in source:
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
-- Player movement, running, jumping, double jump, health, fall damage and timed respawn; the player now uses an original four-frame pixel-art sprite sheet with idle and walk animations.
+- Player movement, running, jumping, double jump, health, fall damage and timed respawn; original animated pixel-art sprites now cover the player, slime, night bat, zombie, skeleton archer, cave spider and dungeon skeleton.
 - XP and level progression up to level 50, with enemy and boss rewards, a HUD experience bar, +2 melee damage every two levels and +10 maximum health every five levels; progression is saved.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
@@ -58,7 +58,7 @@ Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
 3. Implement true chunk streaming and expand underground structure variety; branching caves, mine shafts and three dungeon layouts are now generated, while terrain rendering culls tiles outside the camera view.
-4. Replace the remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations; the player and Night Bat already have animated sprite sheets.
+4. Replace the remaining elite-enemy and boss placeholder polygon visuals with original pixel-art assets and animations; the player, common enemies and Night Bat already have animated sprite sheets.
 5. Balance crafting recipes and add more station-specific equipment; the anvil, alchemy table and tinkering bench are implemented.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
