@@ -582,6 +582,7 @@ func _run() -> void:
 	root.add_child(zombie)
 	await process_frame
 	assert(zombie.health == 100, "Zombie starts with one hundred health")
+	assert(zombie.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Zombie uses animated pixel-art")
 	assert(zombie.move_speed < slime.move_speed, "Zombie is slower than a slime")
 	assert(zombie.attack_damage > slime.attack_damage, "Zombie deals more contact damage than a slime")
 	zombie.set_night_mode(true)
@@ -595,6 +596,7 @@ func _run() -> void:
 	root.add_child(skeleton)
 	await process_frame
 	assert(skeleton.health == 65, "Skeleton archer starts with sixty-five health")
+	assert(skeleton.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Skeleton archer uses animated pixel-art")
 	assert(skeleton.ranged_attack_range > skeleton.attack_range, "Skeleton archer has a dedicated ranged attack range")
 	var projectile_count_before := root.get_child_count()
 	skeleton.fire_at(player)
