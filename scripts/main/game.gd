@@ -728,6 +728,8 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "wooden_bucket", "5 PLANKS  →  EMPTY BUCKET")
 	_add_recipe_button(layout, "torch", "1 WOOD  →  4 TORCHES")
 	_add_recipe_button(layout, "lantern", "6 PLANKS + 3 ORE  →  LANTERN")
+	_add_recipe_button(layout, "water_pump", "12 PLANKS + 8 ORE  →  WATER PUMP")
+	_add_recipe_button(layout, "drain_charge", "6 STONE + 3 ORE  →  3 DRAIN CHARGES")
 	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
 	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
 	_add_recipe_button(layout, "eye_summon", "8 ORE + 12 STONE + 5 WOOD  →  EYE SIGIL")
@@ -843,6 +845,16 @@ func _build_inventory_ui() -> void:
 	lantern_button.text = "PLACE LANTERN (BRIGHTER LIGHT)"
 	lantern_button.pressed.connect(_place_lantern)
 	layout.add_child(lantern_button)
+	var pump_button := Button.new()
+	pump_button.text = "INSTALL WATER PUMP (ON WATER)"
+	pump_button.tooltip_text = "Turn a water tile into a renewable source that feeds nearby water flow."
+	pump_button.pressed.connect(_install_water_pump)
+	layout.add_child(pump_button)
+	var drain_button := Button.new()
+	drain_button.text = "DRAIN WATER (REMOVE WATER TILE)"
+	drain_button.tooltip_text = "Consume one drain charge to remove a water tile and stop its source."
+	drain_button.pressed.connect(_drain_water)
+	layout.add_child(drain_button)
 	var fill_button := Button.new()
 	fill_button.text = "FILL BUCKET (WATER IN FRONT)"
 	fill_button.pressed.connect(_fill_water_bucket)
@@ -954,14 +966,14 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | LANTERN %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | LANTERN %d | PUMP %d | DRAIN %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
 		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
 		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), int(items.get("obsidian_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE",
 		int(items.get("copper_sword", 0)), int(items.get("silver_sword", 0)), int(items.get("gold_sword", 0)), int(items.get("obsidian_sword", 0)),
-		int(items.get("torch", 0)), int(items.get("lantern", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
+		int(items.get("torch", 0)), int(items.get("lantern", 0)), int(items.get("water_pump", 0)), int(items.get("drain_charge", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
 		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
 		int(items.get("wooden_pickaxe", 0)), player.inventory.get_tool_durability("wooden_pickaxe"),
 		int(items.get("wooden_axe", 0)), player.inventory.get_tool_durability("wooden_axe"),
@@ -1019,6 +1031,14 @@ func _place_torch() -> void:
 
 func _place_lantern() -> void:
 	if world.place_lantern(_get_water_target_cell(), player.inventory):
+		_on_inventory_changed(player.inventory.items)
+
+func _install_water_pump() -> void:
+	if world.install_water_pump(_get_water_target_cell(), player.inventory):
+		_on_inventory_changed(player.inventory.items)
+
+func _drain_water() -> void:
+	if world.drain_water(_get_water_target_cell(), player.inventory):
 		_on_inventory_changed(player.inventory.items)
 
 func _fill_water_bucket() -> void:
