@@ -20,8 +20,8 @@ const MERCHANT_SCENE: PackedScene = preload("res://scenes/npcs/merchant.tscn")
 const GUIDE_SCENE: PackedScene = preload("res://scenes/npcs/guide.tscn")
 const SPIKE_TRAP_SCENE: PackedScene = preload("res://scenes/world/spike_trap.tscn")
 const SWINGING_BLADE_SCENE: PackedScene = preload("res://scenes/world/swinging_blade.tscn")
-const MAX_NIGHT_ENEMIES: int = 4
-const NIGHT_SPAWN_INTERVAL: float = 18.0
+@export_range(1, 12, 1) var max_night_enemies: int = 4
+@export_range(5.0, 60.0, 1.0) var night_spawn_interval: float = 18.0
 
 var _autosave_elapsed: float = 0.0
 var _world_time_seconds: float = day_length_seconds * 0.25
@@ -226,10 +226,10 @@ func _update_night_spawns(delta: float) -> void:
 			enemy.queue_free()
 		return
 	_night_spawn_elapsed += delta
-	if _night_spawn_elapsed < NIGHT_SPAWN_INTERVAL:
+	if _night_spawn_elapsed < night_spawn_interval:
 		return
 	_night_spawn_elapsed = 0.0
-	if get_tree().get_nodes_in_group("night_spawned_enemy").size() >= MAX_NIGHT_ENEMIES:
+	if get_tree().get_nodes_in_group("night_spawned_enemy").size() >= max_night_enemies:
 		return
 	var player_tile_x := int(floori(player.global_position.x / WorldGenerator.TILE_SIZE))
 	var candidate_x := player_tile_x
