@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/cave_spider.gd" id="1_enemy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/spider_sheet.svg" id="2_spider_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="SpiderShape"]
 radius = 15.0
 height = 22.0
+
+[sub_resource type="AtlasTexture" id="SpiderFrameA"]
+atlas = ExtResource("2_spider_sheet")
+region = Rect2(0, 0, 32, 24)
+
+[sub_resource type="AtlasTexture" id="SpiderFrameB"]
+atlas = ExtResource("2_spider_sheet")
+region = Rect2(32, 0, 32, 24)
+
+[sub_resource type="SpriteFrames" id="SpiderSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("SpiderFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("SpiderFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
 
 [node name="CaveSpider" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("SpiderShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -11)
 color = Color(0.22, 0.18, 0.28, 1)
-polygon = PackedVector2Array(-17, 4, -12, -7, -5, -10, 0, -5, 5, -10, 12, -7, 17, 4, 10, 9, -10, 9)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("SpiderSpriteFrames")
+animation = &"idle"
+autoplay = "idle"
