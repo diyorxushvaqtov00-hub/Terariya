@@ -991,6 +991,7 @@ func _upgrade_best_weapon() -> void:
 	if player.inventory.upgrade_best_weapon():
 		_on_inventory_changed(player.inventory.items)
 
+func _upgrade_void_staff() -> void:
 	if player.inventory.upgrade_void_staff():
 		_on_inventory_changed(player.inventory.items)
 
