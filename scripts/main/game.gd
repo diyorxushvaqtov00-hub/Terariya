@@ -818,6 +818,10 @@ func _build_inventory_ui() -> void:
 	upgrade_weapon_button.text = "UPGRADE BEST WEAPON AT ANVIL"
 	upgrade_weapon_button.pressed.connect(_upgrade_best_weapon)
 	layout.add_child(upgrade_weapon_button)
+	var upgrade_staff_button := Button.new()
+	upgrade_staff_button.text = "UPGRADE VOID STAFF (+8 DAMAGE / -1 MANA)"
+	upgrade_staff_button.pressed.connect(_upgrade_void_staff)
+	layout.add_child(upgrade_staff_button)
 	var upgrade_armor_button := Button.new()
 	upgrade_armor_button.text = "UPGRADE EQUIPPED ARMOR AT ANVIL"
 	upgrade_armor_button.pressed.connect(_upgrade_equipped_armor)
@@ -940,7 +944,7 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d" % [
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
 		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
@@ -954,7 +958,7 @@ func _format_inventory(items: Dictionary) -> String:
 		int(items.get("magma_core", 0)), int(items.get("magma_rock", 0)),
 		int(items.get("obsidian_sword", 0)), int(items.get("obsidian_armor", 0)), int(items.get("magma_heart", 0)),
 		int(items.get("mushroom_blade", 0)), int(items.get("fungal_armor", 0)), int(items.get("guardian_totem", 0)),
-		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0)), int(items.get("void_guardian_sigil", 0)), int(items.get("void_shard", 0)), int(items.get("void_armor", 0)), int(items.get("voidbreaker", 0)), int(items.get("void_staff", 0))
+		int(items.get("dungeon_relic", 0)), int(items.get("dungeon_warden_sigil", 0)), int(items.get("void_guardian_sigil", 0)), int(items.get("void_shard", 0)), int(items.get("void_armor", 0)), int(items.get("voidbreaker", 0)), int(items.get("void_staff", 0)), player.inventory.get_weapon_upgrade_level("void_staff")
 	]
 
 func _refresh_craft_buttons() -> void:
@@ -985,6 +989,9 @@ func _equip_best_armor() -> void:
 
 func _upgrade_best_weapon() -> void:
 	if player.inventory.upgrade_best_weapon():
+		_on_inventory_changed(player.inventory.items)
+
+	if player.inventory.upgrade_void_staff():
 		_on_inventory_changed(player.inventory.items)
 
 func _upgrade_equipped_armor() -> void:
