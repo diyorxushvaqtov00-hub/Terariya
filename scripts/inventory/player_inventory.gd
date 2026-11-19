@@ -247,6 +247,23 @@ func upgrade_best_weapon() -> bool:
 	changed.emit(items.duplicate())
 	return true
 
+func upgrade_void_staff() -> bool:
+	if count("void_staff") <= 0 or count("anvil") <= 0:
+		return false
+	var level := get_weapon_upgrade_level("void_staff")
+	if level >= 10:
+		return false
+	var shard_cost := 2 + level
+	var relic_cost := 1 if level >= 5 else 0
+	if count("void_shard") < shard_cost or count("dungeon_relic") < relic_cost:
+		return false
+	remove_item("void_shard", shard_cost)
+	if relic_cost > 0:
+		remove_item("dungeon_relic", relic_cost)
+	weapon_upgrade_levels["void_staff"] = level + 1
+	changed.emit(items.duplicate())
+	return true
+
 func upgrade_equipped_armor() -> bool:
 	if equipped_armor.is_empty() or count("anvil") <= 0:
 		return false
@@ -312,7 +329,7 @@ func restore(snapshot: Dictionary) -> bool:
 		restored_armor = ""
 	if not restored_armor.is_empty() and restored_armor not in ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor", "void_armor"]:
 		return false
-	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword", "mushroom_blade", "voidbreaker"])
+	var restored_weapon_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("weapon_upgrade_levels", {}), ["stone_sword", "copper_sword", "silver_sword", "gold_sword", "queens_fang", "obsidian_sword", "mushroom_blade", "voidbreaker", "void_staff"])
 	var restored_armor_upgrades: Dictionary = _validated_upgrade_levels(snapshot.get("armor_upgrade_levels", {}), ["wooden_armor", "silver_armor", "gold_armor", "obsidian_armor", "fungal_armor", "void_armor"])
 	items = restored
 	tool_durability = restored_durability
