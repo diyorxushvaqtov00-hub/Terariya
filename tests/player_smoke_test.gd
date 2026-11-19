@@ -33,6 +33,8 @@ func _run() -> void:
 	root.add_child(world)
 	await process_frame
 	assert(world.tiles.size() == WorldGenerator.WORLD_WIDTH, "World has expected width")
+	var visible_bounds: Rect2i = world._get_visible_tile_bounds()
+	assert(visible_bounds.size.x <= WorldGenerator.WORLD_WIDTH and visible_bounds.size.y <= WorldGenerator.WORLD_HEIGHT, "Terrain draw bounds are clamped to generated world dimensions")
 	assert(world.get_tile(Vector2i(10, world.get_surface_y(10))) == WorldGenerator.GRASS, "Forest surface is grass")
 	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
 	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
