@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/night_bat.gd" id="1_bat"]
+
+[sub_resource type="CircleShape2D" id="BatShape"]
+radius = 13.0
+
+[node name="NightBat" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_bat")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -2)
+shape = SubResource("BatShape")
+
+[node name="Visual" type="Polygon2D" parent="."]
+position = Vector2(0, -2)
+color = Color(0.48, 0.3, 0.82, 1)
+polygon = PackedVector2Array(-18, 0, -10, -7, -5, -3, 0, -8, 5, -3, 10, -7, 18, 0, 10, 3, 5, 7, 0, 4, -5, 7, -10, 3)
