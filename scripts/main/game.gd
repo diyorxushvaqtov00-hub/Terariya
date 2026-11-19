@@ -813,6 +813,7 @@ func _build_inventory_ui() -> void:
 	void_guardian_button.pressed.connect(_summon_void_guardian)
 	layout.add_child(void_guardian_button)
 	var equip_armor_button := Button.new()
+	equip_armor_button.tooltip_text = "Equip the strongest armor tier currently in your inventory."
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
 	equip_armor_button.pressed.connect(_equip_best_armor)
 	layout.add_child(equip_armor_button)
@@ -833,10 +834,12 @@ func _build_inventory_ui() -> void:
 	remove_armor_button.pressed.connect(_unequip_armor)
 	layout.add_child(remove_armor_button)
 	var torch_button := Button.new()
+	torch_button.tooltip_text = "Place a warm light source in the empty tile in front of you."
 	torch_button.text = "PLACE TORCH (EMPTY TILE IN FRONT)"
 	torch_button.pressed.connect(_place_torch)
 	layout.add_child(torch_button)
 	var lantern_button := Button.new()
+	lantern_button.tooltip_text = "A brighter light source than a torch. Placement persists in world saves."
 	lantern_button.text = "PLACE LANTERN (BRIGHTER LIGHT)"
 	lantern_button.pressed.connect(_place_lantern)
 	layout.add_child(lantern_button)
@@ -944,6 +947,7 @@ func _sell_to_merchant(item_id: String, amount: int, price: int) -> void:
 func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: String) -> void:
 	var craft_button := Button.new()
 	craft_button.text = caption
+	craft_button.tooltip_text = "Craft: %s. Ingredients are consumed only when all requirements and inventory space are available." % recipe_id.replace("_", " ").capitalize()
 	craft_button.custom_minimum_size = Vector2(290, 44)
 	craft_button.pressed.connect(_craft_recipe.bind(recipe_id))
 	parent.add_child(craft_button)
