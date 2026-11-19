@@ -574,6 +574,7 @@ func _run() -> void:
 	assert(world.get_save_data().get("lanterns", []).size() == 1, "Lantern placement is included in world saves")
 	lantern_inventory.queue_free()
 
+	assert(slime.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Slime uses an animated pixel-art sprite")
 	var zombie_packed := load("res://scenes/enemies/zombie_enemy.tscn") as PackedScene
 	assert(zombie_packed != null, "Zombie enemy scene must load")
 	var zombie := zombie_packed.instantiate() as ZombieEnemy
