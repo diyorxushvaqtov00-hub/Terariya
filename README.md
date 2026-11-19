@@ -10,7 +10,7 @@ Implemented in source:
 - Seeded 180 × 60 tile world with noise-based surface variation.
 - Forest, desert and snow biomes with distinct surface materials; grass, dirt, sand, snow, stone, ore, wood and leaf tile types.
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
-- Deterministic underground cave pockets carved from seeded 2D noise, with ore deposits retained in the underground layers.
+- Deterministic underground cave pockets and narrow branching passages carved from two seeded noise layers, with ore deposits retained in the underground layers.
 - A glowing mushroom cavern in the western underground with harvestable glow mushrooms and fungal soil.
 - A deep desert magma chamber with lava pools and solid magma-rock borders; lava is non-solid, cannot be mined as a block, and burns the player for 12 damage every 0.8 seconds while touched.
 - A summonable Magma Golem boss with 2,200 HP, two phases and a telegraphed area-of-effect magma slam; victory grants magma cores, gold ore, healing potions and 1,400 XP.
@@ -35,7 +35,7 @@ Implemented in source:
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
 - Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring. Craftable pumps convert water tiles into renewable sources, while drain charges remove water tiles and disable their source status.
-- Runtime terrain collision generated from solid horizontal runs.
+- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds to reduce off-screen rendering work on mobile.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
