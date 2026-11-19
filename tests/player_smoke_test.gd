@@ -808,6 +808,9 @@ func _run() -> void:
 	warden.take_damage(1450)
 	assert(warden.current_phase == 2, "Dungeon Warden enters phase two below half health")
 	assert(warden.attack_damage == 52 and warden.move_speed == 126.0, "Dungeon Warden phase two increases aggression")
+	var volley_count_before := root.get_child_count()
+	warden.fire_vault_volley(player)
+	assert(root.get_child_count() >= volley_count_before + 3, "Dungeon Warden phase-two volley fires three projectiles")
 	warden.queue_free()
 
 	var warden_inventory := PlayerInventory.new()
