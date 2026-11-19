@@ -234,20 +234,11 @@ func upgrade_pickaxe() -> bool:
 		return false
 	var ore_cost := 2 + pickaxe_upgrade_level
 	var stone_cost := 4 + pickaxe_upgrade_level
-	if pickaxe_upgrade_level >= 5:
-		if count("silver_ore") < ore_cost:
-			return false
-		remove_item("silver_ore", ore_cost)
-	else:
-		if count("ore") < ore_cost:
-			return false
-		remove_item("ore", ore_cost)
-	if not remove_item("stone", stone_cost):
-		if pickaxe_upgrade_level >= 5:
-			add_item("silver_ore", ore_cost)
-		else:
-			add_item("ore", ore_cost)
+	var ore_type := "silver_ore" if pickaxe_upgrade_level >= 5 else "ore"
+	if count(ore_type) < ore_cost or count("stone") < stone_cost:
 		return false
+	remove_item(ore_type, ore_cost)
+	remove_item("stone", stone_cost)
 	pickaxe_upgrade_level += 1
 	changed.emit(items.duplicate())
 	return true
@@ -256,17 +247,17 @@ func get_armor_defense() -> int:
 	var total_defense := 0
 	match equipped_armor:
 		"wooden_armor":
-			return 6 + get_armor_upgrade_level("wooden_armor")
+			total_defense += 6 + get_armor_upgrade_level("wooden_armor")
 		"silver_armor":
-			return 12 + get_armor_upgrade_level("silver_armor")
+			total_defense += 12 + get_armor_upgrade_level("silver_armor")
 		"gold_armor":
-			return 20 + get_armor_upgrade_level("gold_armor")
+			total_defense += 20 + get_armor_upgrade_level("gold_armor")
 		"obsidian_armor":
-			return 28 + get_armor_upgrade_level("obsidian_armor")
+			total_defense += 28 + get_armor_upgrade_level("obsidian_armor")
 		"fungal_armor":
-			return 22 + get_armor_upgrade_level("fungal_armor")
+			total_defense += 22 + get_armor_upgrade_level("fungal_armor")
 		"void_armor":
-			return 38 + get_armor_upgrade_level("void_armor")
+			total_defense += 38 + get_armor_upgrade_level("void_armor")
 		_:
 			pass
 	match equipped_helmet:
