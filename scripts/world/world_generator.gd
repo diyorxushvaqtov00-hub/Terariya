@@ -40,6 +40,8 @@ var _water_sources: Dictionary = {}
 var max_water_tiles: int = 1800
 var _torch_cells: Array[Vector2i] = []
 var _torch_lights: Array[PointLight2D] = []
+var _lantern_cells: Array[Vector2i] = []
+var _lantern_lights: Array[PointLight2D] = []
 var _dungeon_chests: Array[Dictionary] = []
 var _dungeon_secret_rooms: Array[Dictionary] = []
 
@@ -136,6 +138,11 @@ func _draw() -> void:
 		draw_rect(cache_rect, Color(0.36, 0.22, 0.52) if not bool(room.get("cache_opened", false)) else Color(0.20, 0.18, 0.24), true)
 		draw_rect(Rect2(cache_rect.position, Vector2(26, 7)), Color(0.92, 0.72, 0.30), true)
 		draw_rect(cache_rect, Color(0.12, 0.10, 0.16), false, 2.0)
+	for cell in _lantern_cells:
+		var lantern_base := Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.82) * TILE_SIZE)
+		draw_rect(Rect2(lantern_base + Vector2(-7, -20), Vector2(14, 18)), Color(0.28, 0.31, 0.38), true)
+		draw_rect(Rect2(lantern_base + Vector2(-4, -17), Vector2(8, 12)), Color(1.0, 0.72, 0.28, 0.92), true)
+		draw_arc(lantern_base + Vector2(0, -20), 7.0, PI, TAU, 16, Color(0.75, 0.78, 0.82), 2.0)
 	for cell in _torch_cells:
 		var torch_base := Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.82) * TILE_SIZE)
 		draw_line(torch_base, torch_base + Vector2(0.0, -17.0), Color(0.48, 0.28, 0.12), 4.0)
@@ -333,6 +340,7 @@ func get_save_data() -> Dictionary:
 		"selected_block": selected_block_type,
 		"water_sources": _serialize_water_sources(),
 		"torches": _serialize_torches(),
+		"lanterns": _serialize_lanterns(),
 		"chests": _serialize_chests(),
 		"secret_rooms": _serialize_secret_rooms(),
 		"tiles": saved_columns
@@ -375,6 +383,7 @@ func load_save_data(data: Dictionary) -> bool:
 	_noise.seed = world_seed
 	_water_sources = _restore_water_sources(data.get("water_sources", []))
 	_restore_torches(data.get("torches", []))
+	_restore_lanterns(data.get("lanterns", []))
 	_restore_chests(data.get("chests", []))
 	_restore_secret_rooms(data.get("secret_rooms", []))
 	selected_block_changed.emit(selected_block_type)
@@ -391,6 +400,61 @@ func place_torch(cell: Vector2i, inventory: PlayerInventory) -> bool:
 	_create_torch_light(cell)
 	queue_redraw()
 	return true
+
+func place_lantern(cell: Vector2i, inventory: PlayerInventory) -> bool:
+	if not _inside_world(cell) or get_tile(cell) != AIR or inventory == null:
+		return false
+	if _lantern_cells.has(cell) or _torch_cells.has(cell) or not inventory.remove_item("lantern", 1):
+		return false
+	_lantern_cells.append(cell)
+	_create_lantern_light(cell)
+	queue_redraw()
+	return true
+
+func _serialize_lanterns() -> Array:
+	var result: Array = []
+	for cell in _lantern_cells:
+		if _inside_world(cell) and get_tile(cell) == AIR:
+			result.append([cell.x, cell.y])
+	return result
+
+func _restore_lanterns(raw_lanterns: Variant) -> void:
+	_lantern_cells.clear()
+	for light in _lantern_lights:
+		if is_instance_valid(light):
+			light.queue_free()
+	_lantern_lights.clear()
+	if not raw_lanterns is Array:
+		return
+	for entry in raw_lanterns:
+		if entry is Array and entry.size() == 2:
+			var cell := Vector2i(int(entry[0]), int(entry[1]))
+			if _inside_world(cell) and get_tile(cell) == AIR and not _lantern_cells.has(cell) and not _torch_cells.has(cell):
+				_lantern_cells.append(cell)
+				_create_lantern_light(cell)
+
+func _create_lantern_light(cell: Vector2i) -> void:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 0.88, 0.58, 0.86))
+	gradient.add_point(0.42, Color(1.0, 0.66, 0.24, 0.42))
+	gradient.add_point(1.0, Color(1.0, 0.42, 0.10, 0.0))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 160
+	texture.height = 160
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(0.5, 0.0)
+	var light := PointLight2D.new()
+	light.name = "LanternLight_%d_%d" % [cell.x, cell.y]
+	light.texture = texture
+	light.texture_scale = 4.4
+	light.energy = 1.6
+	light.color = Color(1.0, 0.82, 0.52)
+	light.blend_mode = Light2D.BLEND_MODE_ADD
+	light.position = Vector2((cell.x + 0.5) * TILE_SIZE, (cell.y + 0.5) * TILE_SIZE)
+	add_child(light)
+	_lantern_lights.append(light)
 
 func _serialize_torches() -> Array:
 	var result: Array = []
