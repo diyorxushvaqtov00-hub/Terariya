@@ -706,6 +706,19 @@ func _run() -> void:
 	forge_inventory.queue_free()
 	restored_forge.queue_free()
 
+	var alchemy_inventory := PlayerInventory.new()
+	root.add_child(alchemy_inventory)
+	await process_frame
+	alchemy_inventory.add_item("wooden_planks", 20)
+	alchemy_inventory.add_item("mushroom_soil", 20)
+	alchemy_inventory.add_item("silver_ore", 10)
+	alchemy_inventory.add_item("glow_mushroom", 6)
+	assert(not alchemy_inventory.can_craft("healing_potion"), "Healing potions require an alchemy table")
+	assert(alchemy_inventory.craft("alchemy_table"), "Alchemy table crafts from underground materials")
+	assert(alchemy_inventory.craft("healing_potion"), "Alchemy table unlocks healing potion crafting")
+	assert(alchemy_inventory.count("healing_potion") == 1, "Alchemy recipe creates a healing potion")
+	alchemy_inventory.queue_free()
+
 	var obsidian_inventory := PlayerInventory.new()
 	root.add_child(obsidian_inventory)
 	await process_frame
