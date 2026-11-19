@@ -56,7 +56,7 @@ Implemented in source:
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
-- Add more light-source types and additional day/night tuning options.
+
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add a dedicated multi-slot equipment screen and mining-speed progression for tools.
 - Improve biome transitions and chunk streaming, and expand cave variety and underground structures.
