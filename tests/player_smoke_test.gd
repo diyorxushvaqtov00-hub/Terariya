@@ -581,6 +581,22 @@ func _run() -> void:
 	assert(boss.attack_damage == 26 and boss.move_speed > 92.0, "Phase two increases boss damage and movement speed")
 	boss.queue_free()
 
+	var capacity_inventory := PlayerInventory.new()
+	root.add_child(capacity_inventory)
+	await process_frame
+	for slot_index in range(PlayerInventory.MAX_INVENTORY_SLOTS - 1):
+		capacity_inventory.add_item("test_item_%d" % slot_index, 1)
+	assert(capacity_inventory.get_used_slots() == PlayerInventory.MAX_INVENTORY_SLOTS, "Inventory stops at its forty unique-item slot capacity")
+	assert(not capacity_inventory.has_inventory_space("new_test_item"), "New item types are rejected when inventory is full")
+	assert(capacity_inventory.has_inventory_space("test_item_0"), "Existing stacks remain usable at full capacity")
+	var full_inventory_snapshot := capacity_inventory.serialize()
+	var invalid_full_inventory := full_inventory_snapshot.duplicate(true)
+	var invalid_items: Dictionary = invalid_full_inventory["items"]
+	invalid_items["overflow_item"] = 1
+	invalid_full_inventory["items"] = invalid_items
+	assert(not capacity_inventory.restore(invalid_full_inventory), "Inventory restore rejects saves beyond slot capacity")
+	capacity_inventory.queue_free()
+
 	var metal_inventory := PlayerInventory.new()
 	root.add_child(metal_inventory)
 	await process_frame
