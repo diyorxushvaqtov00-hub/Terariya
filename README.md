@@ -47,7 +47,7 @@ Implemented in source:
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden, silver and gold body armor, helmets and boots can be equipped in separate equipment slots; all equipped defense values and equipment selections persist in save data.
 - Silver and gold ore deposits generate deeper underground; silver/gold swords and armor can be crafted from their ores. Weapon priority is Obsidian Sword, Queen’s Fang, Mushroom Blade, gold, silver, copper, then stone. Armor priority is obsidian, fungal, gold, silver, then wooden.
-- An anvil is crafted from stone, ore and planks; silver/gold gear recipes require an anvil. An alchemy table is crafted from planks, mushroom soil and silver ore; it unlocks healing-potion crafting from glow mushrooms and fungal soil.
+- An anvil is crafted from stone, ore and planks; silver/gold gear recipes require an anvil. An alchemy table is crafted from planks, mushroom soil and silver ore; it unlocks healing-potion crafting from glow mushrooms and fungal soil. A tinkering bench is crafted from planks, silver ore and spider fangs; it unlocks the Double Jump Charm, which permanently unlocks the player’s double jump when crafted.
 - Anvil upgrades improve the best owned weapon by +3 damage per level and equipped armor by +1 defense per level, up to level 10. Upgrade levels persist in inventory saves and require matching tier materials.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops. Pickaxes can be upgraded at an anvil up to level 10, increasing held-to-mine speed by 15% per level.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
@@ -59,7 +59,7 @@ Still required:
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
 3. Implement true chunk streaming and add more underground structure types; terrain rendering already culls tiles outside the camera view.
 4. Replace the remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations; the player and Night Bat already have animated sprite sheets.
-5. Add further crafting-station types and balance recipes; the anvil and alchemy table are implemented.
+5. Balance crafting recipes and add more station-specific equipment; the anvil, alchemy table and tinkering bench are implemented.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
 ## Run
