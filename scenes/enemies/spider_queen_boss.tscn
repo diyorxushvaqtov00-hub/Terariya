@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/spider_queen_boss.gd" id="1_boss"]
+[ext_resource type="Texture2D" path="res://assets/sprites/boss_sheet.svg" id="2_boss_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="QueenShape"]
 radius = 38.0
 height = 76.0
+
+[sub_resource type="AtlasTexture" id="BossFrameA"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(128, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="BossFrameB"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(192, 0, 64, 48)
+
+[sub_resource type="SpriteFrames" id="QueenFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("BossFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("BossFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.6
+}]
 
 [node name="SpiderQueenBoss" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("QueenShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -38)
 color = Color(0.20, 0.08, 0.30, 1)
-polygon = PackedVector2Array(-34, 12, -28, -12, -17, -29, -7, -18, 0, -33, 9, -18, 20, -29, 31, -10, 36, 12, 24, 28, -24, 28)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("QueenFrames")
+animation = &"idle"
+autoplay = "idle"
