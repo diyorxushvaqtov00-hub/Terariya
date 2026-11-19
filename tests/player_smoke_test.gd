@@ -715,6 +715,19 @@ func _run() -> void:
 	forge_inventory.queue_free()
 	restored_forge.queue_free()
 
+	var tinkering_inventory := PlayerInventory.new()
+	root.add_child(tinkering_inventory)
+	await process_frame
+	tinkering_inventory.add_item("wooden_planks", 20)
+	tinkering_inventory.add_item("silver_ore", 30)
+	tinkering_inventory.add_item("spider_fang", 12)
+	tinkering_inventory.add_item("glow_mushroom", 6)
+	assert(not tinkering_inventory.can_craft("double_jump_charm"), "Double-jump charm requires a tinkering bench")
+	assert(tinkering_inventory.craft("tinkering_bench"), "Tinkering bench crafts from metal and dungeon materials")
+	assert(tinkering_inventory.craft("double_jump_charm"), "Tinkering bench unlocks double-jump charm crafting")
+	assert(tinkering_inventory.count("double_jump_charm") == 1, "Double-jump charm is added to inventory")
+	tinkering_inventory.queue_free()
+
 	var alchemy_inventory := PlayerInventory.new()
 	root.add_child(alchemy_inventory)
 	await process_frame
