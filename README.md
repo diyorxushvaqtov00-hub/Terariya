@@ -22,7 +22,7 @@ Implemented in source:
 - Slimes become faster and deal more damage at night; hostile slimes, durable zombies, ranged skeleton archers and flying night bats spawn at a distance during night and disappear at dawn, with a capped population.
 - Day length is configurable in the Godot Inspector on the main game node (120–1,800 seconds); the selected duration is used consistently by the clock and day/night cycle.
 - Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.
-- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
+- Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. The chambers have three layouts: Pillar Hall, High Gallery and Flooded Vault. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
 - Each dungeon is guarded by a heavy skeleton warrior and a fast cave spider. Skeleton guards reward XP and silver ore; cave spiders reward XP and spider fangs.
 - Dungeon hazards include six spike traps and three swinging blades, positioned deterministically in the three chambers and dealing contact damage to the player.
 - A summonable Spider Queen boss has 1,400 HP and two phases; below half health she becomes faster and deals heavier damage. She fires poisonous web projectiles that damage, poison and slow the player, periodically summons up to two cave-spider minions, and has a pulsing/rotating idle animation. Minions become tougher and summon in pairs during phase two; defeating them grants 35 XP each. Defeating the Queen grants gold ore, spider fangs, healing potions, 900 XP and the legendary Queen’s Fang (+80 base weapon damage). Queen’s Fang can be upgraded at an anvil using spider fangs.
@@ -55,13 +55,12 @@ Implemented in source:
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
 Still required:
-- Run Godot headless import and smoke tests; resolve any engine/parser errors.
-
-- Verify touch controls, terrain collision and combat on a physical Android device.
-
-- Implement true chunk streaming and add more underground structure types; terrain rendering now culls tiles outside the camera view.
-- Replace remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations.
-- Add additional crafting-station types and balance recipes; export and install the debug APK after validation.
+1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
+2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
+3. Implement true chunk streaming and add more underground structure types; terrain rendering already culls tiles outside the camera view.
+4. Replace the remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations; the player and Night Bat already have animated sprite sheets.
+5. Add further crafting-station types and balance recipes; the anvil and alchemy table are implemented.
+6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
 ## Run
 
