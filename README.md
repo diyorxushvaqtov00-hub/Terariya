@@ -92,6 +92,15 @@ Android:
 - BLOCK: switch the selected build material
 - INV: open or close inventory and crafting
 
+
+## Android debug build
+
+- The repository includes an Android export preset targeting 64-bit ARM devices.
+- After the Godot validation workflow succeeds on `main`, the Android debug workflow exports `build/eternal-world-debug.apk` and uploads it as the `eternal-world-android-debug` workflow artifact.
+- Open GitHub Actions, select the latest successful **Android debug APK** run, and download the artifact. The APK is debug-signed and is for testing, not Play Store release.
+- Install with `adb install -r eternal-world-debug.apk`, or transfer the APK to the Android device and open it to install.
+- Physical-device QA is still required: verify joystick movement, simultaneous touch controls, mining/placement, combat, collision, inventory scrolling, water, lighting and sustained frame rate.
+
 ## Project structure
 
 - `scenes/` — reusable player, world and target scenes
