@@ -134,6 +134,8 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	var total_price := amount * price_per_item
 	if total_price > 999999:
 		return false
+	if not has_inventory_space("coins"):
+		return false
 	if not remove_item(item_id, amount):
 		return false
 	add_item("coins", total_price)
