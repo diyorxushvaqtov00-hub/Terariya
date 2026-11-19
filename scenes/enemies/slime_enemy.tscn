@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/slime_enemy.gd" id="1_slime"]
+[ext_resource type="Texture2D" path="res://assets/sprites/slime_sheet.svg" id="2_slime_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="SlimeShape"]
 radius = 13.0
 height = 24.0
+
+[sub_resource type="AtlasTexture" id="SlimeFrameA"]
+atlas = ExtResource("2_slime_sheet")
+region = Rect2(0, 0, 32, 24)
+
+[sub_resource type="AtlasTexture" id="SlimeFrameB"]
+atlas = ExtResource("2_slime_sheet")
+region = Rect2(32, 0, 32, 24)
+
+[sub_resource type="SpriteFrames" id="SlimeSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("SlimeFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("SlimeFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.5
+}]
 
 [node name="SlimeEnemy" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("SlimeShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -12)
 color = Color(0.35, 0.85, 0.42, 1)
-polygon = PackedVector2Array(-14, 7, -13, -2, -7, -11, 7, -11, 13, -2, 14, 7)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("SlimeSpriteFrames")
+animation = &"idle"
+autoplay = "idle"
