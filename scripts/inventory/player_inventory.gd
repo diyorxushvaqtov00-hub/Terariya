@@ -82,6 +82,7 @@ const RECIPES: Dictionary = {
 	"alchemy_table": {"ingredients": {"wooden_planks": 12, "mushroom_soil": 8, "silver_ore": 6}, "output": "alchemy_table", "amount": 1},
 	"tinkering_bench": {"ingredients": {"wooden_planks": 10, "silver_ore": 8, "spider_fang": 4}, "output": "tinkering_bench", "amount": 1},
 	"double_jump_charm": {"ingredients": {"silver_ore": 10, "glow_mushroom": 6, "spider_fang": 4}, "output": "double_jump_charm", "amount": 1},
+	"repair_kit": {"ingredients": {"wooden_planks": 4, "ore": 3, "glow_mushroom": 2}, "output": "repair_kit", "amount": 1},
 	"healing_potion": {"ingredients": {"glow_mushroom": 3, "mushroom_soil": 2}, "output": "healing_potion", "amount": 1},
 	"spider_summon": {"ingredients": {"spider_fang": 6, "silver_ore": 20, "gold_ore": 8}, "output": "spider_summon", "amount": 1},
 	"magma_heart": {"ingredients": {"magma_core": 8, "gold_ore": 30, "magma_rock": 20}, "output": "magma_heart", "amount": 1},
@@ -155,7 +156,7 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	return true
 
 func can_craft(recipe_id: String) -> bool:
-	if recipe_id in ["double_jump_charm"] and count("tinkering_bench") <= 0:
+	if recipe_id in ["double_jump_charm", "repair_kit"] and count("tinkering_bench") <= 0:
 		return false
 	if recipe_id == "healing_potion" and count("alchemy_table") <= 0:
 		return false
@@ -202,6 +203,17 @@ func use_tool(tool_id: String) -> bool:
 
 func get_tool_durability(tool_id: String) -> int:
 	return int(tool_durability.get(tool_id, 0))
+
+func repair_tool(tool_id: String) -> bool:
+	if tool_id not in ["wooden_pickaxe", "wooden_axe"] or count(tool_id) <= 0:
+		return false
+	if not tool_durability.has(tool_id) or count("repair_kit") <= 0:
+		return false
+	if not remove_item("repair_kit", 1):
+		return false
+	tool_durability[tool_id] = 40 if tool_id == "wooden_pickaxe" else 35
+	changed.emit(items.duplicate())
+	return true
 
 func equip_armor(armor_id: String) -> bool:
 	if armor_id.is_empty():
