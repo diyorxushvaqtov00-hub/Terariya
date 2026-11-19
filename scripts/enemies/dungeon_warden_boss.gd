@@ -1,10 +1,13 @@
 extends "res://scripts/enemies/slime_enemy.gd"
 class_name DungeonWardenBoss
 
+const PROJECTILE_SCENE: PackedScene = preload("res://scenes/enemies/enemy_projectile.tscn")
+
 signal phase_changed(phase: int)
 
 var current_phase: int = 1
 var _slam_timer: float = 3.2
+var _volley_timer: float = 5.5
 var _slam_windup: float = 0.0
 var _animation_time: float = 0.0
 var _base_color := Color(0.25, 0.30, 0.42, 1.0)
@@ -42,6 +45,11 @@ func _physics_process(delta: float) -> void:
 	var target := get_node_or_null(player_path) as PlayerController
 	if target == null or target.health <= 0:
 		return
+	if current_phase == 2:
+		_volley_timer -= delta
+		if _volley_timer <= 0.0 and global_position.distance_to(target.global_position) <= 520.0:
+			fire_vault_volley(target)
+			_volley_timer = 5.2
 	if _slam_windup > 0.0:
 		_slam_windup -= delta
 		if _slam_windup <= 0.0:
@@ -50,6 +58,22 @@ func _physics_process(delta: float) -> void:
 	_slam_timer -= delta
 	if _slam_timer <= 0.0 and global_position.distance_to(target.global_position) <= 310.0:
 		_slam_windup = 0.82 if current_phase == 1 else 0.55
+
+
+func fire_vault_volley(target: PlayerController) -> void:
+	if target == null or target.health <= 0:
+		return
+	var scene_root: Node = get_tree().current_scene
+	if scene_root == null:
+		scene_root = get_tree().root
+	var base_direction := (target.global_position - global_position).normalized()
+	for angle_degrees in [-18.0, 0.0, 18.0]:
+		var projectile := PROJECTILE_SCENE.instantiate() as EnemyProjectile
+		if projectile == null:
+			continue
+		scene_root.add_child(projectile)
+		projectile.global_position = global_position + Vector2(0.0, -34.0)
+		projectile.configure(base_direction.rotated(deg_to_rad(angle_degrees)), 24)
 
 func _release_vault_slam(target: PlayerController) -> void:
 	var blast_range := 205.0 if current_phase == 1 else 255.0
@@ -69,4 +93,5 @@ func take_damage(amount: int) -> void:
 		attack_cooldown = 0.72
 		jump_velocity = -470.0
 		_slam_timer = 0.8
+		_volley_timer = 1.2
 		phase_changed.emit(current_phase)
