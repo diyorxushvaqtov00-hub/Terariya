@@ -1,9 +1,32 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/night_bat.gd" id="1_bat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/night_bat_sheet.svg" id="2_bat_sheet"]
 
 [sub_resource type="CircleShape2D" id="BatShape"]
 radius = 13.0
+
+[sub_resource type="AtlasTexture" id="BatFrameA"]
+atlas = ExtResource("2_bat_sheet")
+region = Rect2(0, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="BatFrameB"]
+atlas = ExtResource("2_bat_sheet")
+region = Rect2(24, 0, 24, 16)
+
+[sub_resource type="SpriteFrames" id="BatSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("BatFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("BatFrameB")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 8.0
+}]
 
 [node name="NightBat" type="CharacterBody2D"]
 collision_layer = 4
@@ -15,6 +38,13 @@ position = Vector2(0, -2)
 shape = SubResource("BatShape")
 
 [node name="Visual" type="Polygon2D" parent="."]
+visible = false
 position = Vector2(0, -2)
 color = Color(0.48, 0.3, 0.82, 1)
 polygon = PackedVector2Array(-18, 0, -10, -7, -5, -3, 0, -8, 5, -3, 10, -7, 18, 0, 10, 3, 5, 7, 0, 4, -5, 7, -10, 3)
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -2)
+sprite_frames = SubResource("BatSpriteFrames")
+animation = &"fly"
+autoplay = "fly"
