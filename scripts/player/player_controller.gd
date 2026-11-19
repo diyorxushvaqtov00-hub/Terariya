@@ -62,7 +62,7 @@ var _lava_damage_elapsed: float = 0.0
 var mana: float
 var _can_cast_magic: bool = true
 
-@onready var body_visual: Polygon2D = $BodyVisual
+@onready var body_visual: AnimatedSprite2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
 @onready var inventory: PlayerInventory = $Inventory
 
@@ -145,6 +145,10 @@ func _physics_process(delta: float) -> void:
 
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
+	if absf(direction) > 0.1 and is_on_floor():
+		body_visual.play("walk")
+	else:
+		body_visual.play("idle")
 	move_and_slide()
 
 func _is_touching_lava() -> bool:
