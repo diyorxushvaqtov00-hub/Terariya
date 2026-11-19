@@ -523,6 +523,18 @@ func _run() -> void:
 	assert(bat.move_speed > 108.0, "Night bat receives night-mode speed boost")
 	bat.queue_free()
 
+	var lantern_inventory := PlayerInventory.new()
+	root.add_child(lantern_inventory)
+	await process_frame
+	lantern_inventory.add_item("wooden_planks", 6)
+	lantern_inventory.add_item("ore", 3)
+	assert(lantern_inventory.craft("lantern"), "Lantern recipe crafts from planks and ore")
+	var lantern_cell := Vector2i(12, world.get_surface_y(12) - 2)
+	assert(world.place_lantern(lantern_cell, lantern_inventory), "Lantern can be placed in an empty tile")
+	assert(world._lantern_cells.has(lantern_cell), "Placed lantern is tracked by the world")
+	assert(world.get_save_data().get("lanterns", []).size() == 1, "Lantern placement is included in world saves")
+	lantern_inventory.queue_free()
+
 	var zombie_packed := load("res://scenes/enemies/zombie_enemy.tscn") as PackedScene
 	assert(zombie_packed != null, "Zombie enemy scene must load")
 	var zombie := zombie_packed.instantiate() as ZombieEnemy
