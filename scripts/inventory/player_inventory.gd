@@ -77,7 +77,8 @@ const RECIPES: Dictionary = {
 	"fungal_armor": {"ingredients": {"glow_mushroom": 24, "mushroom_soil": 20, "silver_ore": 18}, "output": "fungal_armor", "amount": 1},
 	"void_guardian_sigil": {"ingredients": {"dungeon_relic": 1, "gold_ore": 12, "magma_core": 6, "spider_fang": 6}, "output": "void_guardian_sigil", "amount": 1},
 	"void_armor": {"ingredients": {"void_shard": 8, "dungeon_relic": 3, "gold_ore": 20}, "output": "void_armor", "amount": 1},
-	"voidbreaker": {"ingredients": {"dungeon_relic": 2, "gold_ore": 16, "magma_core": 8, "spider_fang": 12}, "output": "voidbreaker", "amount": 1}
+	"voidbreaker": {"ingredients": {"dungeon_relic": 2, "gold_ore": 16, "magma_core": 8, "spider_fang": 12}, "output": "voidbreaker", "amount": 1},
+	"void_staff": {"ingredients": {"void_shard": 6, "dungeon_relic": 2, "glow_mushroom": 12}, "output": "void_staff", "amount": 1}
 }
 
 func _ready() -> void:
@@ -126,7 +127,7 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 func can_craft(recipe_id: String) -> bool:
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
 		return false
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor"] and count("anvil") <= 0:
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor", "void_staff"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
