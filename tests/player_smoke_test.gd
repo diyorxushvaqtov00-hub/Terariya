@@ -234,6 +234,21 @@ func _run() -> void:
 	assert(not world._is_solid_tile(WorldGenerator.WATER), "Water does not block movement")
 	assert(not world.mine_cell(water_cell), "Water cannot be mined as a solid block")
 	assert(world._water_sources.size() > 0, "Lakes have renewable water sources")
+	var pump_inventory := PlayerInventory.new()
+	root.add_child(pump_inventory)
+	await process_frame
+	pump_inventory.add_item("water_pump", 1)
+	var pump_cell: Vector2i = world._water_sources.keys()[0]
+	assert(world.install_water_pump(pump_cell, pump_inventory), "Water pump can reinforce a generated renewable source")
+	assert(world.is_water_source(pump_cell), "Installed pump keeps the water tile renewable")
+	var drain_cell := Vector2i(pump_cell.x + 1, pump_cell.y)
+	if world.get_tile(drain_cell) != WorldGenerator.WATER:
+		drain_cell = Vector2i(pump_cell.x - 1, pump_cell.y)
+	assert(world.get_tile(drain_cell) == WorldGenerator.WATER, "A nearby lake tile is available for drainage")
+	pump_inventory.add_item("drain_charge", 1)
+	assert(world.drain_water(drain_cell, pump_inventory), "Drain charge removes a water tile")
+	assert(world.get_tile(drain_cell) == WorldGenerator.AIR and not world.is_water_source(drain_cell), "Drained water tile becomes empty and non-renewable")
+	pump_inventory.queue_free()
 	var water_sample_world := world.to_global(Vector2(water_cell.x * WorldGenerator.TILE_SIZE + 16.0, water_cell.y * WorldGenerator.TILE_SIZE + 16.0))
 	assert(world.is_position_in_water(water_sample_world), "Water detection samples the actual tile position")
 	var flow_test_source := Vector2i(WorldGenerator.WORLD_WIDTH - 2, 1)
