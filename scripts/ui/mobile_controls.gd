@@ -156,7 +156,7 @@ func _button_centers() -> Dictionary:
 		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
 		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius),
 		"inventory": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius * 3.15),
-		"magic": Vector2(size.x - edge_margin - button_radius * 3.8, size.y - edge_margin - button_radius * 1.35)
+		"magic": Vector2(size.x - edge_margin - button_radius * 4.9, size.y - edge_margin - button_radius * 1.35)
 	}
 
 func _exit_tree() -> void:
