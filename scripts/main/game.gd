@@ -731,6 +731,12 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "water_pump", "12 PLANKS + 8 ORE  →  WATER PUMP")
 	_add_recipe_button(layout, "drain_charge", "6 STONE + 3 ORE  →  3 DRAIN CHARGES")
 	_add_recipe_button(layout, "wooden_armor", "12 PLANKS  →  WOODEN ARMOR")
+	_add_recipe_button(layout, "wooden_helmet", "8 PLANKS  →  WOODEN HELMET")
+	_add_recipe_button(layout, "wooden_boots", "6 PLANKS  →  WOODEN BOOTS")
+	_add_recipe_button(layout, "silver_helmet", "12 SILVER + 4 PLANKS  →  SILVER HELMET")
+	_add_recipe_button(layout, "silver_boots", "10 SILVER + 3 PLANKS  →  SILVER BOOTS")
+	_add_recipe_button(layout, "gold_helmet", "10 GOLD + 4 PLANKS  →  GOLD HELMET")
+	_add_recipe_button(layout, "gold_boots", "8 GOLD + 3 PLANKS  →  GOLD BOOTS")
 	_add_recipe_button(layout, "copper_sword", "10 ORE + 2 PLANKS  →  COPPER SWORD")
 	_add_recipe_button(layout, "eye_summon", "8 ORE + 12 STONE + 5 WOOD  →  EYE SIGIL")
 	_add_recipe_button(layout, "silver_sword", "12 SILVER + 4 PLANKS  →  SILVER SWORD")
@@ -814,6 +820,18 @@ func _build_inventory_ui() -> void:
 	void_guardian_button.text = "SUMMON VOID GUARDIAN (SECRET VAULT ONLY)"
 	void_guardian_button.pressed.connect(_summon_void_guardian)
 	layout.add_child(void_guardian_button)
+	var equip_helmet_button := Button.new()
+	equip_helmet_button.text = "EQUIP BEST HELMET"
+	equip_helmet_button.pressed.connect(_equip_best_helmet)
+	layout.add_child(equip_helmet_button)
+	var equip_boots_button := Button.new()
+	equip_boots_button.text = "EQUIP BEST BOOTS"
+	equip_boots_button.pressed.connect(_equip_best_boots)
+	layout.add_child(equip_boots_button)
+	var upgrade_pickaxe_button := Button.new()
+	upgrade_pickaxe_button.text = "UPGRADE PICKAXE AT ANVIL (+15% MINING SPEED)"
+	upgrade_pickaxe_button.pressed.connect(_upgrade_pickaxe)
+	layout.add_child(upgrade_pickaxe_button)
 	var equip_armor_button := Button.new()
 	equip_armor_button.tooltip_text = "Equip the strongest armor tier currently in your inventory."
 	equip_armor_button.text = "EQUIP BEST AVAILABLE ARMOR"
@@ -966,12 +984,12 @@ func _add_recipe_button(parent: VBoxContainer, recipe_id: String, caption: Strin
 	_craft_buttons[recipe_id] = craft_button
 
 func _format_inventory(items: Dictionary) -> String:
-	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | LANTERN %d | PUMP %d | DRAIN %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
+	return "COINS %d | ANVIL %d | WPN +%d | ARMOR +%d\nDIRT %d | STONE %d\nCOPPER %d | SILVER %d | GOLD %d\nWOOD %d | PLANKS %d\nARMOR W%d / S%d / G%d / O%d (%s)\nHELMET %s | BOOTS %s | PICKAXE SPEED x%.2f\nSWORDS C%d / S%d / G%d / O%d\nTORCH %d | LANTERN %d | PUMP %d | DRAIN %d | DUNGEON KEYS %d | EYE SIGIL %d | POTIONS %d\nBUCKETS %d EMPTY / %d WATER\nPICKAXE %d (%d durability)\nAXE %d (%d durability)\nMAGMA CORE %d | MAGMA ROCK %d\nOBSIDIAN SWORD %d | ARMOR %d | HEART %d\nMUSHROOM BLADE %d | FUNGAL ARMOR %d | TOTEM %d\nDUNGEON RELIC %d | WARDEN SIGIL %d | VOID SIGIL %d\nVOID SHARD %d | VOID ARMOR %d | VOIDBREAKER %d | VOID STAFF %d (+%d)" % [
 		int(items.get("coins", 0)), int(items.get("anvil", 0)), player.inventory.get_weapon_upgrade_level(player.inventory.get_best_weapon_id()), player.inventory.get_armor_upgrade_level(player.inventory.equipped_armor),
 		int(items.get("dirt", 0)), int(items.get("stone", 0)),
 		int(items.get("ore", 0)), int(items.get("silver_ore", 0)), int(items.get("gold_ore", 0)),
 		int(items.get("wood", 0)), int(items.get("wooden_planks", 0)),
-		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), int(items.get("obsidian_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE",
+		int(items.get("wooden_armor", 0)), int(items.get("silver_armor", 0)), int(items.get("gold_armor", 0)), int(items.get("obsidian_armor", 0)), player.inventory.equipped_armor.to_upper() if not player.inventory.equipped_armor.is_empty() else "NONE", player.inventory.equipped_helmet.to_upper() if not player.inventory.equipped_helmet.is_empty() else "NONE", player.inventory.equipped_boots.to_upper() if not player.inventory.equipped_boots.is_empty() else "NONE", player.inventory.get_mining_speed_multiplier(),
 		int(items.get("copper_sword", 0)), int(items.get("silver_sword", 0)), int(items.get("gold_sword", 0)), int(items.get("obsidian_sword", 0)),
 		int(items.get("torch", 0)), int(items.get("lantern", 0)), int(items.get("water_pump", 0)), int(items.get("drain_charge", 0)), int(items.get("dungeon_key", 0)), int(items.get("eye_summon", 0)), int(items.get("healing_potion", 0)),
 		int(items.get("empty_bucket", 0)), int(items.get("water_bucket", 0)),
@@ -992,6 +1010,24 @@ func _get_water_target_cell() -> Vector2i:
 	var target := player.global_position + Vector2(player.get_facing() * WorldGenerator.TILE_SIZE * 1.35, WorldGenerator.TILE_SIZE * 0.5)
 	var local_target := world.to_local(target)
 	return Vector2i(floori(local_target.x / WorldGenerator.TILE_SIZE), floori(local_target.y / WorldGenerator.TILE_SIZE))
+
+func _equip_best_helmet() -> void:
+	for item_id in ["gold_helmet", "silver_helmet", "wooden_helmet"]:
+		if player.inventory.count(item_id) > 0:
+			player.inventory.equip_helmet(item_id)
+			return
+	player.inventory.equip_helmet("")
+
+func _equip_best_boots() -> void:
+	for item_id in ["gold_boots", "silver_boots", "wooden_boots"]:
+		if player.inventory.count(item_id) > 0:
+			player.inventory.equip_boots(item_id)
+			return
+	player.inventory.equip_boots("")
+
+func _upgrade_pickaxe() -> void:
+	if player.inventory.upgrade_pickaxe():
+		_on_inventory_changed(player.inventory.items)
 
 func _equip_best_armor() -> void:
 	var inventory := player.inventory
