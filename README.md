@@ -77,6 +77,7 @@ Desktop:
 - Space: jump
 - Shift: run
 - F: melee attack
+- G: cast a Void Bolt (requires a crafted Void Staff and mana)
 - Q: mine the block in front
 - E: place the selected block in front
 - R: switch between dirt and stone
@@ -84,6 +85,7 @@ Desktop:
 
 Android:
 - Left virtual joystick: move
+- VOID: cast a Void Bolt (requires a crafted Void Staff and mana)
 - JUMP / RUN / HIT: movement and combat
 - MINE / PLACE: edit terrain in front of the player
 - BLOCK: switch the selected build material
