@@ -72,19 +72,30 @@ func generate_world() -> void:
 	for x in range(WORLD_WIDTH):
 		var column: PackedInt32Array = PackedInt32Array()
 		column.resize(WORLD_HEIGHT)
-		var surface := clampi(15 + int(round(_noise.get_noise_1d(float(x)) * 5.0)), 9, 22)
+		var forest_desert_blend := _smoothstep01(inverse_lerp(56.0, 64.0, float(x)))
+		var desert_snow_blend := _smoothstep01(inverse_lerp(116.0, 124.0, float(x)))
+		var base_surface := 15.0 + _noise.get_noise_1d(float(x)) * 5.0
+		var surface_offset := forest_desert_blend - desert_snow_blend * 2.0
+		var surface := clampi(int(round(base_surface + surface_offset)), 8, 23)
 		var biome := get_biome_at(x)
-		if biome == "desert":
-			surface = clampi(surface + 1, 10, 23)
-		elif biome == "snow":
-			surface = clampi(surface - 1, 8, 21)
+		var transition_roll := (_noise.get_noise_1d(float(x) + 443.0) + 1.0) * 0.5
 		surface_heights[x] = surface
 		for y in range(WORLD_HEIGHT):
 			var tile := AIR
 			if y == surface:
-				tile = SAND if biome == "desert" else (SNOW if biome == "snow" else GRASS)
+				if x >= 116 and x < 124:
+					tile = SNOW if transition_roll < desert_snow_blend else SAND
+				elif x >= 56 and x < 64:
+					tile = SAND if transition_roll < forest_desert_blend else GRASS
+				else:
+					tile = SAND if biome == "desert" else (SNOW if biome == "snow" else GRASS)
 			elif y > surface and y <= surface + 7:
-				tile = SAND if biome == "desert" else DIRT
+				if x >= 116 and x < 124:
+					tile = DIRT if transition_roll < desert_snow_blend else SAND
+				elif x >= 56 and x < 64:
+					tile = SAND if transition_roll < forest_desert_blend else DIRT
+				else:
+					tile = SAND if biome == "desert" else DIRT
 			elif y > surface + 7:
 				tile = STONE
 				var deposit_noise := _noise.get_noise_2d(float(x) * 1.7, float(y) * 1.7)
@@ -198,6 +209,10 @@ func _tile_color(tile: int) -> Color:
 		WATER:
 			return Color(0.12, 0.48, 0.88, 0.72)
 	return Color.TRANSPARENT
+
+func _smoothstep01(value: float) -> float:
+	var t := clampf(value, 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
 
 func get_surface_y(tile_x: int) -> int:
 	return surface_heights[clampi(tile_x, 0, WORLD_WIDTH - 1)]
