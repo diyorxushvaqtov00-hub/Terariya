@@ -558,7 +558,8 @@ func _generate_dungeons() -> void:
 	_dungeon_chests.clear()
 	_dungeon_secret_rooms.clear()
 	# Three fixed underground chambers, one in each biome, keep layouts reproducible.
-	for center_x in [42, 102, 160]:
+	for dungeon_index in range(3):
+		var center_x: int = [42, 102, 160][dungeon_index]
 		var center_y := mini(get_surface_y(center_x) + 19, WORLD_HEIGHT - 9)
 		for x in range(center_x - 7, center_x + 8):
 			for y in range(center_y - 4, center_y + 4):
@@ -568,8 +569,24 @@ func _generate_dungeons() -> void:
 			var floor_cell := Vector2i(x, center_y + 4)
 			if _inside_world(floor_cell):
 				tiles[floor_cell.x][floor_cell.y] = STONE
+		match dungeon_index:
+			0:
+				# Pillar Hall: two broken columns create cover without blocking the center aisle.
+				for pillar_x in [center_x - 5, center_x + 6]:
+					for pillar_y in range(center_y - 1, center_y + 3):
+						tiles[pillar_x][pillar_y] = STONE
+			1:
+				# High Gallery: staggered side ledges create vertical routes around the chest.
+				for platform_x in range(center_x - 6, center_x - 2):
+					tiles[platform_x][center_y - 1] = STONE
+				for platform_x in range(center_x + 5, center_x + 8):
+					tiles[platform_x][center_y - 2] = STONE
+			2:
+				# Flooded Vault: a shallow, non-renewable water trench crosses the chamber floor.
+				for water_x in range(center_x - 2, center_x + 2):
+					tiles[water_x][center_y + 3] = WATER
 		var chest_cell := Vector2i(center_x + 3, center_y + 2)
-		_dungeon_chests.append({"cell": chest_cell, "opened": false})
+		_dungeon_chests.append({"cell": chest_cell, "opened": false, "variant": dungeon_index})
 		# A concealed side vault branches off the chamber's western wall.
 		for x in range(center_x - 15, center_x - 8):
 			for y in range(center_y - 3, center_y + 4):
