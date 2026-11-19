@@ -47,7 +47,7 @@ Implemented in source:
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden, silver and gold body armor, helmets and boots can be equipped in separate equipment slots; all equipped defense values and equipment selections persist in save data.
 - Silver and gold ore deposits generate deeper underground; silver/gold swords and armor can be crafted from their ores. Weapon priority is Obsidian Sword, Queen’s Fang, Mushroom Blade, gold, silver, copper, then stone. Armor priority is obsidian, fungal, gold, silver, then wooden.
-- An anvil is crafted from stone, ore and planks; silver/gold gear recipes require an anvil.
+- An anvil is crafted from stone, ore and planks; silver/gold gear recipes require an anvil. An alchemy table is crafted from planks, mushroom soil and silver ore; it unlocks healing-potion crafting from glow mushrooms and fungal soil.
 - Anvil upgrades improve the best owned weapon by +3 damage per level and equipped armor by +1 defense per level, up to level 10. Upgrade levels persist in inventory saves and require matching tier materials.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops. Pickaxes can be upgraded at an anvil up to level 10, increasing held-to-mine speed by 15% per level.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
@@ -61,7 +61,7 @@ Still required:
 
 - Improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations.
-- Add more dungeon room variants, boss attack patterns, crafting stations and export/install a debug APK.
+- Add additional crafting-station types and balance recipes; export and install the debug APK after validation.
 
 ## Run
 
