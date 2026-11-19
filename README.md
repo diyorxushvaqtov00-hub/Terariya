@@ -8,7 +8,7 @@ An original 2D sandbox survival RPG built with Godot 4 and GDScript, targeting A
 
 Implemented in source:
 - Seeded 180 × 60 tile world with noise-based surface variation.
-- Forest, desert and snow biomes with distinct surface materials; grass, dirt, sand, snow, stone, ore, wood and leaf tile types.
+- Forest, desert and snow biomes with distinct surface materials and smooth material/height blending across biome borders; grass, dirt, sand, snow, stone, ore, wood and leaf tile types.
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
 - Deterministic underground cave pockets and narrow branching passages carved from two seeded noise layers, with ore deposits retained in the underground layers.
 - A glowing mushroom cavern in the western underground with harvestable glow mushrooms and fungal soil.
@@ -59,7 +59,7 @@ Still required:
 
 - Verify touch controls, terrain collision and combat on a physical Android device.
 
-- Improve biome transitions and chunk streaming, and expand cave variety and underground structures.
+- Implement true chunk streaming and add more underground structure types; terrain rendering now culls tiles outside the camera view.
 - Replace remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations.
 - Add additional crafting-station types and balance recipes; export and install the debug APK after validation.
 
