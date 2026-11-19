@@ -102,6 +102,7 @@ func _run() -> void:
 	root.add_child(queen)
 	await process_frame
 	assert(queen.max_health == 1400 and queen.attack_damage == 24, "Spider Queen starts with boss stats")
+	assert(queen.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Spider Queen uses animated pixel-art")
 	queen.take_damage(700)
 	assert(queen.current_phase == 2 and queen.attack_damage == 34, "Spider Queen enters enraged second phase at half health")
 	queen.queue_free()
@@ -622,6 +623,7 @@ func _run() -> void:
 	root.add_child(boss)
 	await process_frame
 	assert(boss.health == 900, "Ancient Eye starts with nine hundred health")
+	assert(boss.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Ancient Eye uses animated pixel-art")
 	assert(boss.current_phase == 1, "Ancient Eye starts in phase one")
 	boss.take_damage(460)
 	assert(boss.current_phase == 2, "Ancient Eye enters phase two below half health")
@@ -855,6 +857,7 @@ func _run() -> void:
 	root.add_child(warden)
 	await process_frame
 	assert(warden.max_health == 2800 and warden.current_phase == 1, "Dungeon Warden starts with two thousand eight hundred health")
+	assert(warden.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Dungeon Warden uses animated pixel-art")
 	warden.take_damage(1450)
 	assert(warden.current_phase == 2, "Dungeon Warden enters phase two below half health")
 	assert(warden.attack_damage == 52 and warden.move_speed == 126.0, "Dungeon Warden phase two increases aggression")
@@ -889,6 +892,7 @@ func _run() -> void:
 	root.add_child(void_guardian)
 	await process_frame
 	assert(void_guardian.max_health == 1350 and void_guardian.current_phase == 1, "Void Guardian starts with thirteen hundred fifty health")
+	assert(void_guardian.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Void Guardian uses animated pixel-art")
 	void_guardian.take_damage(700)
 	assert(void_guardian.current_phase == 2, "Void Guardian enters phase two below half health")
 	assert(void_guardian.attack_damage == 44 and void_guardian.move_speed == 132.0, "Void Guardian phase two increases aggression")
