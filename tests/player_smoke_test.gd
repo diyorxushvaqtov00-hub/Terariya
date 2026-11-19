@@ -133,12 +133,14 @@ func _run() -> void:
 	guardian.queue_free()
 	var spore := spore_scene.instantiate() as SporeProjectile
 	assert(spore != null and spore.impact_damage == 9, "Spore projectile has poison impact")
+	assert(spore.get_node("Visual/PixelSprite") is Sprite2D, "Spore projectile uses pixel-art sprite")
 	spore.queue_free()
 
 	var web_scene := load("res://scenes/enemies/spider_web_projectile.tscn") as PackedScene
 	assert(web_scene != null, "Spider Queen web projectile scene loads")
 	var web_projectile := web_scene.instantiate() as SpiderWebProjectile
 	assert(web_projectile != null and web_projectile.impact_damage == 12, "Web projectile has impact damage")
+	assert(web_projectile.get_node("Visual/PixelSprite") is Sprite2D, "Web projectile uses pixel-art sprite")
 	web_projectile.queue_free()
 	var legendary_inventory := PlayerInventory.new()
 	root.add_child(legendary_inventory)
@@ -610,6 +612,7 @@ func _run() -> void:
 	skeleton.fire_at(player)
 	assert(root.get_child_count() > projectile_count_before, "Skeleton archer creates a ranged projectile")
 	assert(root.get_child(root.get_child_count() - 1) is EnemyProjectile, "Skeleton archer projectile uses the enemy projectile scene")
+	assert((root.get_child(root.get_child_count() - 1) as EnemyProjectile).get_node("Visual/PixelSprite") is Sprite2D, "Enemy projectile uses pixel-art sprite")
 	skeleton.queue_free()
 
 	player.inventory.add_item("ore", 8)
@@ -884,6 +887,7 @@ func _run() -> void:
 	assert(void_bolt_scene != null, "Void Bolt projectile scene loads")
 	var void_bolt := void_bolt_scene.instantiate() as VoidBoltProjectile
 	assert(void_bolt != null, "Void Bolt projectile instantiates")
+	assert(void_bolt.get_node("Visual/PixelSprite") is Sprite2D, "Void Bolt uses pixel-art sprite")
 	void_bolt.setup(Vector2.LEFT, 120)
 	assert(void_bolt.direction == Vector2.LEFT and void_bolt.impact_damage == 120, "Void Bolt accepts facing and configured damage")
 	void_bolt.queue_free()
