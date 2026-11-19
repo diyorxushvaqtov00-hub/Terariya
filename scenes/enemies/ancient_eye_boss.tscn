@@ -1,9 +1,32 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/ancient_eye_boss.gd" id="1_boss"]
+[ext_resource type="Texture2D" path="res://assets/sprites/boss_sheet.svg" id="2_boss_sheet"]
 
 [sub_resource type="CircleShape2D" id="BossShape"]
 radius = 25.0
+
+[sub_resource type="AtlasTexture" id="BossFrameA"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(0, 0, 64, 48)
+
+[sub_resource type="AtlasTexture" id="BossFrameB"]
+atlas = ExtResource("2_boss_sheet")
+region = Rect2(64, 0, 64, 48)
+
+[sub_resource type="SpriteFrames" id="EyeFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("BossFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("BossFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.6
+}]
 
 [node name="AncientEyeBoss" type="CharacterBody2D"]
 collision_layer = 4
@@ -17,7 +40,12 @@ shape = SubResource("BossShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -25)
 color = Color(0.82, 0.16, 0.22, 1)
-polygon = PackedVector2Array(-22, -4, -18, -17, -7, -24, 7, -24, 18, -17, 22, -4, 17, 13, 0, 24, -17, 13)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("EyeFrames")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="Pupil" type="Polygon2D" parent="Visual"]
 color = Color(0.96, 0.92, 0.82, 1)
