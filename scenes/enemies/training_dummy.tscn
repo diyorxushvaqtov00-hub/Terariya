@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/training_dummy.gd" id="1_dummy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/training_dummy.svg" id="2_dummy"]
 
 [sub_resource type="RectangleShape2D" id="DummyShape"]
 size = Vector2(28, 42)
@@ -16,5 +17,8 @@ shape = SubResource("DummyShape")
 
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -21)
-color = Color(0.75, 0.34, 0.22, 1)
-polygon = PackedVector2Array(-14, -21, 14, -21, 14, 21, -14, 21)
+color = Color(1, 1, 1, 1)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="Sprite2D" parent="Visual"]
+texture = ExtResource("2_dummy")
