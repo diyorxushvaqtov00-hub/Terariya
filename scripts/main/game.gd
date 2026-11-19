@@ -748,6 +748,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "healing_potion", "3 GLOW MUSHROOM + 2 SOIL  →  HEALING POTION")
 	_add_recipe_button(layout, "tinkering_bench", "10 PLANKS + 8 SILVER + 4 FANGS  →  TINKERING BENCH")
 	_add_recipe_button(layout, "double_jump_charm", "10 SILVER + 6 MUSHROOM + 4 FANGS  →  DOUBLE JUMP CHARM")
+	_add_recipe_button(layout, "repair_kit", "4 PLANKS + 3 ORE + 2 MUSHROOM  →  REPAIR KIT")
 	_add_recipe_button(layout, "spider_summon", "6 FANGS + 20 SILVER + 8 GOLD  →  QUEEN SIGIL")
 	_add_recipe_button(layout, "magma_heart", "8 CORES + 30 GOLD + 20 MAGMA ROCK  →  MAGMA HEART")
 	_add_recipe_button(layout, "obsidian_sword", "12 CORES + 18 GOLD + 8 PLANKS  →  OBSIDIAN SWORD")
@@ -832,6 +833,14 @@ func _build_inventory_ui() -> void:
 	equip_boots_button.text = "EQUIP BEST BOOTS"
 	equip_boots_button.pressed.connect(_equip_best_boots)
 	layout.add_child(equip_boots_button)
+	var repair_pickaxe_button := Button.new()
+	repair_pickaxe_button.text = "REPAIR PICKAXE (1 REPAIR KIT)"
+	repair_pickaxe_button.pressed.connect(_repair_pickaxe)
+	layout.add_child(repair_pickaxe_button)
+	var repair_axe_button := Button.new()
+	repair_axe_button.text = "REPAIR AXE (1 REPAIR KIT)"
+	repair_axe_button.pressed.connect(_repair_axe)
+	layout.add_child(repair_axe_button)
 	var upgrade_pickaxe_button := Button.new()
 	upgrade_pickaxe_button.text = "UPGRADE PICKAXE AT ANVIL (+15% MINING SPEED)"
 	upgrade_pickaxe_button.pressed.connect(_upgrade_pickaxe)
@@ -1028,6 +1037,12 @@ func _equip_best_boots() -> void:
 			player.inventory.equip_boots(item_id)
 			return
 	player.inventory.equip_boots("")
+
+func _repair_pickaxe() -> void:
+	player.inventory.repair_tool("wooden_pickaxe")
+
+func _repair_axe() -> void:
+	player.inventory.repair_tool("wooden_axe")
 
 func _upgrade_pickaxe() -> void:
 	if player.inventory.upgrade_pickaxe():
