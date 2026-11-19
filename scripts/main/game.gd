@@ -3,10 +3,11 @@ extends Node2D
 const SAVE_PATH: String = "user://eternal_world_save.json"
 const SAVE_VERSION: int = 1
 const AUTOSAVE_INTERVAL: float = 30.0
-const DAY_LENGTH_SECONDS: float = 480.0
+@export_range(120.0, 1800.0, 30.0) var day_length_seconds: float = 480.0
 const NIGHT_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/slime_enemy.tscn")
 const ZOMBIE_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/zombie_enemy.tscn")
 const SKELETON_ENEMY_SCENE: PackedScene = preload("res://scenes/enemies/skeleton_archer.tscn")
+const NIGHT_BAT_SCENE: PackedScene = preload("res://scenes/enemies/night_bat.tscn")
 const DUNGEON_SKELETON_SCENE: PackedScene = preload("res://scenes/enemies/dungeon_skeleton.tscn")
 const CAVE_SPIDER_SCENE: PackedScene = preload("res://scenes/enemies/cave_spider.tscn")
 const BOSS_SCENE: PackedScene = preload("res://scenes/enemies/ancient_eye_boss.tscn")
@@ -23,7 +24,7 @@ const MAX_NIGHT_ENEMIES: int = 4
 const NIGHT_SPAWN_INTERVAL: float = 18.0
 
 var _autosave_elapsed: float = 0.0
-var _world_time_seconds: float = DAY_LENGTH_SECONDS * 0.25
+var _world_time_seconds: float = day_length_seconds * 0.25
 var _day_night_overlay: CanvasModulate
 var _day_night_label: Label
 var _night_spawn_elapsed: float = 0.0
@@ -165,7 +166,7 @@ func _load_game() -> bool:
 	if not inventory_data is Dictionary or not player.inventory.restore(inventory_data):
 		push_warning("Saved inventory is invalid; keeping starter inventory.")
 		return false
-	_world_time_seconds = fposmod(float(parsed.get("time_of_day", _world_time_seconds)), DAY_LENGTH_SECONDS)
+	_world_time_seconds = fposmod(float(parsed.get("time_of_day", _world_time_seconds)), day_length_seconds)
 	_update_day_night(0.0)
 	var player_data: Variant = parsed.get("player", {})
 	if player_data is Dictionary:
@@ -195,8 +196,8 @@ func _build_day_night_system() -> void:
 	_update_day_night(0.0)
 
 func _update_day_night(delta: float) -> void:
-	_world_time_seconds = fposmod(_world_time_seconds + delta, DAY_LENGTH_SECONDS)
-	var phase := _world_time_seconds / DAY_LENGTH_SECONDS
+	_world_time_seconds = fposmod(_world_time_seconds + delta, day_length_seconds)
+	var phase := _world_time_seconds / day_length_seconds
 	# Midnight=0.0, sunrise=0.25, noon=0.5, sunset=0.75.
 	var daylight := maxf(0.0, sin((phase - 0.25) * TAU))
 	_is_night = phase < 0.20 or phase > 0.80
@@ -239,9 +240,9 @@ func _update_night_spawns(delta: float) -> void:
 	if absi(candidate_x - player_tile_x) < 7:
 		return
 	var spawn_roll := _rng.randf()
-	var enemy_scene: PackedScene = SKELETON_ENEMY_SCENE if spawn_roll < 0.20 else (ZOMBIE_ENEMY_SCENE if spawn_roll < 0.55 else NIGHT_ENEMY_SCENE)
+	var enemy_scene: PackedScene = NIGHT_BAT_SCENE if spawn_roll < 0.18 else (SKELETON_ENEMY_SCENE if spawn_roll < 0.36 else (ZOMBIE_ENEMY_SCENE if spawn_roll < 0.62 else NIGHT_ENEMY_SCENE))
 	var enemy := enemy_scene.instantiate() as SlimeEnemy
-	var enemy_kind := "Skeleton" if spawn_roll < 0.20 else ("Zombie" if spawn_roll < 0.55 else "Slime")
+	var enemy_kind := "Bat" if spawn_roll < 0.18 else ("Skeleton" if spawn_roll < 0.36 else ("Zombie" if spawn_roll < 0.62 else "Slime"))
 	if enemy == null:
 		return
 	enemy.name = "Night" + enemy_kind
@@ -249,7 +250,7 @@ func _update_night_spawns(delta: float) -> void:
 	add_child(enemy)
 	enemy.global_position = world.get_spawn_position(candidate_x)
 	enemy.set_night_mode(true)
-	var reward := 35 if enemy_kind == "Skeleton" else (40 if enemy_kind == "Zombie" else 25)
+	var reward := 30 if enemy_kind == "Bat" else (35 if enemy_kind == "Skeleton" else (40 if enemy_kind == "Zombie" else 25))
 	_connect_enemy_rewards(enemy, reward)
 
 func _build_progression_ui() -> void:
