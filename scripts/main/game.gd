@@ -746,6 +746,8 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "anvil", "20 STONE + 10 ORE + 8 PLANKS  →  ANVIL")
 	_add_recipe_button(layout, "alchemy_table", "12 PLANKS + 8 SOIL + 6 SILVER  →  ALCHEMY TABLE")
 	_add_recipe_button(layout, "healing_potion", "3 GLOW MUSHROOM + 2 SOIL  →  HEALING POTION")
+	_add_recipe_button(layout, "tinkering_bench", "10 PLANKS + 8 SILVER + 4 FANGS  →  TINKERING BENCH")
+	_add_recipe_button(layout, "double_jump_charm", "10 SILVER + 6 MUSHROOM + 4 FANGS  →  DOUBLE JUMP CHARM")
 	_add_recipe_button(layout, "spider_summon", "6 FANGS + 20 SILVER + 8 GOLD  →  QUEEN SIGIL")
 	_add_recipe_button(layout, "magma_heart", "8 CORES + 30 GOLD + 20 MAGMA ROCK  →  MAGMA HEART")
 	_add_recipe_button(layout, "obsidian_sword", "12 CORES + 18 GOLD + 8 PLANKS  →  OBSIDIAN SWORD")
@@ -1116,6 +1118,8 @@ func _use_healing_potion() -> void:
 
 func _craft_recipe(recipe_id: String) -> void:
 	if player.inventory.craft(recipe_id):
+		if recipe_id == "double_jump_charm":
+			player.double_jump_unlocked = true
 		_on_inventory_changed(player.inventory.items)
 
 func _toggle_inventory() -> void:
