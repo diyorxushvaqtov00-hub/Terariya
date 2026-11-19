@@ -35,7 +35,7 @@ Implemented in source:
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
 - Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring. Craftable pumps convert water tiles into renewable sources, while drain charges remove water tiles and disable their source status.
-- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds to reduce off-screen rendering work on mobile.
+- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds; collision is streamed in 16×16 tile chunks with a one-chunk preload radius around the player.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
@@ -57,7 +57,7 @@ Implemented in source:
 Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
-3. Implement true chunk streaming and expand underground structure variety; branching caves, mine shafts and three dungeon layouts are now generated, while terrain rendering culls tiles outside the camera view.
+3. Profile and tune chunk streaming on larger maps; collision now loads nearby 16×16 chunks and unloads distant chunks, with camera-aware render culling.
 4. Add hit/reaction animation polish; the player, common enemies, all six major bosses and ranged projectiles now use original pixel-art sprite sheets.
 5. Balance crafting recipes and add more station-specific equipment; the anvil, alchemy table and tinkering bench are implemented.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
