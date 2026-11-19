@@ -36,6 +36,7 @@ var _collision_root: StaticBody2D
 var selected_block_type: int = DIRT
 var water_flow_interval: float = 0.28
 var _water_flow_elapsed: float = 0.0
+var _mine_cooldown_remaining: float = 0.0
 var _water_flow_direction: int = 1
 var _water_sources: Dictionary = {}
 var max_water_tiles: int = 1800
@@ -965,14 +966,18 @@ func _rebuild_collision() -> void:
 			_collision_root.add_child(shape_node)
 
 func _process(delta: float) -> void:
+	_mine_cooldown_remaining = maxf(_mine_cooldown_remaining - delta, 0.0)
 	_water_flow_elapsed += delta
 	if _water_flow_elapsed >= water_flow_interval:
 		_water_flow_elapsed = 0.0
 		_simulate_water_step()
 	if Input.is_action_just_pressed("cycle_block"):
 		cycle_block_selection()
-	if Input.is_action_just_pressed("mine"):
+	if Input.is_action_pressed("mine") and _mine_cooldown_remaining <= 0.0:
 		_edit_target(false)
+		var player := get_node_or_null(player_path) as PlayerController
+		var mining_multiplier := player.inventory.get_mining_speed_multiplier() if player != null else 1.0
+		_mine_cooldown_remaining = 0.34 / mining_multiplier
 	if Input.is_action_just_pressed("place"):
 		_edit_target(true)
 
