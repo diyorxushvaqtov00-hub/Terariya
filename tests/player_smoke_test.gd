@@ -46,6 +46,8 @@ func _run() -> void:
 	assert(world.get_biome_at(10) == "forest", "Western region is forest biome")
 	assert(world.get_biome_at(90) == "desert", "Middle region is desert biome")
 	assert(world.get_biome_at(150) == "snow", "Eastern region is snow biome")
+	assert(is_equal_approx(world._smoothstep01(inverse_lerp(56.0, 64.0, 60.0)), 0.5), "Forest-to-desert transition blends terrain at its midpoint")
+	assert(is_equal_approx(world._smoothstep01(inverse_lerp(116.0, 124.0, 120.0)), 0.5), "Desert-to-snow transition blends terrain at its midpoint")
 	var mushroom_y := mini(world.get_surface_y(25) + 29, WorldGenerator.WORLD_HEIGHT - 7)
 	assert(world.get_tile(Vector2i(20, mushroom_y + 2)) == WorldGenerator.GLOW_MUSHROOM, "World generates a glowing mushroom cavern")
 	assert(world.get_tile(Vector2i(25, mushroom_y + 3)) == WorldGenerator.MUSHROOM_SOIL, "Mushroom cavern has fungal ground")
