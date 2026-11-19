@@ -775,6 +775,8 @@ func _run() -> void:
 	void_sigil_inventory.add_item("glow_mushroom", 12)
 	assert(void_sigil_inventory.craft("void_staff"), "Void Staff crafts from endgame Void materials")
 	assert(void_sigil_inventory.count("void_staff") == 1, "Void Staff is added to inventory")
+	assert(void_sigil_inventory.upgrade_void_staff(), "Void Staff upgrades with Void Shards at an anvil")
+	assert(void_sigil_inventory.get_weapon_upgrade_level("void_staff") == 1, "Void Staff upgrade level increments")
 	assert(void_sigil_inventory.upgrade_equipped_armor(), "Void Armor upgrades using Void Shards")
 	assert(void_sigil_inventory.get_armor_defense() == 39, "Void Armor upgrade adds one defense")
 	var void_armor_save := void_sigil_inventory.serialize()
@@ -783,6 +785,7 @@ func _run() -> void:
 	await process_frame
 	assert(void_armor_restored.restore(void_armor_save), "Void Armor equipment restores from save")
 	assert(void_armor_restored.equipped_armor == "void_armor" and void_armor_restored.get_armor_defense() == 39, "Void Armor and its upgraded defense persist")
+	assert(void_armor_restored.get_weapon_upgrade_level("void_staff") == 1, "Void Staff upgrade level persists")
 	void_armor_restored.queue_free()
 	void_sigil_inventory.queue_free()
 
