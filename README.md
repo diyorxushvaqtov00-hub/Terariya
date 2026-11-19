@@ -58,7 +58,7 @@ Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
 3. Implement true chunk streaming and expand underground structure variety; branching caves, mine shafts and three dungeon layouts are now generated, while terrain rendering culls tiles outside the camera view.
-4. Replace remaining projectile placeholder visuals and add hit/reaction animation polish; the player, common enemies and all six major bosses now use original pixel-art sprite sheets.
+4. Add hit/reaction animation polish; the player, common enemies, all six major bosses and ranged projectiles now use original pixel-art sprite sheets.
 5. Balance crafting recipes and add more station-specific equipment; the anvil, alchemy table and tinkering bench are implemented.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
