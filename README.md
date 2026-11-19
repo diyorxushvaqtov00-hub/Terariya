@@ -45,11 +45,11 @@ Implemented in source:
 - Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
-- Craftable wooden, silver and gold armor can be equipped, persists in save data, and reduces incoming damage by 6, 12 and 20 points per hit respectively.
+- Craftable wooden, silver and gold body armor, helmets and boots can be equipped in separate equipment slots; all equipped defense values and equipment selections persist in save data.
 - Silver and gold ore deposits generate deeper underground; silver/gold swords and armor can be crafted from their ores. Weapon priority is Obsidian Sword, Queen’s Fang, Mushroom Blade, gold, silver, copper, then stone. Armor priority is obsidian, fungal, gold, silver, then wooden.
 - An anvil is crafted from stone, ore and planks; silver/gold gear recipes require an anvil.
 - Anvil upgrades improve the best owned weapon by +3 damage per level and equipped armor by +1 defense per level, up to level 10. Upgrade levels persist in inventory saves and require matching tier materials.
-- Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops.
+- Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops. Pickaxes can be upgraded at an anvil up to level 10, increasing held-to-mine speed by 15% per level.
 - JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close.
 - Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, renewable water-source persistence, water detection, bucket crafting/collection/pouring, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
@@ -58,7 +58,7 @@ Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
 
 - Verify touch controls, terrain collision and combat on a physical Android device.
-- Add a dedicated multi-slot equipment screen and mining-speed progression for tools.
+
 - Improve biome transitions and chunk streaming, and expand cave variety and underground structures.
 - Replace placeholder polygon visuals with original pixel-art assets and animations.
 - Add more dungeon room variants, boss attack patterns, crafting stations and export/install a debug APK.
