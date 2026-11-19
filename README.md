@@ -147,3 +147,10 @@ The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20
 - It provides 38 defense, currently the strongest armor set, and upgrades up to level 10 using Void Shards.
 - Its Void Ward passive reduces incoming damage by a further 15% before flat defense is applied.
 - The best-armor button prioritizes Void Armor; its equipped state and upgrade level persist in saves.
+
+## Void Staff and ranged magic
+
+- Craft the Void Staff at an anvil using 6 Void Shards, 2 Dungeon Relics and 12 Glow Mushrooms.
+- With the staff in your inventory, press **G** on desktop or **VOID** on Android to fire a fast Void Bolt.
+- Each bolt deals 92 damage, costs 20 mana and has a 0.62-second cast cooldown. Mana regenerates at 8 points per second and is saved with the player.
+- The projectile travels horizontally in the direction the player is facing and damages enemies on contact.
