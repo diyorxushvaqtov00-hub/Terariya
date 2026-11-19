@@ -810,6 +810,7 @@ func _run() -> void:
 	assert(dummy_packed != null, "Training dummy scene must load")
 	var dummy := dummy_packed.instantiate() as TrainingDummy
 	assert(dummy != null, "Training dummy must instantiate")
+	assert(dummy.get_node("Visual/PixelSprite") is Sprite2D, "Training dummy uses a pixel-art target sprite")
 	root.add_child(dummy)
 	await process_frame
 	player._on_attack_area_body_entered(dummy)
