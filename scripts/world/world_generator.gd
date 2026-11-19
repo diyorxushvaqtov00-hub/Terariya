@@ -239,6 +239,24 @@ func set_water_source(cell: Vector2i, enabled: bool = true) -> bool:
 func is_water_source(cell: Vector2i) -> bool:
 	return _water_sources.has(cell)
 
+func install_water_pump(cell: Vector2i, inventory: PlayerInventory) -> bool:
+	if inventory == null or not _inside_world(cell) or get_tile(cell) != WATER or _water_sources.has(cell):
+		return false
+	if not inventory.remove_item("water_pump", 1):
+		return false
+	_water_sources[cell] = true
+	return true
+
+func drain_water(cell: Vector2i, inventory: PlayerInventory) -> bool:
+	if inventory == null or not _inside_world(cell) or get_tile(cell) != WATER:
+		return false
+	if not inventory.remove_item("drain_charge", 1):
+		return false
+	_water_sources.erase(cell)
+	tiles[cell.x][cell.y] = AIR
+	queue_redraw()
+	return true
+
 func fill_bucket(cell: Vector2i, inventory: PlayerInventory) -> bool:
 	if not _inside_world(cell) or get_tile(cell) != WATER or inventory == null:
 		return false
@@ -394,7 +412,7 @@ func load_save_data(data: Dictionary) -> bool:
 func place_torch(cell: Vector2i, inventory: PlayerInventory) -> bool:
 	if not _inside_world(cell) or get_tile(cell) != AIR or inventory == null:
 		return false
-	if _torch_cells.has(cell) or not inventory.remove_item("torch", 1):
+	if _torch_cells.has(cell) or _lantern_cells.has(cell) or not inventory.remove_item("torch", 1):
 		return false
 	_torch_cells.append(cell)
 	_create_torch_light(cell)
