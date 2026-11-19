@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/dungeon_skeleton.gd" id="1_enemy"]
+[ext_resource type="Texture2D" path="res://assets/sprites/undead_sheet.svg" id="2_undead_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="SkeletonShape"]
 radius = 13.0
 height = 28.0
+
+[sub_resource type="AtlasTexture" id="DungeonSkeletonFrameA"]
+atlas = ExtResource("2_undead_sheet")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="DungeonSkeletonFrameB"]
+atlas = ExtResource("2_undead_sheet")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="DungeonSkeletonFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("DungeonSkeletonFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("DungeonSkeletonFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.5
+}]
 
 [node name="DungeonSkeleton" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("SkeletonShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -15)
 color = Color(0.78, 0.78, 0.70, 1)
-polygon = PackedVector2Array(-12, 12, -12, -8, -7, -14, 7, -14, 12, -8, 12, 12, 7, 14, -7, 14)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("DungeonSkeletonFrames")
+animation = &"idle"
+autoplay = "idle"
