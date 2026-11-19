@@ -1,10 +1,33 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/zombie_enemy.gd" id="1_zombie"]
+[ext_resource type="Texture2D" path="res://assets/sprites/undead_sheet.svg" id="2_undead_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="ZombieShape"]
 radius = 14.0
 height = 28.0
+
+[sub_resource type="AtlasTexture" id="ZombieFrameA"]
+atlas = ExtResource("2_undead_sheet")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="ZombieFrameB"]
+atlas = ExtResource("2_undead_sheet")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="ZombieSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("ZombieFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("ZombieFrameB")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}]
 
 [node name="ZombieEnemy" type="CharacterBody2D"]
 collision_layer = 4
@@ -18,4 +41,9 @@ shape = SubResource("ZombieShape")
 [node name="Visual" type="Polygon2D" parent="."]
 position = Vector2(0, -14)
 color = Color(0.30, 0.58, 0.28, 1)
-polygon = PackedVector2Array(-15, 8, -14, -5, -10, -13, -5, -15, 5, -15, 10, -13, 14, -5, 15, 8)
+polygon = PackedVector2Array()
+
+[node name="PixelSprite" type="AnimatedSprite2D" parent="Visual"]
+sprite_frames = SubResource("ZombieSpriteFrames")
+animation = &"idle"
+autoplay = "idle"
