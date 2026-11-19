@@ -10,7 +10,7 @@ Implemented in source:
 - Seeded 180 × 60 tile world with noise-based surface variation.
 - Forest, desert and snow biomes with distinct surface materials and smooth material/height blending across biome borders; grass, dirt, sand, snow, stone, ore, wood and leaf tile types.
 - Seeded procedural trees with harvestable trunks; leaf canopies are non-colliding.
-- Deterministic underground cave pockets and narrow branching passages carved from two seeded noise layers, with ore deposits retained in the underground layers.
+- Deterministic underground cave pockets and narrow branching passages carved from two seeded noise layers, with ore deposits retained in the underground layers. Two abandoned mine shafts with timber supports connect underground passages.
 - A glowing mushroom cavern in the western underground with harvestable glow mushrooms and fungal soil.
 - A deep desert magma chamber with lava pools and solid magma-rock borders; lava is non-solid, cannot be mined as a block, and burns the player for 12 damage every 0.8 seconds while touched.
 - A summonable Magma Golem boss with 2,200 HP, two phases and a telegraphed area-of-effect magma slam; victory grants magma cores, gold ore, healing potions and 1,400 XP.
@@ -57,7 +57,7 @@ Implemented in source:
 Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
-3. Implement true chunk streaming and add more underground structure types; terrain rendering already culls tiles outside the camera view.
+3. Implement true chunk streaming and expand underground structure variety; branching caves, mine shafts and three dungeon layouts are now generated, while terrain rendering culls tiles outside the camera view.
 4. Replace the remaining enemy and boss placeholder polygon visuals with original pixel-art assets and animations; the player and Night Bat already have animated sprite sheets.
 5. Balance crafting recipes and add more station-specific equipment; the anvil, alchemy table and tinkering bench are implemented.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
