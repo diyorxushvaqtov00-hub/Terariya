@@ -48,6 +48,8 @@ var _boss_health_bar: ProgressBar
 var _boss_status_label: Label
 var _xp_bar: ProgressBar
 var _xp_label: Label
+var _mana_bar: ProgressBar
+var _mana_label: Label
 var _active_boss: AncientEyeBoss
 var _active_spider_queen: SpiderQueenBoss
 var _active_magma_golem: MagmaGolemBoss
@@ -69,6 +71,7 @@ func _ready() -> void:
 	slime.global_position = world.get_spawn_position(20)
 	player.health_changed.connect(_on_player_health_changed)
 	player.oxygen_changed.connect(_on_player_oxygen_changed)
+	player.mana_changed.connect(_on_player_mana_changed)
 	player.underwater_changed.connect(_on_underwater_changed)
 	player.progression_changed.connect(_on_progression_changed)
 	_connect_enemy_rewards(slime, 25)
@@ -94,6 +97,8 @@ func _ready() -> void:
 	_build_inventory_ui()
 	_build_boss_ui()
 	_build_progression_ui()
+	_build_mana_ui()
+	_on_player_mana_changed(player.mana, player.max_mana)
 	_on_progression_changed(player.level, player.experience, player.experience_to_next_level)
 
 func _process(delta: float) -> void:
@@ -118,6 +123,7 @@ func save_game() -> bool:
 			"y": player.global_position.y,
 			"health": player.health,
 			"oxygen_seconds": player.oxygen_seconds,
+			"mana": player.mana,
 			"double_jump_unlocked": player.double_jump_unlocked,
 			"level": player.level,
 			"experience": player.experience
@@ -167,6 +173,8 @@ func _load_game() -> bool:
 		player.set_spawn_position(player.global_position)
 		player.health = clampi(int(player_data.get("health", player.max_health)), 1, player.max_health)
 		player.oxygen_seconds = clampf(float(player_data.get("oxygen_seconds", player.max_oxygen_seconds)), 0.0, player.max_oxygen_seconds)
+		player.mana = clampf(float(player_data.get("mana", player.max_mana)), 0.0, player.max_mana)
+		player.mana_changed.emit(player.mana, player.max_mana)
 		player.oxygen_changed.emit(player.oxygen_seconds, player.max_oxygen_seconds)
 		player.double_jump_unlocked = bool(player_data.get("double_jump_unlocked", false))
 		player.restore_progress(int(player_data.get("level", 1)), int(player_data.get("experience", 0)))
@@ -588,6 +596,28 @@ func _on_quest_completed(quest_id: String) -> void:
 			player.inventory.add_item("gold_ore", 2)
 	_on_inventory_changed(player.inventory.items)
 
+func _build_mana_ui() -> void:
+	var hud := $HUD as CanvasLayer
+	_mana_label = Label.new()
+	_mana_label.name = "ManaLabel"
+	_mana_label.position = Vector2(24, 112)
+	_mana_label.size = Vector2(110, 22)
+	_mana_label.text = "MANA 100"
+	hud.add_child(_mana_label)
+	_mana_bar = ProgressBar.new()
+	_mana_bar.name = "ManaBar"
+	_mana_bar.position = Vector2(135, 116)
+	_mana_bar.size = Vector2(180, 14)
+	_mana_bar.show_percentage = false
+	hud.add_child(_mana_bar)
+
+func _on_player_mana_changed(current: float, maximum: float) -> void:
+	if is_instance_valid(_mana_bar):
+		_mana_bar.max_value = maximum
+		_mana_bar.value = current
+	if is_instance_valid(_mana_label):
+		_mana_label.text = "MANA %.0f" % current
+
 func _on_player_health_changed(current: int, maximum: int) -> void:
 	health_label.text = "HP  %d / %d" % [current, maximum]
 
@@ -717,6 +747,7 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "void_guardian_sigil", "1 RELIC + 12 GOLD + 6 CORES + 6 FANGS  →  VOID SIGIL")
 	_add_recipe_button(layout, "void_armor", "8 VOID SHARDS + 3 RELICS + 20 GOLD  →  VOID ARMOR")
 	_add_recipe_button(layout, "voidbreaker", "2 RELICS + 16 GOLD + 8 CORES + 12 FANGS  →  VOIDBREAKER")
+	_add_recipe_button(layout, "void_staff", "6 VOID SHARDS + 2 RELICS + 12 MUSHROOMS  →  VOID STAFF")
 
 	var guide_title := Label.new()
 	guide_title.text = "THE ELDER'S ADVICE"
