@@ -638,6 +638,33 @@ func _run() -> void:
 	metal_inventory.queue_free()
 	restored_metal_inventory.queue_free()
 
+	var equipment_inventory := PlayerInventory.new()
+	root.add_child(equipment_inventory)
+	await process_frame
+	equipment_inventory.add_item("wooden_planks", 40)
+	equipment_inventory.add_item("silver_ore", 30)
+	equipment_inventory.add_item("gold_ore", 25)
+	equipment_inventory.add_item("stone", 50)
+	equipment_inventory.add_item("ore", 30)
+	assert(equipment_inventory.craft("wooden_helmet") and equipment_inventory.craft("wooden_boots"), "Wooden helmet and boots can be crafted")
+	assert(equipment_inventory.craft("anvil"), "Equipment progression can craft an anvil")
+	assert(equipment_inventory.craft("silver_helmet") and equipment_inventory.craft("gold_boots"), "Metal helmet and boots recipes craft")
+	assert(equipment_inventory.equip_helmet("silver_helmet") and equipment_inventory.equip_boots("gold_boots"), "Helmet and boots occupy separate equipment slots")
+	assert(equipment_inventory.get_armor_defense() == 8, "Helmet and boots add defense to equipped armor")
+	equipment_inventory.add_item("wooden_pickaxe", 1)
+	equipment_inventory.add_item("stone", 30)
+	assert(equipment_inventory.upgrade_pickaxe(), "Pickaxe upgrades at an anvil")
+	assert(equipment_inventory.get_mining_speed_multiplier() > 1.0, "Pickaxe upgrade increases mining speed")
+	var equipment_save := equipment_inventory.serialize()
+	var equipment_restored := PlayerInventory.new()
+	root.add_child(equipment_restored)
+	await process_frame
+	assert(equipment_restored.restore(equipment_save), "Helmet, boots and pickaxe progression restore from save")
+	assert(equipment_restored.equipped_helmet == "silver_helmet" and equipment_restored.equipped_boots == "gold_boots", "Equipment slots persist")
+	assert(equipment_restored.get_mining_speed_multiplier() > 1.0, "Pickaxe mining speed progression persists")
+	equipment_inventory.queue_free()
+	equipment_restored.queue_free()
+
 	var forge_inventory := PlayerInventory.new()
 	root.add_child(forge_inventory)
 	await process_frame
