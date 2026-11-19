@@ -31,6 +31,7 @@ var tiles: Array = []
 var surface_heights: PackedInt32Array = PackedInt32Array()
 var _noise := FastNoiseLite.new()
 var _cave_noise := FastNoiseLite.new()
+var _cave_detail_noise := FastNoiseLite.new()
 var _collision_root: StaticBody2D
 var selected_block_type: int = DIRT
 var water_flow_interval: float = 0.28
@@ -61,6 +62,9 @@ func generate_world() -> void:
 	_cave_noise.seed = world_seed + 104729
 	_cave_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	_cave_noise.frequency = 0.075
+	_cave_detail_noise.seed = world_seed + 209759
+	_cave_detail_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	_cave_detail_noise.frequency = 0.16
 	tiles.clear()
 	_water_sources.clear()
 	surface_heights.resize(WORLD_WIDTH)
@@ -99,9 +103,20 @@ func generate_world() -> void:
 	_rebuild_collision()
 	queue_redraw()
 
+func _get_visible_tile_bounds() -> Rect2i:
+	var inverse_transform := get_global_transform_with_canvas().affine_inverse()
+	var top_left := inverse_transform * Vector2.ZERO
+	var bottom_right := inverse_transform * get_viewport_rect().size
+	var min_x := clampi(floori(minf(top_left.x, bottom_right.x) / TILE_SIZE) - 1, 0, WORLD_WIDTH)
+	var min_y := clampi(floori(minf(top_left.y, bottom_right.y) / TILE_SIZE) - 1, 0, WORLD_HEIGHT)
+	var max_x := clampi(ceili(maxf(top_left.x, bottom_right.x) / TILE_SIZE) + 1, 0, WORLD_WIDTH)
+	var max_y := clampi(ceili(maxf(top_left.y, bottom_right.y) / TILE_SIZE) + 1, 0, WORLD_HEIGHT)
+	return Rect2i(Vector2i(min_x, min_y), Vector2i(maxi(max_x - min_x, 0), maxi(max_y - min_y, 0)))
+
 func _draw() -> void:
-	for x in range(WORLD_WIDTH):
-		for y in range(WORLD_HEIGHT):
+	var visible_bounds := _get_visible_tile_bounds()
+	for x in range(visible_bounds.position.x, visible_bounds.end.x):
+		for y in range(visible_bounds.position.y, visible_bounds.end.y):
 			var tile: int = tiles[x][y]
 			if tile == AIR:
 				continue
@@ -788,7 +803,8 @@ func _generate_caves() -> void:
 			var tile: int = tiles[x][y]
 			if tile == STONE or tile == ORE:
 				var cave_value := _cave_noise.get_noise_2d(float(x), float(y))
-				if cave_value > 0.32:
+				var detail_value := _cave_detail_noise.get_noise_2d(float(x), float(y))
+				if cave_value > 0.32 or (cave_value > 0.08 and detail_value > 0.48):
 					tiles[x][y] = AIR
 
 
