@@ -14,6 +14,7 @@ func _run() -> void:
 	var mobile_centers: Dictionary = mobile_controls.call("_button_centers")
 	assert(mobile_centers.has("inventory"), "Mobile controls expose a dedicated inventory button")
 	assert(mobile_centers.has("magic"), "Mobile controls expose a dedicated Void magic button")
+	assert(mobile_centers.magic.distance_to(mobile_centers.attack) > 90.0, "Void button stays clear of the melee attack button")
 	mobile_controls.call("_handle_touch", 78, mobile_centers.magic, true)
 	assert(Input.is_action_pressed("magic"), "Touching Void button presses magic action")
 	mobile_controls.call("_handle_touch", 78, mobile_centers.magic, false)
@@ -728,6 +729,14 @@ func _run() -> void:
 	assert(warden_inventory.craft("dungeon_warden_sigil"), "Dungeon Warden sigil crafts from the final vault relic")
 	assert(warden_inventory.count("dungeon_warden_sigil") == 1, "Warden sigil crafting produces one summon item")
 	warden_inventory.queue_free()
+
+	var void_bolt_scene: PackedScene = load("res://scenes/projectiles/void_bolt.tscn") as PackedScene
+	assert(void_bolt_scene != null, "Void Bolt projectile scene loads")
+	var void_bolt := void_bolt_scene.instantiate() as VoidBoltProjectile
+	assert(void_bolt != null, "Void Bolt projectile instantiates")
+	void_bolt.setup(Vector2.LEFT, 120)
+	assert(void_bolt.direction == Vector2.LEFT and void_bolt.impact_damage == 120, "Void Bolt accepts facing and configured damage")
+	void_bolt.queue_free()
 
 	var void_guardian_scene: PackedScene = load("res://scenes/enemies/void_guardian_boss.tscn") as PackedScene
 	assert(void_guardian_scene != null, "Void Guardian boss scene must load")
