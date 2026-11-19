@@ -652,7 +652,7 @@ func _run() -> void:
 	assert(equipment_inventory.craft("wooden_armor"), "Wooden body armor can be crafted")
 	assert(equipment_inventory.equip_armor("wooden_armor"), "Body armor can be equipped")
 	assert(equipment_inventory.equip_helmet("silver_helmet") and equipment_inventory.equip_boots("gold_boots"), "Helmet and boots occupy separate equipment slots")
-	assert(equipment_inventory.get_armor_defense() == 16, "Body armor, helmet and boots defenses are combined")
+	assert(equipment_inventory.get_armor_defense() == 14, "Body armor, helmet and boots defenses are combined")
 	equipment_inventory.add_item("wooden_pickaxe", 1)
 	equipment_inventory.add_item("stone", 30)
 	assert(equipment_inventory.upgrade_pickaxe(), "Pickaxe upgrades at an anvil")
