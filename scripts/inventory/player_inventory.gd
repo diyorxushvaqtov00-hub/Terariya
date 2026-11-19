@@ -9,6 +9,8 @@ var equipped_armor: String = ""
 var weapon_upgrade_levels: Dictionary = {}
 var armor_upgrade_levels: Dictionary = {}
 
+const MAX_INVENTORY_SLOTS: int = 40
+
 const RECIPES: Dictionary = {
 	"wooden_planks": {
 		"ingredients": {"wood": 2},
@@ -88,8 +90,18 @@ func _ready() -> void:
 func count(item_id: String) -> int:
 	return int(items.get(item_id, 0))
 
+func get_used_slots() -> int:
+	var used := 0
+	for item_id in items:
+		if int(items[item_id]) > 0:
+			used += 1
+	return used
+
+func has_inventory_space(item_id: String) -> bool:
+	return count(item_id) > 0 or get_used_slots() < MAX_INVENTORY_SLOTS
+
 func add_item(item_id: String, amount: int = 1) -> void:
-	if item_id.is_empty() or amount <= 0:
+	if item_id.is_empty() or amount <= 0 or not has_inventory_space(item_id):
 		return
 	items[item_id] = count(item_id) + amount
 	changed.emit(items.duplicate())
@@ -102,7 +114,7 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	return true
 
 func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
-	if item_id.is_empty() or amount <= 0 or price_per_item <= 0:
+	if item_id.is_empty() or amount <= 0 or price_per_item <= 0 or not has_inventory_space(item_id):
 		return false
 	var total_price := amount * price_per_item
 	if total_price > 999999 or count("coins") < total_price:
@@ -132,6 +144,9 @@ func can_craft(recipe_id: String) -> bool:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
+		return false
+	var output_id := str(recipe.get("output", ""))
+	if not has_inventory_space(output_id):
 		return false
 	var ingredients: Dictionary = recipe.get("ingredients", {})
 	for item_id in ingredients:
@@ -315,6 +330,12 @@ func restore(snapshot: Dictionary) -> bool:
 			return false
 		if not str(item_id).is_empty():
 			restored[str(item_id)] = amount
+	var occupied_slots := 0
+	for restored_item_id in restored:
+		if int(restored[restored_item_id]) > 0:
+			occupied_slots += 1
+	if occupied_slots > MAX_INVENTORY_SLOTS:
+		return false
 	var restored_durability: Dictionary = {}
 	var durability_source: Variant = snapshot.get("tool_durability", {})
 	if not durability_source is Dictionary:
