@@ -744,6 +744,8 @@ func _build_inventory_ui() -> void:
 	_add_recipe_button(layout, "silver_armor", "28 SILVER + 8 PLANKS  →  SILVER ARMOR")
 	_add_recipe_button(layout, "gold_armor", "24 GOLD + 10 PLANKS  →  GOLD ARMOR")
 	_add_recipe_button(layout, "anvil", "20 STONE + 10 ORE + 8 PLANKS  →  ANVIL")
+	_add_recipe_button(layout, "alchemy_table", "12 PLANKS + 8 SOIL + 6 SILVER  →  ALCHEMY TABLE")
+	_add_recipe_button(layout, "healing_potion", "3 GLOW MUSHROOM + 2 SOIL  →  HEALING POTION")
 	_add_recipe_button(layout, "spider_summon", "6 FANGS + 20 SILVER + 8 GOLD  →  QUEEN SIGIL")
 	_add_recipe_button(layout, "magma_heart", "8 CORES + 30 GOLD + 20 MAGMA ROCK  →  MAGMA HEART")
 	_add_recipe_button(layout, "obsidian_sword", "12 CORES + 18 GOLD + 8 PLANKS  →  OBSIDIAN SWORD")
