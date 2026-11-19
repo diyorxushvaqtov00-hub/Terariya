@@ -48,6 +48,8 @@ const RECIPES: Dictionary = {
 		"amount": 4
 	},
 	"lantern": {"ingredients": {"wooden_planks": 6, "ore": 3}, "output": "lantern", "amount": 1},
+	"water_pump": {"ingredients": {"wooden_planks": 12, "ore": 8}, "output": "water_pump", "amount": 1},
+	"drain_charge": {"ingredients": {"stone": 6, "ore": 3}, "output": "drain_charge", "amount": 3},
 	"wooden_armor": {
 		"ingredients": {"wooden_planks": 12},
 		"output": "wooden_armor",
