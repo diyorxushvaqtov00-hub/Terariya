@@ -191,15 +191,19 @@ func _start_attack() -> void:
 	_can_attack = true
 
 func _cast_void_bolt() -> void:
-	if not _can_cast_magic or health <= 0 or inventory.count("void_staff") <= 0 or mana < void_bolt_cost:
+	if not _can_cast_magic or health <= 0 or inventory.count("void_staff") <= 0:
+		return
+	var staff_level := inventory.get_weapon_upgrade_level("void_staff")
+	var cast_cost := maxf(void_bolt_cost - float(staff_level), 10.0)
+	if mana < cast_cost:
 		return
 	var projectile := VOID_BOLT_SCENE.instantiate() as VoidBoltProjectile
 	if projectile == null:
 		return
 	_can_cast_magic = false
-	mana = maxf(mana - void_bolt_cost, 0.0)
+	mana = maxf(mana - cast_cost, 0.0)
 	mana_changed.emit(mana, max_mana)
-	projectile.setup(Vector2(float(_facing), 0.0), void_bolt_damage)
+	projectile.setup(Vector2(float(_facing), 0.0), void_bolt_damage + staff_level * 8)
 	get_tree().current_scene.add_child(projectile)
 	projectile.global_position = global_position + Vector2(28.0 * _facing, -22.0)
 	await get_tree().create_timer(void_bolt_cooldown).timeout
