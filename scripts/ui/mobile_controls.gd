@@ -152,16 +152,17 @@ func _release_action(action: String) -> void:
 		Input.action_release(action)
 
 func _button_centers() -> Dictionary:
+	var r := _effective_button_radius()
 	return {
 		"joystick": Vector2(edge_margin + joystick_radius, size.y - edge_margin - joystick_radius),
-		"jump": Vector2(size.x - edge_margin - button_radius, size.y - edge_margin - button_radius),
-		"attack": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - r * 1.2),
-		"run": Vector2(size.x - edge_margin - button_radius * 2.5, size.y - edge_margin - button_radius * 0.15),
-		"mine": Vector2(size.x - edge_margin - button_radius * 3.8, edge_margin + button_radius),
-		"place": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius),
-		"cycle": Vector2(size.x - edge_margin - button_radius * 2.4, edge_margin + button_radius),
-		"inventory": Vector2(size.x - edge_margin - button_radius, edge_margin + button_radius * 3.15),
-		"magic": Vector2(size.x - edge_margin - button_radius * 4.9, size.y - edge_margin - r * 1.2)
+		"jump": Vector2(size.x - edge_margin - r * 2.2, size.y - edge_margin - r),
+		"attack": Vector2(size.x - edge_margin - r * 4.8, size.y - edge_margin - r * 2.3),
+		"run": Vector2(size.x - edge_margin - r * 7.4, size.y - edge_margin - r),
+		"mine": Vector2(size.x - edge_margin - r * 6.6, edge_margin + r * 1.4),
+		"place": Vector2(size.x - edge_margin - r * 2.2, edge_margin + r * 1.4),
+		"cycle": Vector2(size.x - edge_margin - r * 4.4, edge_margin + r * 1.4),
+		"inventory": Vector2(size.x - edge_margin - r * 2.2, edge_margin + r * 4.0),
+		"magic": Vector2(size.x - edge_margin - r * 7.4, size.y - edge_margin - r * 3.5)
 	}
 
 func _exit_tree() -> void:
