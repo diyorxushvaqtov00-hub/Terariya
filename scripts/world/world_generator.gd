@@ -109,6 +109,7 @@ func generate_world() -> void:
 		tiles.append(column)
 	_generate_caves()
 	_generate_dungeons()
+	_generate_mine_shafts()
 	_generate_underground_biomes()
 	_generate_lakes()
 	_generate_trees()
@@ -568,6 +569,24 @@ func _restore_water_sources(raw_sources: Variant) -> Dictionary:
 			if _inside_world(cell) and get_tile(cell) == WATER:
 				result[cell] = true
 	return result
+
+func _generate_mine_shafts() -> void:
+	# Two abandoned shafts connect separate underground layers with timber supports.
+	for center_x in [72, 132]:
+		var shaft_y := mini(get_surface_y(center_x) + 13, WORLD_HEIGHT - 8)
+		for x in range(center_x - 10, center_x + 11):
+			for y in range(shaft_y - 2, shaft_y + 2):
+				if _inside_world(Vector2i(x, y)):
+					tiles[x][y] = AIR
+		for shaft_x in [center_x - 8, center_x, center_x + 8]:
+			for y in range(shaft_y - 3, shaft_y + 2):
+				if _inside_world(Vector2i(shaft_x, y)):
+					tiles[shaft_x][y] = WOOD
+		for branch_y in range(shaft_y - 6, shaft_y - 2):
+			for side in [-1, 1]:
+				var branch_cell := Vector2i(center_x + side * 8, branch_y)
+				if _inside_world(branch_cell):
+					tiles[branch_cell.x][branch_cell.y] = AIR
 
 func _generate_dungeons() -> void:
 	_dungeon_chests.clear()
