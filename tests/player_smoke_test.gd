@@ -81,7 +81,9 @@ func _run() -> void:
 	root.add_child(cave_spider)
 	await process_frame
 	assert(dungeon_skeleton.max_health == 150 and dungeon_skeleton.attack_damage == 20, "Dungeon skeleton has elite guard stats")
+	assert(dungeon_skeleton.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Dungeon skeleton uses animated pixel-art")
 	assert(cave_spider.max_health == 85 and cave_spider.move_speed == 112.0, "Cave spider has fast ambush stats")
+	assert(cave_spider.get_node("Visual/PixelSprite") is AnimatedSprite2D, "Cave spider uses animated pixel-art")
 	dungeon_skeleton.queue_free()
 	cave_spider.queue_free()
 
