@@ -19,7 +19,8 @@ Implemented in source:
 - Mushroom Blade and Fungal Armor are crafted with an anvil from glowing mushrooms and underground materials; the blade adds 75 base melee damage and armor grants 22 defense, with upgrades saved up to level 10.
 - Seeded shallow lakes with translucent water tiles that do not block movement or count as mineable terrain.
 - Persistent day/night cycle with smooth world lighting, warm sunrise/sunset transitions, an on-screen clock and save/load support for the current world time.
-- Slimes become faster and deal more damage at night; additional hostile slimes, durable zombies and ranged skeleton archers spawn at a distance during night and disappear at dawn, with a capped population.
+- Slimes become faster and deal more damage at night; hostile slimes, durable zombies, ranged skeleton archers and flying night bats spawn at a distance during night and disappear at dawn, with a capped population.
+- Day length is configurable in the Godot Inspector on the main game node (120–1,800 seconds); the selected duration is used consistently by the clock and day/night cycle.
 - Ancient Eye boss can be summoned using a crafted Eye Sigil, has 900 health, two combat phases, a timed charge attack, a boss health bar and a victory reward.
 - Three deterministic underground dungeon chambers generate across the forest, desert and snow biomes, each with a treasure chest. Chests can be opened nearby, grant ore, torches and healing potions, and remember their opened state in world saves.
 - Each dungeon is guarded by a heavy skeleton warrior and a fast cave spider. Skeleton guards reward XP and silver ore; cave spiders reward XP and spider fangs.
@@ -55,7 +56,7 @@ Implemented in source:
 
 Still required:
 - Run Godot headless import and smoke tests; resolve any engine/parser errors.
-- Add more night-only enemy species, more light-source types, and configurable day-length settings.
+- Add more light-source types and additional day/night tuning options.
 - Verify touch controls, terrain collision and combat on a physical Android device.
 - Add item tooltips, multiple armor tiers and equipment slots, inventory capacity, and mining-speed progression for tools.
 - Add pumps, drains, controllable source placement/removal tools and richer fluid interactions; improve biome transitions and chunk streaming, and expand cave variety and underground structures.
