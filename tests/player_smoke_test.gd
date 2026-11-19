@@ -553,6 +553,8 @@ func _run() -> void:
 	assert(bat_packed != null, "Night bat scene must load")
 	var bat := bat_packed.instantiate() as NightBat
 	assert(bat != null, "Night bat must instantiate")
+	assert(bat.get_node("PixelSprite") is AnimatedSprite2D, "Night bat uses a pixel-art sprite")
+	assert((bat.get_node("PixelSprite") as AnimatedSprite2D).sprite_frames.has_animation("fly"), "Night bat has a wing-flap animation")
 	root.add_child(bat)
 	await process_frame
 	assert(bat.max_health == 48 and bat.attack_damage == 11, "Night bat uses its distinct night-enemy stats")
