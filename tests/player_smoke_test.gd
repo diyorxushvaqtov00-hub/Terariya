@@ -512,6 +512,17 @@ func _run() -> void:
 	assert(player.health == player.max_health - slime.attack_damage, "Slime attacks the player inside contact range")
 	player.heal(slime.attack_damage)
 
+	var bat_packed := load("res://scenes/enemies/night_bat.tscn") as PackedScene
+	assert(bat_packed != null, "Night bat scene must load")
+	var bat := bat_packed.instantiate() as NightBat
+	assert(bat != null, "Night bat must instantiate")
+	root.add_child(bat)
+	await process_frame
+	assert(bat.max_health == 48 and bat.attack_damage == 11, "Night bat uses its distinct night-enemy stats")
+	bat.set_night_mode(true)
+	assert(bat.move_speed > 108.0, "Night bat receives night-mode speed boost")
+	bat.queue_free()
+
 	var zombie_packed := load("res://scenes/enemies/zombie_enemy.tscn") as PackedScene
 	assert(zombie_packed != null, "Zombie enemy scene must load")
 	var zombie := zombie_packed.instantiate() as ZombieEnemy
