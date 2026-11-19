@@ -69,6 +69,9 @@ func _run() -> void:
 	assert(world.get_tile(Vector2i(37, pillar_room_y - 1)) == WorldGenerator.STONE, "Pillar Hall has its own column layout")
 	assert(world.get_tile(Vector2i(96, gallery_room_y - 1)) == WorldGenerator.STONE, "High Gallery has raised side platforms")
 	assert(world.get_tile(Vector2i(158, flooded_room_y + 3)) == WorldGenerator.WATER, "Flooded Vault has a shallow water trench")
+	var mine_shaft_y := mini(world.get_surface_y(72) + 13, WorldGenerator.WORLD_HEIGHT - 8)
+	assert(world.get_tile(Vector2i(72, mine_shaft_y - 1)) == WorldGenerator.WOOD, "Abandoned mine shaft has timber supports")
+	assert(world.get_tile(Vector2i(73, mine_shaft_y - 1)) == WorldGenerator.AIR, "Abandoned mine shaft has a traversable tunnel")
 	var dungeon_positions := world.get_dungeon_guard_positions()
 	assert(dungeon_positions.size() == 6, "Three dungeons provide six guard spawn positions")
 	var skeleton_scene := load("res://scenes/enemies/dungeon_skeleton.tscn") as PackedScene
