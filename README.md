@@ -85,6 +85,7 @@ Desktop:
 - I: open or close inventory and crafting
 
 Android:
+- Landscape layout with responsive touch-button sizing for compact phone screens.
 - Left virtual joystick: move
 - VOID: cast a Void Bolt (requires a crafted Void Staff and mana)
 - JUMP / RUN / HIT: movement and combat
