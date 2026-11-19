@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/inventory/player_inventory.gd" id="2_inventory"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player_sheet.svg" id="3_player_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape_player"]
 radius = 10.0
@@ -9,6 +10,47 @@ height = 38.0
 
 [sub_resource type="RectangleShape2D" id="AttackShape"]
 size = Vector2(30, 28)
+
+[sub_resource type="AtlasTexture" id="PlayerIdleFrame"]
+atlas = ExtResource("3_player_sheet")
+region = Rect2(0, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="PlayerWalkFrameA"]
+atlas = ExtResource("3_player_sheet")
+region = Rect2(32, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="PlayerWalkFrameB"]
+atlas = ExtResource("3_player_sheet")
+region = Rect2(64, 0, 32, 40)
+
+[sub_resource type="AtlasTexture" id="PlayerWalkFrameC"]
+atlas = ExtResource("3_player_sheet")
+region = Rect2(96, 0, 32, 40)
+
+[sub_resource type="SpriteFrames" id="PlayerSpriteFrames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("PlayerIdleFrame")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("PlayerWalkFrameA")
+}, {
+"duration": 1.0,
+"texture": SubResource("PlayerWalkFrameB")
+}, {
+"duration": 1.0,
+"texture": SubResource("PlayerWalkFrameC")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 7.0
+}]
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -19,10 +61,11 @@ script = ExtResource("1_player")
 position = Vector2(0, -19)
 shape = SubResource("CapsuleShape_player")
 
-[node name="BodyVisual" type="Polygon2D" parent="."]
+[node name="BodyVisual" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -20)
-color = Color(0.25, 0.78, 0.95, 1)
-polygon = PackedVector2Array(-9, -17, 9, -17, 10, 8, -10, 8)
+sprite_frames = SubResource("PlayerSpriteFrames")
+animation = &"idle"
+autoplay = "idle"
 
 [node name="AttackArea" type="Area2D" parent="."]
 position = Vector2(24, -20)
