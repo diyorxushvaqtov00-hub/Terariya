@@ -9,6 +9,7 @@ signal died
 signal respawned
 signal progression_changed(level: int, experience: int, required: int)
 signal level_up(new_level: int)
+signal mana_changed(current: float, maximum: float)
 
 @export_category("Movement")
 @export var walk_speed: float = 220.0
@@ -31,6 +32,13 @@ signal level_up(new_level: int)
 @export var attack_cooldown: float = 0.38
 @export var attack_active_time: float = 0.12
 @export var respawn_delay: float = 2.0
+@export var max_mana: float = 100.0
+@export var mana_regen_per_second: float = 8.0
+@export var void_bolt_cost: float = 20.0
+@export var void_bolt_damage: int = 92
+@export var void_bolt_cooldown: float = 0.62
+
+const VOID_BOLT_SCENE: PackedScene = preload("res://scenes/projectiles/void_bolt.tscn")
 
 var health: int
 var _fall_peak_speed: float = 0.0
@@ -51,6 +59,8 @@ var bonus_attack_damage: int = 0
 var _web_slow_remaining: float = 0.0
 var _web_slow_multiplier: float = 1.0
 var _lava_damage_elapsed: float = 0.0
+var mana: float
+var _can_cast_magic: bool = true
 
 @onready var body_visual: Polygon2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -60,12 +70,17 @@ func _ready() -> void:
 	_spawn_position = global_position
 	health = max_health
 	oxygen_seconds = max_oxygen_seconds
+	mana = max_mana
 	attack_area.body_entered.connect(_on_attack_area_body_entered)
 	health_changed.emit(health, max_health)
 	oxygen_changed.emit(oxygen_seconds, max_oxygen_seconds)
+	mana_changed.emit(mana, max_mana)
 
 func _physics_process(delta: float) -> void:
 	_web_slow_remaining = maxf(_web_slow_remaining - delta, 0.0)
+	if mana < max_mana:
+		mana = minf(mana + mana_regen_per_second * delta, max_mana)
+		mana_changed.emit(mana, max_mana)
 	if _web_slow_remaining <= 0.0:
 		_web_slow_multiplier = 1.0
 	is_swimming = _is_in_water()
@@ -125,6 +140,8 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("attack"):
 		_start_attack()
+	if Input.is_action_just_pressed("magic"):
+		_cast_void_bolt()
 
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
@@ -172,6 +189,21 @@ func _start_attack() -> void:
 	attack_area.set_deferred("monitoring", false)
 	await get_tree().create_timer(maxf(attack_cooldown - attack_active_time, 0.0)).timeout
 	_can_attack = true
+
+func _cast_void_bolt() -> void:
+	if not _can_cast_magic or health <= 0 or inventory.count("void_staff") <= 0 or mana < void_bolt_cost:
+		return
+	var projectile := VOID_BOLT_SCENE.instantiate() as VoidBoltProjectile
+	if projectile == null:
+		return
+	_can_cast_magic = false
+	mana = maxf(mana - void_bolt_cost, 0.0)
+	mana_changed.emit(mana, max_mana)
+	projectile.setup(Vector2(float(_facing), 0.0), void_bolt_damage)
+	get_tree().current_scene.add_child(projectile)
+	projectile.global_position = global_position + Vector2(28.0 * _facing, -22.0)
+	await get_tree().create_timer(void_bolt_cooldown).timeout
+	_can_cast_magic = true
 
 func _on_attack_area_body_entered(body: Node2D) -> void:
 	if body.has_method("take_damage"):
