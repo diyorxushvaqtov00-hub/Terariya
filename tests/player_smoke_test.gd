@@ -669,6 +669,9 @@ func _run() -> void:
 	assert(capacity_inventory.count("test_item_0") == PlayerInventory.MAX_STACK_SIZE, "Item stacks cannot exceed the save-safe maximum")
 	assert(capacity_inventory.sell_item("test_item_0", PlayerInventory.MAX_STACK_SIZE, 1), "Selling a full stack can free the last slot for coins")
 	assert(capacity_inventory.count("test_item_0") == 0 and capacity_inventory.count("coins") == PlayerInventory.MAX_STACK_SIZE, "Full-inventory sale commits both item and coin changes")
+	capacity_inventory.add_item("test_item_1", 1)
+	assert(not capacity_inventory.convert_item("test_item_1", "water_bucket", 1), "Item conversion cannot overflow a full inventory when the source stack remains")
+	assert(capacity_inventory.count("test_item_1") == 2 and capacity_inventory.count("water_bucket") == 0, "Failed conversion preserves both item stacks")
 	var full_inventory_snapshot := capacity_inventory.serialize()
 	var invalid_full_inventory := full_inventory_snapshot.duplicate(true)
 	var invalid_items: Dictionary = invalid_full_inventory["items"]
