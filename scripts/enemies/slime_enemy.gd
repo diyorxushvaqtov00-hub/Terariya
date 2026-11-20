@@ -88,6 +88,15 @@ func _play_hit_reaction() -> void:
 	_hit_tween = create_tween()
 	_hit_tween.tween_property(visual, "modulate", Color.WHITE, 0.13)
 
+func _play_phase_transition(tint: Color) -> void:
+	if not is_instance_valid(visual):
+		return
+	if is_instance_valid(_hit_tween):
+		_hit_tween.kill()
+	visual.modulate = tint
+	_hit_tween = create_tween()
+	_hit_tween.tween_property(visual, "modulate", Color.WHITE, 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
 func _play_defeat_reaction() -> void:
 	defeated.emit()
 	if is_instance_valid(_hit_tween):
