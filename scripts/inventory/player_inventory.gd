@@ -190,13 +190,17 @@ func craft(recipe_id: String) -> bool:
 		return false
 	var recipe: Dictionary = RECIPES[recipe_id]
 	var ingredients: Dictionary = recipe["ingredients"]
-	for item_id in ingredients:
-		remove_item(str(item_id), int(ingredients[item_id]))
 	var output_id := str(recipe["output"])
-	add_item(output_id, int(recipe.get("amount", 1)))
+	var output_amount := int(recipe.get("amount", 1))
+	# Apply the recipe as one inventory transaction so observers never see a
+	# half-consumed recipe and the UI refreshes only once.
+	for item_id in ingredients:
+		var ingredient_id := str(item_id)
+		items[ingredient_id] = count(ingredient_id) - int(ingredients[item_id])
+	items[output_id] = count(output_id) + output_amount
 	if output_id in ["wooden_pickaxe", "wooden_axe"]:
 		tool_durability[output_id] = 40 if output_id == "wooden_pickaxe" else 35
-		changed.emit(items.duplicate())
+	changed.emit(items.duplicate())
 	return true
 
 func use_tool(tool_id: String) -> bool:
