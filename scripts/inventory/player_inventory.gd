@@ -165,8 +165,12 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if amount > MAX_STACK_SIZE or price_per_item > MAX_STACK_SIZE or count(item_id) < amount:
 		return false
 	var total_price := amount * price_per_item
-	if total_price > MAX_STACK_SIZE or count("coins") + total_price > MAX_STACK_SIZE or not has_inventory_space("coins"):
+	var sale_frees_inventory_slot := count(item_id) == amount
+	if total_price > MAX_STACK_SIZE or count("coins") + total_price > MAX_STACK_SIZE:
 		return false
+	if not has_inventory_space("coins") and not sale_frees_inventory_slot:
+		return false
+	# Selling the final item in a stack may free the slot needed for coins.
 	# The sold stack and coin reward change together; no partial shop state leaks.
 	items[item_id] = count(item_id) - amount
 	items["coins"] = count("coins") + total_price
