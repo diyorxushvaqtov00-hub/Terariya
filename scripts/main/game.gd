@@ -724,14 +724,14 @@ func _build_inventory_ui() -> void:
 	var toggle := Button.new()
 	toggle.name = "InventoryToggle"
 	toggle.text = "INVENTORY"
-	toggle.position = Vector2(24, 120)
+	toggle.position = Vector2(24, 148)
 	toggle.size = Vector2(150, 44)
 	toggle.pressed.connect(_toggle_inventory)
 	hud.add_child(toggle)
 
 	_inventory_panel = PanelContainer.new()
 	_inventory_panel.name = "InventoryPanel"
-	_inventory_panel.position = Vector2(24, 174)
+	_inventory_panel.position = Vector2(24, 202)
 	_inventory_panel.custom_minimum_size = Vector2(360, 500)
 	_inventory_panel.visible = false
 	hud.add_child(_inventory_panel)
