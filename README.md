@@ -87,7 +87,7 @@ Desktop:
 - I: open or close inventory and crafting
 
 Android:
-- Landscape layout with responsive touch-button sizing for compact phone screens.
+- Landscape layout with responsive touch-button sizing for compact phone screens; all held virtual controls are released and touch IDs reset if the app loses focus, preventing stuck movement or attacks after switching apps.
 - Left virtual joystick: move
 - VOID: cast a Void Bolt (requires a crafted Void Staff and mana)
 - JUMP / RUN / HIT: movement and combat
