@@ -72,4 +72,5 @@ func take_damage(amount: int) -> void:
 		attack_cooldown = 0.78
 		jump_velocity = -430.0
 		_slam_timer = 1.0
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(1.0, 0.38, 0.08, 1.0))
+	phase_changed.emit(current_phase)
