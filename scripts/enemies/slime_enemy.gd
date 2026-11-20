@@ -18,6 +18,7 @@ var _attack_ready: bool = true
 var _night_mode: bool = false
 var _base_move_speed: float
 var _base_attack_damage: int
+var _hit_tween: Tween
 
 @onready var visual: Polygon2D = $Visual
 
@@ -66,6 +67,33 @@ func take_damage(amount: int) -> void:
 		return
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
-	if health == 0:
-		defeated.emit()
-		queue_free()
+	if health > 0:
+		_play_hit_reaction()
+	else:
+		_play_defeat_reaction()
+
+func _play_hit_reaction() -> void:
+	var player := get_node_or_null(player_path) as Node2D
+	var knockback_direction := -signf(velocity.x)
+	if player != null:
+		knockback_direction = signf(global_position.x - player.global_position.x)
+	if is_zero_approx(knockback_direction):
+		knockback_direction = -1.0 if visual.scale.x >= 0.0 else 1.0
+	velocity.x = knockback_direction * 155.0
+	if is_on_floor():
+		velocity.y = -92.0
+	if is_instance_valid(_hit_tween):
+		_hit_tween.kill()
+	visual.modulate = Color(2.2, 2.2, 2.2, 1.0)
+	_hit_tween = create_tween()
+	_hit_tween.tween_property(visual, "modulate", Color.WHITE, 0.13)
+
+func _play_defeat_reaction() -> void:
+	defeated.emit()
+	if is_instance_valid(_hit_tween):
+		_hit_tween.kill()
+	var defeat_tween := create_tween()
+	defeat_tween.set_parallel(true)
+	defeat_tween.tween_property(visual, "scale", visual.scale * Vector2(1.35, 0.35), 0.12)
+	defeat_tween.tween_property(visual, "modulate", Color(1.0, 0.45, 0.35, 0.0), 0.12)
+	defeat_tween.chain().tween_callback(queue_free)
