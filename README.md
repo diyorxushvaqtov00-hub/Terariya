@@ -45,7 +45,7 @@ Implemented in source:
 - Shared enemy hit reactions: damage flash, directional knockback and a brief defeat animation are applied to the common enemy base, including bosses that inherit its damage handling.
 - All six major bosses now play a distinct color-tinted transition effect when entering phase two, layered over their existing phase-specific attacks and movement changes.
 - Player combat feedback: melee attacks use a short directional swing animation, incoming hits trigger a red damage flash and recoil, and the walking cycle continues while airborne.
-- Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
+- Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials or stations are missing; crafting applies ingredients and output as one atomic inventory transaction with a single UI refresh. Inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden, silver and gold body armor, helmets and boots can be equipped in separate equipment slots; all equipped defense values and equipment selections persist in save data.
