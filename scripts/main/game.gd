@@ -35,6 +35,7 @@ var _oxygen_bar: ProgressBar
 var _underwater_overlay: ColorRect
 var _oxygen_label: Label
 var _inventory_summary: Label
+var _station_summary: Label
 var _quest_summary: Label
 var _quest_tracker: QuestTracker
 var _merchant_shop_panel: PanelContainer
@@ -670,7 +671,9 @@ func _on_inventory_changed(items: Dictionary) -> void:
 	]
 	if is_instance_valid(_inventory_summary):
 		_inventory_summary.text = _format_inventory(items)
-		_refresh_craft_buttons()
+	if is_instance_valid(_station_summary):
+		_station_summary.text = "CRAFTING STATIONS  |  WORKBENCH %d  ANVIL %d  ALCHEMY %d  TINKERING %d" % [int(items.get("workbench", 0)), int(items.get("anvil", 0)), int(items.get("alchemy_table", 0)), int(items.get("tinkering_bench", 0))]
+	_refresh_craft_buttons()
 
 func _build_inventory_ui() -> void:
 	var hud := $HUD as CanvasLayer
@@ -710,6 +713,11 @@ func _build_inventory_ui() -> void:
 	_inventory_summary.text = _format_inventory(player.inventory.items)
 	_inventory_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	layout.add_child(_inventory_summary)
+	_station_summary = Label.new()
+	_station_summary.name = "CraftingStationSummary"
+	_station_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_station_summary.text = "CRAFTING STATIONS  |  WORKBENCH 0  ANVIL 0  ALCHEMY 0  TINKERING 0"
+	layout.add_child(_station_summary)
 
 	_quest_summary = Label.new()
 	_quest_summary.name = "QuestSummary"
