@@ -26,6 +26,8 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
 		queue_redraw()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_release_all_controls()
 
 func _effective_button_radius() -> float:
 	return minf(button_radius, maxf(size.x * 0.037, 24.0))
@@ -165,6 +167,21 @@ func _button_centers() -> Dictionary:
 		"magic": Vector2(size.x - edge_margin - r * 7.4, size.y - edge_margin - r * 3.5)
 	}
 
-func _exit_tree() -> void:
+func _release_all_controls() -> void:
 	for action in _held_actions:
 		Input.action_release(action)
+	_held_actions.clear()
+	_joystick_id = -1
+	_joystick_vector = Vector2.ZERO
+	_jump_touch_id = -1
+	_run_touch_id = -1
+	_attack_touch_id = -1
+	_mine_touch_id = -1
+	_place_touch_id = -1
+	_cycle_touch_id = -1
+	_inventory_touch_id = -1
+	_magic_touch_id = -1
+	queue_redraw()
+
+func _exit_tree() -> void:
+	_release_all_controls()
