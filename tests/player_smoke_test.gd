@@ -234,7 +234,9 @@ func _run() -> void:
 	assert(world.get_dungeon_secret_room_count() == 3, "Every dungeon has one concealed side vault")
 	var secret_gate_position := world.get_secret_gate_position(0)
 	var secret_cache_position := world.get_secret_cache_position(0)
+	var secret_gate_cells: Array = world._dungeon_secret_rooms[0]["gate_cells"]
 	assert(not world.is_secret_vault_open_nearby(secret_cache_position), "Void Guardian cannot be summoned while the secret vault is sealed")
+	assert(not world.mine_cell(secret_gate_cells[0]), "Locked vault gates cannot be bypassed by mining")
 	assert(not world.unlock_nearby_secret_room(secret_gate_position, chest_inventory), "Secret vault stays sealed without an ancient key")
 	chest_inventory.add_item("dungeon_relic", 1)
 	chest_inventory.add_item("gold_ore", 8)
@@ -242,6 +244,7 @@ func _run() -> void:
 	assert(chest_inventory.craft("ancient_key"), "Ancient keys craft from a relic, gold and spider fangs")
 	assert(chest_inventory.count("ancient_key") == 2, "Ancient key recipe creates two keys")
 	assert(world.unlock_nearby_secret_room(secret_gate_position, chest_inventory), "Ancient key opens the nearby hidden vault gate")
+	assert(world.get_tile(secret_gate_cells[0]) == WorldGenerator.AIR and world.get_tile(secret_gate_cells[1]) == WorldGenerator.AIR, "Unlocking clears every gate tile together")
 	assert(world.is_secret_vault_open_nearby(secret_cache_position), "Opened secret vault enables its boss encounter")
 	assert(chest_inventory.count("ancient_key") == 1, "Opening a secret gate consumes one ancient key")
 	assert(world.open_nearby_secret_cache(secret_cache_position, chest_inventory), "Player can loot the cache inside the opened secret room")
