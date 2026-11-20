@@ -148,7 +148,7 @@ func _consume_items(costs: Dictionary, notify: bool = true) -> bool:
 func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
 		return false
-	if amount > 999999 or price_per_item > 999999 or not has_inventory_space(item_id):
+	if amount > MAX_STACK_SIZE or price_per_item > MAX_STACK_SIZE or not has_inventory_space(item_id):
 		return false
 	var total_price := amount * price_per_item
 	if total_price > MAX_STACK_SIZE or count("coins") < total_price or count(item_id) + amount > MAX_STACK_SIZE:
@@ -162,7 +162,7 @@ func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
 func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
 		return false
-	if amount > 999999 or price_per_item > 999999 or count(item_id) < amount:
+	if amount > MAX_STACK_SIZE or price_per_item > MAX_STACK_SIZE or count(item_id) < amount:
 		return false
 	var total_price := amount * price_per_item
 	if total_price > MAX_STACK_SIZE or count("coins") + total_price > MAX_STACK_SIZE or not has_inventory_space("coins"):
@@ -446,7 +446,7 @@ func restore(snapshot: Dictionary) -> bool:
 		if not amount_value is int and not amount_value is float:
 			return false
 		var amount := int(amount_value)
-		if amount < 0 or amount > 999999:
+		if amount < 0 or amount > MAX_STACK_SIZE:
 			return false
 		if not str(item_id).is_empty():
 			restored[str(item_id)] = amount
