@@ -296,9 +296,8 @@ func drain_water(cell: Vector2i, inventory: PlayerInventory) -> bool:
 func fill_bucket(cell: Vector2i, inventory: PlayerInventory) -> bool:
 	if not _inside_world(cell) or get_tile(cell) != WATER or inventory == null:
 		return false
-	if not inventory.remove_item("empty_bucket", 1):
+	if not inventory.convert_item("empty_bucket", "water_bucket", 1):
 		return false
-	inventory.add_item("water_bucket", 1)
 	_water_sources.erase(cell)
 	tiles[cell.x][cell.y] = AIR
 	queue_redraw()
@@ -307,20 +306,18 @@ func fill_bucket(cell: Vector2i, inventory: PlayerInventory) -> bool:
 func pour_bucket(cell: Vector2i, inventory: PlayerInventory, player_position: Vector2 = Vector2.INF) -> bool:
 	if not _inside_world(cell) or get_tile(cell) != AIR or inventory == null:
 		return false
-	if not inventory.remove_item("water_bucket", 1):
-		return false
 	if player_position != Vector2.INF:
 		var center := to_global(Vector2(cell.x * TILE_SIZE + TILE_SIZE * 0.5, cell.y * TILE_SIZE + TILE_SIZE * 0.5))
 		if player_position.distance_to(center) < TILE_SIZE * 1.15:
-			inventory.add_item("water_bucket", 1)
 			return false
+	if not inventory.convert_item("water_bucket", "empty_bucket", 1):
+		return false
 	tiles[cell.x][cell.y] = WATER
-	inventory.add_item("empty_bucket", 1)
 	queue_redraw()
 	return true
 
 func mine_cell(cell: Vector2i) -> bool:
-	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER, LAVA]:
+	if not _inside_world(cell) or get_tile(cell) in [AIR, WATER, LAVA] or _is_locked_secret_gate_cell(cell):
 		return false
 	var mined_type := get_tile(cell)
 	var player := get_node_or_null(player_path) as PlayerController
@@ -675,11 +672,26 @@ func get_nearest_secret_cache_position(world_position: Vector2) -> Vector2:
 			nearest_position = candidate
 	return nearest_position
 
+func _is_secret_room_open(room: Dictionary) -> bool:
+	var gate_cells: Array = room.get("gate_cells", [])
+	if gate_cells.is_empty():
+		return false
+	for gate_cell in gate_cells:
+		if get_tile(gate_cell) != AIR:
+			return false
+	return true
+
+func _is_locked_secret_gate_cell(cell: Vector2i) -> bool:
+	for room in _dungeon_secret_rooms:
+		var gate_cells: Array = room.get("gate_cells", [])
+		if gate_cells.has(cell) and not _is_secret_room_open(room):
+			return true
+	return false
+
 func is_secret_vault_open_nearby(world_position: Vector2) -> bool:
 	for index in range(_dungeon_secret_rooms.size()):
 		var room: Dictionary = _dungeon_secret_rooms[index]
-		var gate_cells: Array = room["gate_cells"]
-		if gate_cells.is_empty() or get_tile(gate_cells[0]) != AIR:
+		if not _is_secret_room_open(room):
 			continue
 		if world_position.distance_to(get_secret_cache_position(index)) <= TILE_SIZE * 10.0:
 			return true
@@ -691,7 +703,7 @@ func unlock_nearby_secret_room(world_position: Vector2, inventory: PlayerInvento
 	for index in range(_dungeon_secret_rooms.size()):
 		var room: Dictionary = _dungeon_secret_rooms[index]
 		var gate_cells: Array = room["gate_cells"]
-		if gate_cells.is_empty() or get_tile(gate_cells[0]) == AIR:
+		if gate_cells.is_empty() or _is_secret_room_open(room):
 			continue
 		if world_position.distance_to(get_secret_gate_position(index)) > TILE_SIZE * 2.5:
 			continue
@@ -712,7 +724,7 @@ func open_nearby_secret_cache(world_position: Vector2, inventory: PlayerInventor
 	for index in range(_dungeon_secret_rooms.size()):
 		var room: Dictionary = _dungeon_secret_rooms[index]
 		var gate_cells: Array = room["gate_cells"]
-		if gate_cells.is_empty() or get_tile(gate_cells[0]) != AIR or bool(room.get("cache_opened", false)):
+		if gate_cells.is_empty() or not _is_secret_room_open(room) or bool(room.get("cache_opened", false)):
 			continue
 		if world_position.distance_to(get_secret_cache_position(index)) > TILE_SIZE * 2.5:
 			continue
