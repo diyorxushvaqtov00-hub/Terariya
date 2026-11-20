@@ -1,6 +1,8 @@
 extends Node2D
 
 const SAVE_PATH: String = "user://eternal_world_save.json"
+const SAVE_TEMP_PATH: String = "user://eternal_world_save.tmp"
+const SAVE_BACKUP_PATH: String = "user://eternal_world_save.bak"
 const SAVE_VERSION: int = 1
 const AUTOSAVE_INTERVAL: float = 30.0
 @export_range(120.0, 1800.0, 30.0) var day_length_seconds: float = 480.0
@@ -135,25 +137,54 @@ func save_game() -> bool:
 		"world": world.get_save_data(),
 		"quests": _quest_tracker.serialize() if is_instance_valid(_quest_tracker) else {}
 	}
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	if file == null:
-		push_warning("Save failed: could not open save file for writing.")
+	var temp_file := FileAccess.open(SAVE_TEMP_PATH, FileAccess.WRITE)
+	if temp_file == null:
+		push_warning("Save failed: could not create the temporary save file.")
 		return false
-	file.store_string(JSON.stringify(data))
-	file.close()
+	temp_file.store_string(JSON.stringify(data))
+	temp_file.flush()
+	temp_file.close()
+	var temp_check := _read_save_dictionary(SAVE_TEMP_PATH)
+	if temp_check.is_empty() or int(temp_check.get("version", -1)) != SAVE_VERSION:
+		push_warning("Save failed: temporary save verification did not pass.")
+		return false
+	var save_absolute := ProjectSettings.globalize_path(SAVE_PATH)
+	var temp_absolute := ProjectSettings.globalize_path(SAVE_TEMP_PATH)
+	var backup_absolute := ProjectSettings.globalize_path(SAVE_BACKUP_PATH)
+	if FileAccess.file_exists(SAVE_PATH):
+		if FileAccess.file_exists(SAVE_BACKUP_PATH):
+			DirAccess.remove_absolute(backup_absolute)
+		var backup_error := DirAccess.rename_absolute(save_absolute, backup_absolute)
+		if backup_error != OK:
+			push_warning("Save failed: could not preserve the previous save.")
+			return false
+	var replace_error := DirAccess.rename_absolute(temp_absolute, save_absolute)
+	if replace_error != OK:
+		if FileAccess.file_exists(SAVE_BACKUP_PATH):
+			DirAccess.rename_absolute(backup_absolute, save_absolute)
+		push_warning("Save failed: could not replace the previous save.")
+		return false
 	return true
 
-func _load_game() -> bool:
-	if not FileAccess.file_exists(SAVE_PATH):
-		return false
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+func _read_save_dictionary(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
-		push_warning("Save file exists but could not be opened.")
-		return false
+		return {}
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
 	file.close()
 	if not parsed is Dictionary or int(parsed.get("version", -1)) != SAVE_VERSION:
-		push_warning("Save file is invalid or uses an unsupported version.")
+		return {}
+	return parsed
+
+func _load_game() -> bool:
+	var parsed := _read_save_dictionary(SAVE_PATH)
+	if parsed.is_empty():
+		parsed = _read_save_dictionary(SAVE_BACKUP_PATH)
+	if parsed.is_empty():
+		if FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(SAVE_BACKUP_PATH):
+			push_warning("Main and backup saves are invalid or use an unsupported version.")
 		return false
 	var quest_data: Variant = parsed.get("quests", {})
 	if quest_data is Dictionary and is_instance_valid(_quest_tracker):
