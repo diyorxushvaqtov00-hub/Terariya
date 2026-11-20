@@ -133,6 +133,19 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	changed.emit(items.duplicate())
 	return true
 
+func convert_item(source_id: String, destination_id: String, amount: int = 1) -> bool:
+	if source_id.is_empty() or destination_id.is_empty() or source_id == destination_id or amount <= 0:
+		return false
+	if count(source_id) < amount or count(destination_id) + amount > MAX_STACK_SIZE:
+		return false
+	var conversion_frees_slot := count(source_id) == amount
+	if not has_inventory_space(destination_id) and not conversion_frees_slot:
+		return false
+	items[source_id] = count(source_id) - amount
+	items[destination_id] = count(destination_id) + amount
+	changed.emit(items.duplicate())
+	return true
+
 func _consume_items(costs: Dictionary, notify: bool = true) -> bool:
 	for item_id in costs:
 		var amount := int(costs[item_id])
