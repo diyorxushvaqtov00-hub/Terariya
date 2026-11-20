@@ -1017,7 +1017,15 @@ func _format_inventory(items: Dictionary) -> String:
 func _refresh_craft_buttons() -> void:
 	for recipe_id in _craft_buttons:
 		var craft_button := _craft_buttons[recipe_id] as Button
-		craft_button.disabled = not player.inventory.can_craft(str(recipe_id))
+		var recipe_key := str(recipe_id)
+		var block_reason := player.inventory.get_crafting_block_reason(recipe_key)
+		craft_button.disabled = not block_reason.is_empty() or not player.inventory.can_craft(recipe_key)
+		if not block_reason.is_empty():
+			craft_button.tooltip_text = "Locked: %s" % block_reason
+		elif not player.inventory.can_craft(recipe_key):
+			craft_button.tooltip_text = "Missing ingredients or inventory space for %s." % recipe_key.replace("_", " ").capitalize()
+		else:
+			craft_button.tooltip_text = "Ready to craft: %s." % recipe_key.replace("_", " ").capitalize()
 
 func _get_water_target_cell() -> Vector2i:
 	var target := player.global_position + Vector2(player.get_facing() * WorldGenerator.TILE_SIZE * 1.35, WorldGenerator.TILE_SIZE * 0.5)
