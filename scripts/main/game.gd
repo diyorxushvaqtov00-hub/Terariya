@@ -384,8 +384,11 @@ func _build_boss_ui() -> void:
 	_boss_health_bar.visible = false
 	hud.add_child(_boss_health_bar)
 
+func _has_active_major_boss() -> bool:
+	return is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian)
+
 func _summon_spider_queen() -> void:
-	if is_instance_valid(_active_spider_queen) or is_instance_valid(_active_boss) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	if not player.inventory.remove_item("spider_summon", 1):
 		return
@@ -423,7 +426,7 @@ func _on_spider_queen_defeated() -> void:
 	_active_spider_queen = null
 
 func _summon_ancient_eye() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	if not player.inventory.remove_item("eye_summon", 1):
 		return
@@ -445,7 +448,7 @@ func _summon_ancient_eye() -> void:
 	_on_inventory_changed(player.inventory.items)
 
 func _summon_magma_golem() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	if not player.inventory.remove_item("magma_heart", 1):
 		return
@@ -482,7 +485,7 @@ func _on_magma_golem_defeated() -> void:
 	_active_magma_golem = null
 
 func _summon_dungeon_warden() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	if not player.inventory.remove_item("dungeon_warden_sigil", 1):
 		return
@@ -519,7 +522,7 @@ func _on_dungeon_warden_defeated() -> void:
 	_active_dungeon_warden = null
 
 func _summon_void_guardian() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	var arena_position := world.get_nearest_secret_cache_position(player.global_position)
 	if not world.is_secret_vault_open_nearby(player.global_position):
@@ -566,7 +569,7 @@ func _on_void_guardian_defeated() -> void:
 	_on_inventory_changed(player.inventory.items)
 
 func _summon_mushroom_guardian() -> void:
-	if is_instance_valid(_active_boss) or is_instance_valid(_active_spider_queen) or is_instance_valid(_active_magma_golem) or is_instance_valid(_active_mushroom_guardian) or is_instance_valid(_active_dungeon_warden) or is_instance_valid(_active_void_guardian):
+	if _has_active_major_boss():
 		return
 	if not player.inventory.remove_item("guardian_totem", 1):
 		return
