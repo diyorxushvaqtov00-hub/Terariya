@@ -202,11 +202,20 @@ func _load_game() -> bool:
 	_update_day_night(0.0)
 	var player_data: Variant = parsed.get("player", {})
 	if player_data is Dictionary:
-		player.global_position = Vector2(float(player_data.get("x", player.global_position.x)), float(player_data.get("y", player.global_position.y)))
+		var saved_x := float(player_data.get("x", player.global_position.x))
+		var saved_y := float(player_data.get("y", player.global_position.y))
+		var world_pixel_width := float(WorldGenerator.WORLD_WIDTH * WorldGenerator.TILE_SIZE)
+		var world_pixel_height := float(WorldGenerator.WORLD_HEIGHT * WorldGenerator.TILE_SIZE)
+		if is_finite(saved_x) and is_finite(saved_y) and saved_x >= 0.0 and saved_x < world_pixel_width and saved_y >= 0.0 and saved_y < world_pixel_height:
+			player.global_position = Vector2(saved_x, saved_y)
+		else:
+			push_warning("Saved player position is outside the world; using the starting location.")
 		player.set_spawn_position(player.global_position)
 		player.health = clampi(int(player_data.get("health", player.max_health)), 1, player.max_health)
-		player.oxygen_seconds = clampf(float(player_data.get("oxygen_seconds", player.max_oxygen_seconds)), 0.0, player.max_oxygen_seconds)
-		player.mana = clampf(float(player_data.get("mana", player.max_mana)), 0.0, player.max_mana)
+		var saved_oxygen := float(player_data.get("oxygen_seconds", player.max_oxygen_seconds))
+		var saved_mana := float(player_data.get("mana", player.max_mana))
+		player.oxygen_seconds = clampf(saved_oxygen, 0.0, player.max_oxygen_seconds) if is_finite(saved_oxygen) else player.max_oxygen_seconds
+		player.mana = clampf(saved_mana, 0.0, player.max_mana) if is_finite(saved_mana) else player.max_mana
 		player.mana_changed.emit(player.mana, player.max_mana)
 		player.oxygen_changed.emit(player.oxygen_seconds, player.max_oxygen_seconds)
 		player.double_jump_unlocked = bool(player_data.get("double_jump_unlocked", false))
