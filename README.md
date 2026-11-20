@@ -35,7 +35,7 @@ Implemented in source:
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
 - Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring. Craftable pumps convert water tiles into renewable sources, while drain charges remove water tiles and disable their source status.
-- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds; collision is streamed in 16×16 tile chunks with a one-chunk preload radius around the player. Mining and block placement now rebuild only the edited loaded chunk instead of clearing and recreating every loaded collision chunk.
+- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds; collision is streamed in 16×16 tile chunks with a one-chunk preload radius around the player. Mining and block placement rebuild only the edited loaded chunk, and loading a saved player position immediately refreshes the collision stream at that location.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
@@ -45,7 +45,7 @@ Implemented in source:
 - Shared enemy hit reactions: damage flash, directional knockback and a brief defeat animation are applied to the common enemy base, including bosses that inherit its damage handling.
 - All six major bosses now play a distinct color-tinted transition effect when entering phase two, layered over their existing phase-specific attacks and movement changes.
 - Player combat feedback: melee attacks use a short directional swing animation, incoming hits trigger a red damage flash and recoil, and the walking cycle continues while airborne.
-- Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials or stations are missing; crafting, merchant purchases/sales and equipment upgrades validate costs before applying one atomic inventory update. Inventory supports 40 distinct item stacks (I key or INVENTORY button).
+- Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials or stations are missing; crafting, merchant purchases/sales and equipment upgrades validate costs before applying one atomic inventory update. Item stacks are capped at the save format's validated maximum to prevent corrupted oversized saves. Inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
 - Craftable wooden, silver and gold body armor, helmets and boots can be equipped in separate equipment slots; all equipped defense values and equipment selections persist in save data.
