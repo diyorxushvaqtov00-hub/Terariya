@@ -111,4 +111,5 @@ func take_damage(amount: int) -> void:
 		jump_velocity = -520.0
 		visual.color = Color(0.55, 0.05, 0.12, 1.0)
 		_summon_timer = 1.0
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(0.92, 0.18, 0.32, 1.0))
+	phase_changed.emit(current_phase)
