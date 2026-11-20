@@ -165,6 +165,7 @@ func _run() -> void:
 	var fungal_inventory := PlayerInventory.new()
 	root.add_child(fungal_inventory)
 	await process_frame
+	fungal_inventory.add_item("workbench", 1)
 	fungal_inventory.add_item("glow_mushroom", 80)
 	fungal_inventory.add_item("mushroom_soil", 60)
 	fungal_inventory.add_item("silver_ore", 80)
@@ -209,6 +210,7 @@ func _run() -> void:
 	var chest_inventory := PlayerInventory.new()
 	root.add_child(chest_inventory)
 	await process_frame
+	chest_inventory.add_item("workbench", 1)
 	assert(not world.open_nearby_chest(chest_position, chest_inventory), "Dungeon chest stays locked without a key")
 	assert(chest_inventory.count("dungeon_key") == 0, "Locked chest does not create a key")
 	chest_inventory.add_item("silver_ore", 6)
@@ -391,6 +393,8 @@ func _run() -> void:
 	assert(trader_restored.restore(trader_snapshot) and trader_restored.count("coins") == 64, "Merchant coin balance persists through save data")
 	trader_inventory.queue_free()
 	trader_restored.queue_free()
+	player.inventory.add_item("wood", 10)
+	assert(player.inventory.craft("workbench"), "Workbench is the first crafting progression station")
 	player.inventory.add_item("wooden_planks", 12)
 	assert(player.inventory.craft("wooden_armor"), "Wooden armor can be crafted")
 	assert(player.inventory.equip_armor("wooden_armor"), "Crafted wooden armor can be equipped")
@@ -471,9 +475,7 @@ func _run() -> void:
 	assert(player.inventory.count("wood") == 2 and player.inventory.count("stone") == 0, "Crafting consumes exactly the required ingredients")
 	assert(player.inventory.craft("wooden_planks"), "Wooden planks can be crafted from two wood")
 	assert(player.inventory.count("wooden_planks") == 4, "Plank recipe produces four planks")
-	player.inventory.add_item("wood", 10)
-	assert(player.inventory.craft("workbench"), "A workbench can be crafted from ten wood")
-	assert(player.inventory.count("workbench") == 1, "Crafting adds one workbench")
+	assert(player.inventory.count("workbench") == 1, "The crafted workbench remains available for advanced recipes")
 	player.inventory.add_item("wooden_planks", 9)
 	player.inventory.add_item("stone", 5)
 	assert(player.inventory.craft("wooden_pickaxe"), "Wooden pickaxe can be crafted")
@@ -586,6 +588,7 @@ func _run() -> void:
 	var lantern_inventory := PlayerInventory.new()
 	root.add_child(lantern_inventory)
 	await process_frame
+	lantern_inventory.add_item("workbench", 1)
 	lantern_inventory.add_item("wooden_planks", 6)
 	lantern_inventory.add_item("ore", 3)
 	assert(lantern_inventory.craft("lantern"), "Lantern recipe crafts from planks and ore")
@@ -665,6 +668,8 @@ func _run() -> void:
 	var metal_inventory := PlayerInventory.new()
 	root.add_child(metal_inventory)
 	await process_frame
+	metal_inventory.add_item("workbench", 1)
+	metal_inventory.add_item("anvil", 1)
 	metal_inventory.add_item("silver_ore", 40)
 	metal_inventory.add_item("gold_ore", 40)
 	metal_inventory.add_item("wooden_planks", 30)
@@ -689,6 +694,7 @@ func _run() -> void:
 	var equipment_inventory := PlayerInventory.new()
 	root.add_child(equipment_inventory)
 	await process_frame
+	equipment_inventory.add_item("workbench", 1)
 	equipment_inventory.add_item("wooden_planks", 60)
 	equipment_inventory.add_item("silver_ore", 30)
 	equipment_inventory.add_item("gold_ore", 25)
@@ -718,6 +724,7 @@ func _run() -> void:
 	var forge_inventory := PlayerInventory.new()
 	root.add_child(forge_inventory)
 	await process_frame
+	forge_inventory.add_item("workbench", 1)
 	forge_inventory.add_item("stone", 40)
 	forge_inventory.add_item("ore", 20)
 	forge_inventory.add_item("wooden_planks", 20)
@@ -744,6 +751,7 @@ func _run() -> void:
 	var tinkering_inventory := PlayerInventory.new()
 	root.add_child(tinkering_inventory)
 	await process_frame
+	tinkering_inventory.add_item("workbench", 1)
 	tinkering_inventory.add_item("wooden_planks", 20)
 	tinkering_inventory.add_item("silver_ore", 30)
 	tinkering_inventory.add_item("spider_fang", 12)
@@ -766,6 +774,7 @@ func _run() -> void:
 	var alchemy_inventory := PlayerInventory.new()
 	root.add_child(alchemy_inventory)
 	await process_frame
+	alchemy_inventory.add_item("workbench", 1)
 	alchemy_inventory.add_item("wooden_planks", 20)
 	alchemy_inventory.add_item("mushroom_soil", 20)
 	alchemy_inventory.add_item("silver_ore", 10)
@@ -779,6 +788,7 @@ func _run() -> void:
 	var obsidian_inventory := PlayerInventory.new()
 	root.add_child(obsidian_inventory)
 	await process_frame
+	obsidian_inventory.add_item("workbench", 1)
 	obsidian_inventory.add_item("stone", 40)
 	obsidian_inventory.add_item("ore", 20)
 	obsidian_inventory.add_item("wooden_planks", 50)
@@ -808,6 +818,7 @@ func _run() -> void:
 	var voidbreaker_inventory := PlayerInventory.new()
 	root.add_child(voidbreaker_inventory)
 	await process_frame
+	voidbreaker_inventory.add_item("workbench", 1)
 	voidbreaker_inventory.add_item("stone", 40)
 	voidbreaker_inventory.add_item("ore", 20)
 	voidbreaker_inventory.add_item("wooden_planks", 20)
@@ -895,6 +906,8 @@ func _run() -> void:
 	var warden_inventory := PlayerInventory.new()
 	root.add_child(warden_inventory)
 	await process_frame
+	warden_inventory.add_item("workbench", 1)
+	warden_inventory.add_item("anvil", 1)
 	warden_inventory.add_item("dungeon_relic", 1)
 	warden_inventory.add_item("gold_ore", 20)
 	warden_inventory.add_item("silver_ore", 10)
@@ -928,6 +941,8 @@ func _run() -> void:
 	var void_sigil_inventory := PlayerInventory.new()
 	root.add_child(void_sigil_inventory)
 	await process_frame
+	void_sigil_inventory.add_item("workbench", 1)
+	void_sigil_inventory.add_item("anvil", 1)
 	void_sigil_inventory.add_item("dungeon_relic", 1)
 	void_sigil_inventory.add_item("gold_ore", 12)
 	void_sigil_inventory.add_item("magma_core", 6)
