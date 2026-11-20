@@ -35,7 +35,7 @@ Implemented in source:
 - Water detection samples multiple real positions around the player, fixing the earlier issue where fractional tile offsets collapsed into the same grid cell.
 - Water surfaces and falling columns have distinct highlights so lake tops and waterfall-like streams are easier to read.
 - Craftable wooden buckets let the player collect a water tile and pour it into an empty nearby tile; the empty bucket returns after pouring. Craftable pumps convert water tiles into renewable sources, while drain charges remove water tiles and disable their source status.
-- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds; collision is streamed in 16×16 tile chunks with a one-chunk preload radius around the player.
+- Runtime terrain collision generated from solid horizontal runs. Terrain draw calls are culled to the camera-visible tile bounds; collision is streamed in 16×16 tile chunks with a one-chunk preload radius around the player. Mining and block placement now rebuild only the edited loaded chunk instead of clearing and recreating every loaded collision chunk.
 - Mining and block placement, including occupied-cell and player-overlap checks.
 - Desktop Q/E/R and Android MINE/PLACE/BLOCK controls.
 - Selectable dirt, stone, sand and snow placement with a live HUD selection indicator.
