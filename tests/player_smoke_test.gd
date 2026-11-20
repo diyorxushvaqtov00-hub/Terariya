@@ -379,11 +379,16 @@ func _run() -> void:
 	root.add_child(trader_inventory)
 	await process_frame
 	trader_inventory.add_item("coins", 30)
+	var shop_change_events := [0]
+	trader_inventory.changed.connect(func(_items: Dictionary) -> void: shop_change_events[0] += 1)
 	assert(trader_inventory.buy_item("healing_potion", 2, 8), "Merchant purchase spends coins and grants items")
+	assert(shop_change_events[0] == 1, "Merchant purchase emits one atomic inventory update")
 	assert(trader_inventory.count("coins") == 14 and trader_inventory.count("healing_potion") == 2, "Merchant purchase updates both balances")
 	assert(not trader_inventory.buy_item("silver_ore", 2, 12), "Merchant blocks purchases the player cannot afford")
 	trader_inventory.add_item("wood", 10)
+	shop_change_events[0] = 0
 	assert(trader_inventory.sell_item("wood", 10, 5), "Merchant accepts sellable resources")
+	assert(shop_change_events[0] == 1, "Merchant sale emits one atomic inventory update")
 	assert(trader_inventory.count("coins") == 64 and trader_inventory.count("wood") == 0, "Merchant sale grants the correct coin payment")
 	assert(not trader_inventory.sell_item("wood", 1, 5), "Merchant refuses sales without stock")
 	var trader_snapshot := trader_inventory.serialize()
@@ -657,6 +662,8 @@ func _run() -> void:
 	assert(capacity_inventory.get_used_slots() == PlayerInventory.MAX_INVENTORY_SLOTS, "Inventory stops at its forty unique-item slot capacity")
 	assert(not capacity_inventory.has_inventory_space("new_test_item"), "New item types are rejected when inventory is full")
 	assert(capacity_inventory.has_inventory_space("test_item_0"), "Existing stacks remain usable at full capacity")
+	capacity_inventory.add_item("test_item_0", PlayerInventory.MAX_STACK_SIZE + 500)
+	assert(capacity_inventory.count("test_item_0") == PlayerInventory.MAX_STACK_SIZE, "Item stacks cannot exceed the save-safe maximum")
 	var full_inventory_snapshot := capacity_inventory.serialize()
 	var invalid_full_inventory := full_inventory_snapshot.duplicate(true)
 	var invalid_items: Dictionary = invalid_full_inventory["items"]
