@@ -130,29 +130,31 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	return true
 
 func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
-	if item_id.is_empty() or amount <= 0 or price_per_item <= 0 or not has_inventory_space(item_id):
+	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
+		return false
+	if amount > 999999 or price_per_item > 999999 or not has_inventory_space(item_id):
 		return false
 	var total_price := amount * price_per_item
 	if total_price > 999999 or count("coins") < total_price:
 		return false
-	if not remove_item("coins", total_price):
-		return false
-	add_item(item_id, amount)
+	# Shop trades are committed atomically and notify the UI once.
+	items["coins"] = count("coins") - total_price
+	items[item_id] = count(item_id) + amount
+	changed.emit(items.duplicate())
 	return true
 
 func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
 		return false
-	if count(item_id) < amount:
+	if amount > 999999 or price_per_item > 999999 or count(item_id) < amount:
 		return false
 	var total_price := amount * price_per_item
-	if total_price > 999999:
+	if total_price > 999999 or not has_inventory_space("coins"):
 		return false
-	if not has_inventory_space("coins"):
-		return false
-	if not remove_item(item_id, amount):
-		return false
-	add_item("coins", total_price)
+	# The sold stack and coin reward change together; no partial shop state leaks.
+	items[item_id] = count(item_id) - amount
+	items["coins"] = count("coins") + total_price
+	changed.emit(items.duplicate())
 	return true
 
 func get_crafting_block_reason(recipe_id: String) -> String:
@@ -164,7 +166,7 @@ func get_crafting_block_reason(recipe_id: String) -> String:
 		return "Requires a Tinkering Bench"
 	if recipe_id == "healing_potion" and count("alchemy_table") <= 0:
 		return "Requires an Alchemy Table"
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "silver_helmet", "gold_helmet", "silver_boots", "gold_boots", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor", "void_staff"] and count("anvil") <= 0:
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "silver_helmet", "gold_helmet", "silver_boots", "gold_boots", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor", "void_staff", "dungeon_warden_sigil", "void_guardian_sigil"] and count("anvil") <= 0:
 		return "Requires an Anvil"
 	return ""
 
