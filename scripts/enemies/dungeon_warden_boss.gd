@@ -94,4 +94,5 @@ func take_damage(amount: int) -> void:
 		jump_velocity = -470.0
 		_slam_timer = 0.8
 		_volley_timer = 1.2
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(0.42, 0.58, 1.0, 1.0))
+	phase_changed.emit(current_phase)
