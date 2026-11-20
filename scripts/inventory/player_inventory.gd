@@ -155,14 +155,23 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	add_item("coins", total_price)
 	return true
 
-func can_craft(recipe_id: String) -> bool:
+func get_crafting_block_reason(recipe_id: String) -> String:
+	if not RECIPES.has(recipe_id):
+		return "Unknown recipe"
+	if recipe_id not in ["wooden_planks", "workbench", "torch"] and count("workbench") <= 0:
+		return "Requires a Workbench"
 	if recipe_id in ["double_jump_charm", "repair_kit"] and count("tinkering_bench") <= 0:
-		return false
+		return "Requires a Tinkering Bench"
 	if recipe_id == "healing_potion" and count("alchemy_table") <= 0:
+		return "Requires an Alchemy Table"
+	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "silver_helmet", "gold_helmet", "silver_boots", "gold_boots", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor", "void_staff"] and count("anvil") <= 0:
+		return "Requires an Anvil"
+	return ""
+
+func can_craft(recipe_id: String) -> bool:
+	if not get_crafting_block_reason(recipe_id).is_empty():
 		return false
 	if recipe_id in ["wooden_pickaxe", "wooden_axe"] and count(recipe_id) > 0:
-		return false
-	if recipe_id in ["silver_sword", "gold_sword", "silver_armor", "gold_armor", "silver_helmet", "gold_helmet", "silver_boots", "gold_boots", "obsidian_sword", "obsidian_armor", "mushroom_blade", "fungal_armor", "voidbreaker", "void_armor", "void_staff"] and count("anvil") <= 0:
 		return false
 	var recipe: Variant = RECIPES.get(recipe_id, null)
 	if not recipe is Dictionary:
