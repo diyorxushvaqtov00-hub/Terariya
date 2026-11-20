@@ -69,4 +69,5 @@ func take_damage(amount: int) -> void:
 		attack_damage = 26
 		attack_cooldown = 0.85
 		visual.color = Color(1.0, 0.08, 0.12, 1.0)
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(1.0, 0.22, 0.28, 1.0))
+	phase_changed.emit(current_phase)
