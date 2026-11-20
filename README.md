@@ -43,6 +43,7 @@ Implemented in source:
 - XP and level progression up to level 50, with enemy and boss rewards, a HUD experience bar, +2 melee damage every two levels and +10 maximum health every five levels; progression is saved.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Shared enemy hit reactions: damage flash, directional knockback and a brief defeat animation are applied to the common enemy base, including bosses that inherit its damage handling.
+- All six major bosses now play a distinct color-tinted transition effect when entering phase two, layered over their existing phase-specific attacks and movement changes.
 - Player combat feedback: melee attacks use a short directional swing animation, incoming hits trigger a red damage flash and recoil, and the walking cycle continues while airborne.
 - Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
