@@ -43,6 +43,7 @@ Implemented in source:
 - XP and level progression up to level 50, with enemy and boss rewards, a HUD experience bar, +2 melee damage every two levels and +10 maximum health every five levels; progression is saved.
 - Melee attack area, configurable damage/cooldown, a damageable training dummy and a chasing slime enemy with contact damage.
 - Shared enemy hit reactions: damage flash, directional knockback and a brief defeat animation are applied to the common enemy base, including bosses that inherit its damage handling.
+- Player combat feedback: melee attacks use a short directional swing animation, incoming hits trigger a red damage flash and recoil, and the walking cycle continues while airborne.
 - Inventory and crafting panel with live item counts, recipe buttons, item tooltips and disabled recipes when materials are missing; inventory supports 40 distinct item stacks (I key or INVENTORY button).
 - Inventory-based crafting recipes for wooden planks, a workbench, a stone sword and an Eye Sigil boss-summoning item, with ingredient checks and exact resource consumption.
 - Crafted stone sword adds 15 melee damage while owned; copper sword adds 25 melee damage and takes priority when owned.
@@ -59,7 +60,7 @@ Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
 3. Profile and tune chunk streaming on larger maps; collision now loads nearby 16×16 chunks and unloads distant chunks, with camera-aware render culling.
-4. Finish hit/reaction animation polish; shared enemy damage flash, directional knockback and defeat feedback are now implemented, while dedicated player attack/hurt states and richer boss-specific reactions remain.
+4. Finish hit/reaction animation polish; player attack/damage feedback and shared enemy flash, knockback and defeat feedback are implemented, while richer boss-specific reactions remain.
 5. Balance station recipes and equipment progression; the anvil, alchemy table and tinkering bench now gate metal gear, potions, the Double Jump Charm and tool repair kits.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
