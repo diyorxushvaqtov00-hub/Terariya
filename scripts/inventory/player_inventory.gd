@@ -129,6 +129,18 @@ func remove_item(item_id: String, amount: int = 1) -> bool:
 	changed.emit(items.duplicate())
 	return true
 
+func _consume_items(costs: Dictionary, notify: bool = true) -> bool:
+	for item_id in costs:
+		var amount := int(costs[item_id])
+		if amount < 0 or count(str(item_id)) < amount:
+			return false
+	for item_id in costs:
+		var key := str(item_id)
+		items[key] = count(key) - int(costs[item_id])
+	if notify:
+		changed.emit(items.duplicate())
+	return true
+
 func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if item_id.is_empty() or item_id == "coins" or amount <= 0 or price_per_item <= 0:
 		return false
@@ -224,7 +236,7 @@ func repair_tool(tool_id: String) -> bool:
 		return false
 	if not tool_durability.has(tool_id) or count("repair_kit") <= 0:
 		return false
-	if not remove_item("repair_kit", 1):
+	if not _consume_items({"repair_kit": 1}, false):
 		return false
 	tool_durability[tool_id] = 40 if tool_id == "wooden_pickaxe" else 35
 	changed.emit(items.duplicate())
@@ -272,8 +284,8 @@ func upgrade_pickaxe() -> bool:
 	var ore_type := "silver_ore" if pickaxe_upgrade_level >= 5 else "ore"
 	if count(ore_type) < ore_cost or count("stone") < stone_cost:
 		return false
-	remove_item(ore_type, ore_cost)
-	remove_item("stone", stone_cost)
+	if not _consume_items({ore_type: ore_cost, "stone": stone_cost}, false):
+		return false
 	pickaxe_upgrade_level += 1
 	changed.emit(items.duplicate())
 	return true
@@ -358,7 +370,7 @@ func upgrade_best_weapon() -> bool:
 		"voidbreaker":
 			material = "dungeon_relic"
 			amount = 1 + level
-	if not remove_item(material, amount):
+	if not _consume_items({material: amount}, false):
 		return false
 	weapon_upgrade_levels[weapon_id] = level + 1
 	changed.emit(items.duplicate())
@@ -374,9 +386,11 @@ func upgrade_void_staff() -> bool:
 	var relic_cost := 1 if level >= 5 else 0
 	if count("void_shard") < shard_cost or count("dungeon_relic") < relic_cost:
 		return false
-	remove_item("void_shard", shard_cost)
+	var upgrade_costs := {"void_shard": shard_cost}
 	if relic_cost > 0:
-		remove_item("dungeon_relic", relic_cost)
+		upgrade_costs["dungeon_relic"] = relic_cost
+	if not _consume_items(upgrade_costs, false):
+		return false
 	weapon_upgrade_levels["void_staff"] = level + 1
 	changed.emit(items.duplicate())
 	return true
@@ -405,7 +419,7 @@ func upgrade_equipped_armor() -> bool:
 		"void_armor":
 			material = "void_shard"
 			amount = 2 + level
-	if not remove_item(material, amount):
+	if not _consume_items({material: amount}, false):
 		return false
 	armor_upgrade_levels[equipped_armor] = level + 1
 	changed.emit(items.duplicate())
