@@ -211,6 +211,7 @@ func _load_game() -> bool:
 		else:
 			push_warning("Saved player position is outside the world; using the starting location.")
 		player.set_spawn_position(player.global_position)
+		world.refresh_collision_stream()
 		player.health = clampi(int(player_data.get("health", player.max_health)), 1, player.max_health)
 		var saved_oxygen := float(player_data.get("oxygen_seconds", player.max_oxygen_seconds))
 		var saved_mana := float(player_data.get("mana", player.max_mana))
