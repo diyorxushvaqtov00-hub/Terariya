@@ -1016,6 +1016,9 @@ func _refresh_collision_chunk_for_cell(cell: Vector2i) -> void:
 	_loaded_collision_chunks.erase(chunk_coord)
 	_create_collision_chunk(chunk_coord)
 
+func refresh_collision_stream() -> void:
+	_update_loaded_collision_chunks()
+
 func _update_loaded_collision_chunks() -> void:
 	if _collision_root == null:
 		return
