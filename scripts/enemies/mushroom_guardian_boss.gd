@@ -74,4 +74,5 @@ func take_damage(amount: int) -> void:
 		attack_cooldown = 0.72
 		jump_velocity = -470.0
 		_volley_timer = 0.8
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(0.72, 0.34, 1.0, 1.0))
+	phase_changed.emit(current_phase)
