@@ -13,6 +13,7 @@ var weapon_upgrade_levels: Dictionary = {}
 var armor_upgrade_levels: Dictionary = {}
 
 const MAX_INVENTORY_SLOTS: int = 40
+const MAX_STACK_SIZE: int = 999999
 
 const RECIPES: Dictionary = {
 	"wooden_planks": {
@@ -119,7 +120,10 @@ func has_inventory_space(item_id: String) -> bool:
 func add_item(item_id: String, amount: int = 1) -> void:
 	if item_id.is_empty() or amount <= 0 or not has_inventory_space(item_id):
 		return
-	items[item_id] = count(item_id) + amount
+	var accepted_amount := mini(amount, MAX_STACK_SIZE - count(item_id))
+	if accepted_amount <= 0:
+		return
+	items[item_id] = count(item_id) + accepted_amount
 	changed.emit(items.duplicate())
 
 func remove_item(item_id: String, amount: int = 1) -> bool:
@@ -147,7 +151,7 @@ func buy_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if amount > 999999 or price_per_item > 999999 or not has_inventory_space(item_id):
 		return false
 	var total_price := amount * price_per_item
-	if total_price > 999999 or count("coins") < total_price:
+	if total_price > MAX_STACK_SIZE or count("coins") < total_price or count(item_id) + amount > MAX_STACK_SIZE:
 		return false
 	# Shop trades are committed atomically and notify the UI once.
 	items["coins"] = count("coins") - total_price
@@ -161,7 +165,7 @@ func sell_item(item_id: String, amount: int, price_per_item: int) -> bool:
 	if amount > 999999 or price_per_item > 999999 or count(item_id) < amount:
 		return false
 	var total_price := amount * price_per_item
-	if total_price > 999999 or not has_inventory_space("coins"):
+	if total_price > MAX_STACK_SIZE or count("coins") + total_price > MAX_STACK_SIZE or not has_inventory_space("coins"):
 		return false
 	# The sold stack and coin reward change together; no partial shop state leaks.
 	items[item_id] = count(item_id) - amount
@@ -191,7 +195,8 @@ func can_craft(recipe_id: String) -> bool:
 	if not recipe is Dictionary:
 		return false
 	var output_id := str(recipe.get("output", ""))
-	if not has_inventory_space(output_id):
+	var output_amount := int(recipe.get("amount", 1))
+	if output_amount <= 0 or count(output_id) + output_amount > MAX_STACK_SIZE or not has_inventory_space(output_id):
 		return false
 	var ingredients: Dictionary = recipe.get("ingredients", {})
 	for item_id in ingredients:
