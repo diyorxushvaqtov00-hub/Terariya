@@ -61,7 +61,7 @@ Still required:
 1. Run the final Godot headless import and smoke-test suite; resolve any engine/parser errors.
 2. Verify touch controls, terrain collision, mining, water, combat and sustained frame rate on a physical Android device.
 3. Profile and tune chunk streaming on larger maps; collision now loads nearby 16×16 chunks and unloads distant chunks, with camera-aware render culling.
-4. Finish hit/reaction animation polish; player attack/damage feedback and shared enemy flash, knockback and defeat feedback are implemented, while richer boss-specific reactions remain.
+4. Finish final hit/reaction animation polish; player attack/damage feedback, shared enemy reactions and distinct phase-two transition effects for all six major bosses are implemented. Remaining work is visual tuning and gameplay verification.
 5. Balance station recipes and equipment progression; the anvil, alchemy table and tinkering bench now gate metal gear, potions, the Double Jump Charm and tool repair kits.
 6. Complete a successful Android debug APK export, install it on a phone and fix any device-specific issues.
 
