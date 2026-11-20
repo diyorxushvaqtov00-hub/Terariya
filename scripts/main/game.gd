@@ -747,7 +747,7 @@ func _build_inventory_ui() -> void:
 	_station_summary = Label.new()
 	_station_summary.name = "CraftingStationSummary"
 	_station_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_station_summary.text = "CRAFTING STATIONS  |  WORKBENCH 0  ANVIL 0  ALCHEMY 0  TINKERING 0"
+	_station_summary.text = "CRAFTING STATIONS  |  WORKBENCH %d  ANVIL %d  ALCHEMY %d  TINKERING %d" % [player.inventory.count("workbench"), player.inventory.count("anvil"), player.inventory.count("alchemy_table"), player.inventory.count("tinkering_bench")]
 	layout.add_child(_station_summary)
 
 	_quest_summary = Label.new()
