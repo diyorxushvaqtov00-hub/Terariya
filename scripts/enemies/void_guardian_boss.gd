@@ -69,4 +69,5 @@ func take_damage(amount: int) -> void:
 		attack_cooldown = 0.68
 		jump_velocity = -490.0
 		_pulse_timer = 0.7
-		phase_changed.emit(current_phase)
+		_play_phase_transition(Color(0.78, 0.30, 1.0, 1.0))
+	phase_changed.emit(current_phase)
