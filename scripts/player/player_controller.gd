@@ -61,6 +61,8 @@ var _web_slow_multiplier: float = 1.0
 var _lava_damage_elapsed: float = 0.0
 var mana: float
 var _can_cast_magic: bool = true
+var _attack_visual_tween: Tween
+var _damage_visual_tween: Tween
 
 @onready var body_visual: AnimatedSprite2D = $BodyVisual
 @onready var attack_area: Area2D = $AttackArea
@@ -145,7 +147,7 @@ func _physics_process(delta: float) -> void:
 
 	_was_on_floor = is_on_floor()
 	body_visual.scale.x = float(_facing)
-	if absf(direction) > 0.1 and is_on_floor():
+	if not is_on_floor() or absf(direction) > 0.1:
 		body_visual.play("walk")
 	else:
 		body_visual.play("idle")
@@ -186,6 +188,7 @@ func _start_attack() -> void:
 	if not _can_attack or health <= 0:
 		return
 	_can_attack = false
+	_play_attack_reaction()
 	attack_area.position.x = 24.0 * _facing
 	attack_requested.emit()
 	attack_area.set_deferred("monitoring", true)
@@ -193,6 +196,25 @@ func _start_attack() -> void:
 	attack_area.set_deferred("monitoring", false)
 	await get_tree().create_timer(maxf(attack_cooldown - attack_active_time, 0.0)).timeout
 	_can_attack = true
+
+func _play_attack_reaction() -> void:
+	if is_instance_valid(_attack_visual_tween):
+		_attack_visual_tween.kill()
+	body_visual.rotation = 0.0
+	_attack_visual_tween = create_tween()
+	_attack_visual_tween.tween_property(body_visual, "rotation", -0.22 * float(_facing), 0.06)
+	_attack_visual_tween.tween_property(body_visual, "rotation", 0.16 * float(_facing), 0.07)
+	_attack_visual_tween.tween_property(body_visual, "rotation", 0.0, 0.09)
+
+func _play_damage_reaction() -> void:
+	if is_instance_valid(_damage_visual_tween):
+		_damage_visual_tween.kill()
+	body_visual.modulate = Color(1.65, 0.62, 0.62, 1.0)
+	body_visual.position.x = -5.0 * float(_facing)
+	_damage_visual_tween = create_tween()
+	_damage_visual_tween.set_parallel(true)
+	_damage_visual_tween.tween_property(body_visual, "modulate", Color.WHITE, 0.18)
+	_damage_visual_tween.tween_property(body_visual, "position:x", 0.0, 0.14)
 
 func _cast_void_bolt() -> void:
 	if not _can_cast_magic or health <= 0 or inventory.count("void_staff") <= 0:
@@ -285,6 +307,8 @@ func take_damage(amount: int) -> void:
 	var reduced_damage := maxi(mitigated_amount - defense, 1)
 	health = maxi(health - reduced_damage, 0)
 	health_changed.emit(health, max_health)
+	if health > 0:
+		_play_damage_reaction()
 	if health == 0:
 		_die()
 
