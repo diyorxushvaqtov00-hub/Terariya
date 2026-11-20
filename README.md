@@ -53,7 +53,7 @@ Implemented in source:
 - A Workbench is now the first crafting progression gate: after basic planks, tools, weapons, armor, utility stations and advanced recipes require the crafted Workbench. Silver/gold and endgame gear also require an Anvil; the Alchemy Table unlocks healing potions, and the Tinkering Bench unlocks the Double Jump Charm and tool repair kits. The inventory displays station ownership and locked recipe buttons explain which station is missing.
 - Anvil upgrades improve the best owned weapon by +3 damage per level and equipped armor by +1 defense per level, up to level 10. Upgrade levels persist in inventory saves and require matching tier materials.
 - Craftable wooden axe and pickaxe have persistent durability; axes double wood drops and pickaxes double stone drops. Pickaxes can be upgraded at an anvil up to level 10, increasing held-to-mine speed by 15% per level.
-- JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close. Saves are written to a temporary file, verified before replacement, and the previous valid save is retained as a recovery backup.
+- JSON world/player/inventory save-load with validation and automatic save every 30 seconds and on app pause/close. Saves are written to a temporary file, verified before replacement, and the previous valid save is retained as a recovery backup; restored player coordinates and survival meters are range-checked to reject corrupted values.
 - Smoke-test source covering forest/desert/snow biome generation, lakes, renewable water-source flow, falling-water simulation, renewable water-source persistence, water detection, bucket crafting/collection/pouring, swimming, underwater tint and oxygen/drowning behavior, seeded cave spaces and ore, world edits, save-data round trips, player health, combat and respawn.
 - GitHub Actions workflow for headless Godot import and smoke tests.
 
@@ -129,7 +129,7 @@ The three underground dungeon chests are now locked. Craft three **Dungeon Keys*
 
 ## Dungeon Warden boss
 
-The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20 gold ore, 10 silver ore and 6 spider fangs to craft a Dungeon Warden Sigil. Use it from the inventory panel to summon the two-phase Dungeon Warden. Its charged vault slam is telegraphed before impact, has a larger radius and heavier damage in phase two; phase two also fires a three-projectile fan volley. It rewards 3 Dungeon Relics, 28 gold ore, 8 healing potions and 1,800 XP. Only one major boss encounter can be active at a time.
+The third dungeon vault awards a unique Dungeon Relic. Combine one relic with 20 gold ore, 10 silver ore and 6 spider fangs to craft a Dungeon Warden Sigil. Use it from the inventory panel to summon the two-phase Dungeon Warden. Its charged vault slam is telegraphed before impact, has a larger radius and heavier damage in phase two; phase two also fires a three-projectile fan volley. It rewards 3 Dungeon Relics, 28 gold ore, 8 healing potions and 1,800 XP. Only one major boss encounter can be active at a time; every summon entry point checks all six active-boss references before consuming its sigil.
 
 
 ### Dungeon Warden Arena Update
