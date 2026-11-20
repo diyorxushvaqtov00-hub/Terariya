@@ -358,7 +358,7 @@ func mine_cell(cell: Vector2i) -> bool:
 			player.inventory.use_tool("wooden_pickaxe")
 		player.inventory.add_item(drop, amount)
 	tiles[cell.x][cell.y] = AIR
-	_rebuild_collision()
+	_refresh_collision_chunk_for_cell(cell)
 	queue_redraw()
 	return true
 
@@ -376,7 +376,7 @@ func place_block(cell: Vector2i, block_type: int = DIRT) -> bool:
 		if not player.inventory.remove_item(item_id, 1):
 			return false
 	tiles[cell.x][cell.y] = block_type
-	_rebuild_collision()
+	_refresh_collision_chunk_for_cell(cell)
 	queue_redraw()
 	return true
 
@@ -1003,6 +1003,18 @@ func _rebuild_collision() -> void:
 		child.queue_free()
 	_loaded_collision_chunks.clear()
 	_update_loaded_collision_chunks()
+
+func _refresh_collision_chunk_for_cell(cell: Vector2i) -> void:
+	if not _inside_world(cell):
+		return
+	var chunk_coord := Vector2i(cell.x / CHUNK_SIZE, cell.y / CHUNK_SIZE)
+	if not _loaded_collision_chunks.has(chunk_coord):
+		return
+	var old_body := _loaded_collision_chunks[chunk_coord] as StaticBody2D
+	if is_instance_valid(old_body):
+		old_body.queue_free()
+	_loaded_collision_chunks.erase(chunk_coord)
+	_create_collision_chunk(chunk_coord)
 
 func _update_loaded_collision_chunks() -> void:
 	if _collision_root == null:
