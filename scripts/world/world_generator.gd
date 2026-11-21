@@ -954,7 +954,7 @@ func _simulate_water_step() -> int:
 			for side in [_water_flow_direction, -_water_flow_direction]:
 				var target := Vector2i(x + side, y)
 				var support := Vector2i(target.x, target.y + 1)
-				var supported := tiles[support.x][support.y] != AIR and tiles[support.x][support.y] != LEAVES
+				var supported: bool = int(tiles[support.x][support.y]) != AIR and int(tiles[support.x][support.y]) != LEAVES
 				if tiles[target.x][target.y] == AIR and supported and not reserved.has(target):
 					sources.append(Vector2i(x, y))
 					destinations.append(target)
