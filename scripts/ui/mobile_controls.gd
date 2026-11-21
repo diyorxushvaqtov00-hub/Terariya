@@ -38,7 +38,7 @@ func _draw() -> void:
 	var r := _effective_button_radius()
 	var centers := _button_centers()
 	_draw_button(centers.joystick, joystick_radius, "MOVE")
-	var knob := centers.joystick + _joystick_vector * joystick_radius * 0.55
+	var knob: Vector2 = centers.joystick + _joystick_vector * joystick_radius * 0.55
 	draw_circle(knob, joystick_radius * 0.34, Color(0.55, 0.8, 0.95, 0.62))
 	_draw_button(centers.jump, r, "JUMP")
 	_draw_button(centers.attack, r, "HIT")
